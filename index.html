@@ -1438,70 +1438,24 @@
             window.currentBatchResults = null;
         }
 
-        async function analyzeReceipt(imageData) {
+         async function analyzeReceipt(imageData) {
             try {
-                const base64Data = imageData.split(',')[1];
-                let mediaType = 'image/jpeg';
-                if (imageData.startsWith('data:image/png')) mediaType = 'image/png';
-                else if (imageData.startsWith('data:image/webp')) mediaType = 'image/webp';
-                
-                const response = await fetch('https://api.anthropic.com/v1/messages', {
+                // Use your secure Vercel bridge instead of calling Anthropic directly
+                const response = await fetch('/api/analyze', {
                     method: 'POST',
                     headers: { 'Content-Type': 'application/json' },
-                    body: JSON.stringify({
-                        model: 'claude-sonnet-4-20250514',
-                        max_tokens: 2000,
-                        messages: [{
-                            role: 'user',
-                            content: [
-                                {
-                                    type: 'image',
-                                    source: { type: 'base64', media_type: mediaType, data: base64Data }
-                                },
-                                {
-                                    type: 'text',
-                                    text: `Analyze this receipt. Return ONLY valid JSON, no other text.
-
-RULES:
-1. Only JSON output
-2. Use null if info not visible
-3. All prices in SEK
-
-Structure:
-{
-  "store": "name or null",
-  "date": "YYYY-MM-DD or null",
-  "items": [
-    {
-      "name": "item name",
-      "price": 0.00,
-      "category": "category",
-      "subcategory": "subcategory or null"
-    }
-  ],
-  "total": 0.00
-}
-
-Categories: Groceries, Household, Personal Care, Electronics, Clothing, Dining, Transportation, Health, Entertainment, Other
-Grocery subcategories: Produce, Dairy, Meat, Bakery, Beverages, Snacks, Frozen, Pantry`
-                                }
-                            ]
-                        }]
-                    })
+                    body: JSON.stringify({ imageData })
                 });
 
-                if (!response.ok) throw new Error(`API Error: ${response.status}`);
+                if (!response.ok) {
+                    const errorData = await response.json();
+                    throw new Error(errorData.error || `API Error: ${response.status}`);
+                }
 
-                const data = await response.json();
-                const textContent = data.content.find(c => c.type === 'text')?.text || '';
+                const receiptData = await response.json();
                 
-                let cleanedText = textContent.trim().replace(/```json\n?/g, '').replace(/```/g, '');
-                const jsonMatch = cleanedText.match(/\{[\s\S]*\}/);
-                if (jsonMatch) cleanedText = jsonMatch[0];
-                
-                const receiptData = JSON.parse(cleanedText);
-                if (!receiptData.store || !receiptData.items || !Array.isArray(receiptData.items)) {
-                    throw new Error('Invalid receipt data');
+                if (!receiptData.items || !Array.isArray(receiptData.items)) {
+                    throw new Error('Invalid receipt data received from AI');
                 }
                 
                 currentReceipt = receiptData;
