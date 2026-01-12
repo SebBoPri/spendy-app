@@ -21,6 +21,7 @@
             --light: #F7F9FC;
             --success: #95E1D3;
             --purple: #A78BFA;
+            --danger: #ff4757;
         }
 
         body {
@@ -43,32 +44,9 @@
             z-index: 0;
         }
 
-        .blob-1 {
-            width: 400px;
-            height: 400px;
-            background: var(--primary);
-            top: -100px;
-            right: -100px;
-            animation-delay: 0s;
-        }
-
-        .blob-2 {
-            width: 500px;
-            height: 500px;
-            background: var(--secondary);
-            bottom: -150px;
-            left: -150px;
-            animation-delay: 7s;
-        }
-
-        .blob-3 {
-            width: 300px;
-            height: 300px;
-            background: var(--accent);
-            top: 50%;
-            right: 20%;
-            animation-delay: 14s;
-        }
+        .blob-1 { width: 400px; height: 400px; background: var(--primary); top: -100px; right: -100px; animation-delay: 0s; }
+        .blob-2 { width: 500px; height: 500px; background: var(--secondary); bottom: -150px; left: -150px; animation-delay: 7s; }
+        .blob-3 { width: 300px; height: 300px; background: var(--accent); top: 50%; right: 20%; animation-delay: 14s; }
 
         @keyframes float {
             0%, 100% { transform: translate(0, 0) scale(1); }
@@ -84,7 +62,6 @@
             z-index: 1;
         }
 
-        /* Header with playful design */
         header {
             text-align: center;
             margin-bottom: 32px;
@@ -92,14 +69,8 @@
         }
 
         @keyframes slideDown {
-            from {
-                opacity: 0;
-                transform: translateY(-30px);
-            }
-            to {
-                opacity: 1;
-                transform: translateY(0);
-            }
+            from { opacity: 0; transform: translateY(-30px); }
+            to { opacity: 1; transform: translateY(0); }
         }
 
         .logo {
@@ -143,7 +114,6 @@
             font-weight: 500;
         }
 
-        /* Fun navigation tabs */
         .nav-tabs {
             display: flex;
             gap: 8px;
@@ -153,17 +123,6 @@
             padding: 8px;
             border-radius: 20px;
             animation: slideUp 0.6s ease-out 0.2s both;
-        }
-
-        @keyframes slideUp {
-            from {
-                opacity: 0;
-                transform: translateY(20px);
-            }
-            to {
-                opacity: 1;
-                transform: translateY(0);
-            }
         }
 
         .nav-tab {
@@ -181,24 +140,6 @@
             overflow: hidden;
         }
 
-        .nav-tab::before {
-            content: '';
-            position: absolute;
-            inset: 0;
-            background: white;
-            transform: translateY(100%);
-            transition: transform 0.3s ease;
-            border-radius: 14px;
-        }
-
-        .nav-tab:hover::before {
-            transform: translateY(0);
-        }
-
-        .nav-tab:hover {
-            transform: translateY(-2px);
-        }
-
         .nav-tab.active {
             background: white;
             color: var(--primary);
@@ -206,31 +147,18 @@
             transform: scale(1.02);
         }
 
-        .nav-tab span {
-            position: relative;
-            z-index: 1;
-        }
-
-        .nav-tab:hover:not(.active) span {
-            color: var(--primary);
-        }
-
-        /* Content sections */
         .tab-content {
             display: none;
             animation: fadeIn 0.4s ease-out;
         }
 
-        .tab-content.active {
-            display: block;
-        }
+        .tab-content.active { display: block; }
 
         @keyframes fadeIn {
             from { opacity: 0; transform: translateY(10px); }
             to { opacity: 1; transform: translateY(0); }
         }
 
-        /* Glass cards with playful shadows */
         .card {
             background: rgba(255,255,255,0.95);
             backdrop-filter: blur(20px);
@@ -244,27 +172,6 @@
             overflow: hidden;
         }
 
-        .card::before {
-            content: '';
-            position: absolute;
-            top: 0;
-            left: 0;
-            right: 0;
-            height: 4px;
-            background: linear-gradient(90deg, var(--primary), var(--secondary), var(--accent));
-            transform: translateX(-100%);
-            transition: transform 0.6s ease;
-        }
-
-        .card:hover::before {
-            transform: translateX(0);
-        }
-
-        .card:hover {
-            transform: translateY(-4px);
-            box-shadow: 0 12px 48px rgba(0,0,0,0.15);
-        }
-
         .card-title {
             font-family: 'Fraunces', serif;
             font-size: 1.8em;
@@ -273,7 +180,6 @@
             color: var(--dark);
         }
 
-        /* Playful stat cards */
         .stats-grid {
             display: grid;
             grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
@@ -286,46 +192,13 @@
             padding: 28px;
             border-radius: 20px;
             box-shadow: 0 4px 20px rgba(0,0,0,0.08);
-            position: relative;
-            overflow: hidden;
             transition: all 0.4s cubic-bezier(0.34, 1.56, 0.64, 1);
             cursor: pointer;
-        }
-
-        .stat-card::after {
-            content: '';
-            position: absolute;
-            top: -50%;
-            right: -50%;
-            width: 200%;
-            height: 200%;
-            background: radial-gradient(circle, rgba(255,255,255,0.8) 0%, transparent 70%);
-            opacity: 0;
-            transition: opacity 0.3s ease;
-        }
-
-        .stat-card:hover::after {
-            opacity: 1;
         }
 
         .stat-card:hover {
             transform: translateY(-8px) rotate(-2deg);
             box-shadow: 0 12px 32px rgba(0,0,0,0.15);
-        }
-
-        .stat-card:nth-child(1) { animation: popIn 0.5s ease-out 0.1s both; }
-        .stat-card:nth-child(2) { animation: popIn 0.5s ease-out 0.2s both; }
-        .stat-card:nth-child(3) { animation: popIn 0.5s ease-out 0.3s both; }
-
-        @keyframes popIn {
-            from {
-                opacity: 0;
-                transform: scale(0.8) translateY(20px);
-            }
-            to {
-                opacity: 1;
-                transform: scale(1) translateY(0);
-            }
         }
 
         .stat-icon {
@@ -337,41 +210,19 @@
             justify-content: center;
             font-size: 28px;
             margin-bottom: 16px;
-            position: relative;
-            z-index: 1;
         }
 
-        .stat-card:nth-child(1) .stat-icon {
-            background: linear-gradient(135deg, #FF6B6B, #FF8E53);
-        }
-
-        .stat-card:nth-child(2) .stat-icon {
-            background: linear-gradient(135deg, #4ECDC4, #44A3FF);
-        }
-
-        .stat-card:nth-child(3) .stat-icon {
-            background: linear-gradient(135deg, #FFE66D, #FFBE0B);
-        }
-
-        .stat-label {
-            font-size: 0.9em;
-            color: #666;
-            margin-bottom: 8px;
-            font-weight: 500;
-            text-transform: uppercase;
-            letter-spacing: 0.5px;
-        }
+        .stat-card:nth-child(1) .stat-icon { background: linear-gradient(135deg, #FF6B6B, #FF8E53); }
+        .stat-card:nth-child(2) .stat-icon { background: linear-gradient(135deg, #4ECDC4, #44A3FF); }
+        .stat-card:nth-child(3) .stat-icon { background: linear-gradient(135deg, #FFE66D, #FFBE0B); }
 
         .stat-value {
             font-family: 'Fraunces', serif;
             font-size: 2.2em;
             font-weight: 700;
             color: var(--dark);
-            position: relative;
-            z-index: 1;
         }
 
-        /* Upload area with fun interaction */
         .upload-zone {
             border: 3px dashed rgba(255,255,255,0.4);
             border-radius: 24px;
@@ -382,570 +233,67 @@
             background: rgba(255,255,255,0.1);
             backdrop-filter: blur(10px);
             position: relative;
-            overflow: hidden;
-        }
-
-        .upload-zone::before {
-            content: '📸';
-            position: absolute;
-            font-size: 120px;
-            opacity: 0.1;
-            top: 50%;
-            left: 50%;
-            transform: translate(-50%, -50%) rotate(-12deg);
-            transition: all 0.4s ease;
-        }
-
-        .upload-zone:hover::before {
-            transform: translate(-50%, -50%) rotate(12deg) scale(1.1);
-            opacity: 0.15;
-        }
-
-        .upload-zone:hover {
-            border-color: rgba(255,255,255,0.8);
-            background: rgba(255,255,255,0.2);
-            transform: scale(1.02);
         }
 
         .upload-icon {
-            width: 80px;
-            height: 80px;
-            background: white;
-            border-radius: 20px;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            font-size: 40px;
-            margin: 0 auto 20px;
-            box-shadow: 0 8px 24px rgba(0,0,0,0.1);
-            transition: all 0.3s ease;
+            width: 80px; height: 80px; background: white; border-radius: 20px;
+            display: flex; align-items: center; justify-content: center;
+            font-size: 40px; margin: 0 auto 20px; box-shadow: 0 8px 24px rgba(0,0,0,0.1);
         }
 
-        .upload-zone:hover .upload-icon {
-            transform: translateY(-8px) rotate(5deg);
-        }
-
-        .upload-title {
-            font-family: 'Fraunces', serif;
-            font-size: 1.6em;
-            font-weight: 700;
-            color: white;
-            margin-bottom: 8px;
-        }
-
-        .upload-subtitle {
-            color: rgba(255,255,255,0.8);
-            font-size: 1em;
-        }
-
-        /* Fun button styles */
         .btn {
             background: linear-gradient(135deg, var(--primary), var(--secondary));
-            color: white;
-            border: none;
-            padding: 14px 32px;
-            border-radius: 14px;
-            font-size: 16px;
-            font-weight: 600;
+            color: white; border: none; padding: 14px 32px; border-radius: 14px;
+            font-size: 16px; font-weight: 600; cursor: pointer; transition: all 0.3s;
+        }
+
+        .delete-btn {
+            background: #fff;
+            border: 1px solid #ff4757;
+            color: #ff4757;
+            padding: 8px 12px;
+            border-radius: 8px;
             cursor: pointer;
-            transition: all 0.3s cubic-bezier(0.34, 1.56, 0.64, 1);
-            box-shadow: 0 4px 16px rgba(255,107,107,0.3);
-            position: relative;
-            overflow: hidden;
+            font-weight: bold;
+            transition: 0.2s;
         }
 
-        .btn::before {
-            content: '';
-            position: absolute;
-            top: 50%;
-            left: 50%;
-            width: 0;
-            height: 0;
-            border-radius: 50%;
-            background: rgba(255,255,255,0.3);
-            transform: translate(-50%, -50%);
-            transition: width 0.6s, height 0.6s;
+        .delete-btn:hover {
+            background: #ff4757;
+            color: white;
         }
 
-        .btn:hover::before {
-            width: 300px;
-            height: 300px;
-        }
-
-        .btn:hover {
-            transform: translateY(-4px) scale(1.05);
-            box-shadow: 0 8px 24px rgba(255,107,107,0.4);
-        }
-
-        .btn:active {
-            transform: translateY(-2px) scale(1.02);
-        }
-
-        .btn span {
-            position: relative;
-            z-index: 1;
-        }
-
-        /* Interactive chart area */
-        .chart-container {
-            position: relative;
-            height: 320px;
-            margin: 24px 0;
-            padding: 20px;
-            background: rgba(247,249,252,0.5);
-            border-radius: 20px;
-        }
-
-        /* Item list with hover effects */
-        .item-list {
-            margin-top: 24px;
-        }
+        .chart-container { height: 320px; position: relative; }
 
         .item {
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            padding: 16px;
-            border-radius: 12px;
-            margin-bottom: 8px;
-            transition: all 0.3s ease;
-            cursor: pointer;
+            display: flex; justify-content: space-between; align-items: center;
+            padding: 16px; border-radius: 12px; margin-bottom: 8px;
             background: rgba(247,249,252,0.5);
-        }
-
-        .item:hover {
-            background: white;
-            transform: translateX(8px);
-            box-shadow: 0 4px 12px rgba(0,0,0,0.08);
-        }
-
-        .item-name {
-            font-weight: 600;
-            color: var(--dark);
-            flex: 2;
-        }
-
-        .item-category {
-            flex: 1;
-            color: var(--primary);
-            font-size: 0.9em;
-            font-weight: 500;
-        }
-
-        .item-price {
-            font-family: 'Fraunces', serif;
-            font-weight: 700;
-            color: var(--dark);
-            font-size: 1.1em;
-        }
-
-        /* Loading animation */
-        .loading {
-            text-align: center;
-            padding: 48px;
         }
 
         .spinner {
-            width: 60px;
-            height: 60px;
-            margin: 0 auto 20px;
-            border: 4px solid rgba(255,255,255,0.3);
-            border-top-color: white;
-            border-radius: 50%;
-            animation: spin 1s linear infinite;
+            width: 60px; height: 60px; margin: 0 auto 20px;
+            border: 4px solid rgba(255,255,255,0.3); border-top-color: white;
+            border-radius: 50%; animation: spin 1s linear infinite;
         }
 
-        @keyframes spin {
-            to { transform: rotate(360deg); }
-        }
+        @keyframes spin { to { transform: rotate(360deg); } }
 
-        .loading-text {
-            color: white;
-            font-size: 1.1em;
-            font-weight: 600;
-        }
+        table { width: 100%; border-collapse: separate; border-spacing: 0 8px; }
+        th { padding: 16px; text-align: left; cursor: pointer; border-radius: 12px; }
+        tbody tr { background: white; transition: 0.3s; }
+        tbody tr:hover { transform: scale(1.01); box-shadow: 0 4px 12px rgba(0,0,0,0.05); }
 
-        /* Receipt preview */
-        .receipt-preview {
-            max-width: 100%;
-            max-height: 400px;
-            margin: 24px auto;
-            display: block;
-            border-radius: 16px;
-            box-shadow: 0 8px 32px rgba(0,0,0,0.15);
-        }
+        .expandable { background: white; border-radius: 16px; margin-bottom: 12px; overflow: hidden; }
+        .expandable-header { padding: 20px; cursor: pointer; display: flex; justify-content: space-between; align-items: center; background: var(--light); }
+        .expandable-content { max-height: 0; overflow: hidden; transition: max-height 0.4s ease; }
+        .expandable-content.expanded { max-height: 2000px; }
 
-        /* Data table */
-        table {
-            width: 100%;
-            border-collapse: separate;
-            border-spacing: 0 8px;
-        }
+        .receipt-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(200px, 1fr)); gap: 16px; }
+        .receipt-card { background: white; border-radius: 12px; overflow: hidden; box-shadow: 0 2px 8px rgba(0,0,0,0.08); }
+        .receipt-card img { width: 100%; height: 120px; object-fit: cover; }
 
-        thead tr {
-            background: var(--light);
-        }
-
-        th {
-            padding: 16px;
-            text-align: left;
-            font-weight: 600;
-            color: var(--dark);
-            font-size: 0.9em;
-            text-transform: uppercase;
-            letter-spacing: 0.5px;
-            cursor: pointer;
-            transition: all 0.2s ease;
-            border-radius: 12px;
-        }
-
-        th:hover {
-            background: var(--primary);
-            color: white;
-        }
-
-        tbody tr {
-            background: white;
-            transition: all 0.3s ease;
-            border-radius: 12px;
-        }
-
-        tbody tr:hover {
-            transform: scale(1.02);
-            box-shadow: 0 4px 16px rgba(0,0,0,0.1);
-        }
-
-        td {
-            padding: 16px;
-            border-top: 1px solid var(--light);
-            border-bottom: 1px solid var(--light);
-        }
-
-        td:first-child {
-            border-left: 1px solid var(--light);
-            border-top-left-radius: 12px;
-            border-bottom-left-radius: 12px;
-        }
-
-        td:last-child {
-            border-right: 1px solid var(--light);
-            border-top-right-radius: 12px;
-            border-bottom-right-radius: 12px;
-        }
-
-        /* Search and filters */
-        .filters {
-            display: flex;
-            gap: 12px;
-            margin-bottom: 24px;
-        }
-
-        input[type="text"],
-        select {
-            flex: 1;
-            padding: 12px 16px;
-            border: 2px solid var(--light);
-            border-radius: 12px;
-            font-size: 15px;
-            transition: all 0.3s ease;
-            background: white;
-        }
-
-        input[type="text"]:focus,
-        select:focus {
-            outline: none;
-            border-color: var(--primary);
-            box-shadow: 0 0 0 4px rgba(255,107,107,0.1);
-        }
-
-        /* Deep dive expandable */
-        .expandable {
-            margin-bottom: 12px;
-            border-radius: 16px;
-            overflow: hidden;
-            background: white;
-            box-shadow: 0 2px 8px rgba(0,0,0,0.05);
-            transition: all 0.3s ease;
-        }
-
-        .expandable:hover {
-            box-shadow: 0 4px 16px rgba(0,0,0,0.1);
-        }
-
-        .expandable-header {
-            padding: 20px;
-            cursor: pointer;
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            background: var(--light);
-            transition: all 0.3s ease;
-        }
-
-        .expandable-header:hover {
-            background: white;
-        }
-
-        .expandable-header.active {
-            background: linear-gradient(135deg, var(--primary), var(--secondary));
-            color: white;
-        }
-
-        .expandable-title {
-            font-weight: 600;
-            font-size: 1.1em;
-            display: flex;
-            align-items: center;
-            gap: 12px;
-        }
-
-        .expand-icon {
-            transition: transform 0.3s ease;
-            font-size: 1.2em;
-        }
-
-        .expand-icon.rotated {
-            transform: rotate(180deg);
-        }
-
-        .expandable-content {
-            max-height: 0;
-            overflow: hidden;
-            transition: max-height 0.4s ease;
-        }
-
-        .expandable-content.expanded {
-            max-height: 2000px;
-        }
-
-        .expandable-body {
-            padding: 20px;
-        }
-
-        /* Close button */
-        .close-btn {
-            background: var(--light);
-            color: var(--dark);
-            border: none;
-            padding: 10px 20px;
-            border-radius: 10px;
-            cursor: pointer;
-            font-weight: 600;
-            transition: all 0.3s ease;
-        }
-
-        .close-btn:hover {
-            background: var(--primary);
-            color: white;
-            transform: scale(1.05);
-        }
-
-        /* Empty state */
-        .empty-state {
-            text-align: center;
-            padding: 64px 24px;
-            color: #999;
-        }
-
-        .empty-icon {
-            font-size: 64px;
-            margin-bottom: 20px;
-            opacity: 0.5;
-            animation: float 3s infinite ease-in-out;
-        }
-
-        /* Responsive */
-        @media (max-width: 768px) {
-            h1 {
-                font-size: 2.5em;
-            }
-
-            .nav-tabs {
-                flex-direction: column;
-            }
-
-            .stats-grid {
-                grid-template-columns: 1fr;
-            }
-        }
-
-        /* Input file hidden */
-        input[type="file"] {
-            display: none;
-        }
-
-        /* Batch processing */
-        .batch-container {
-            margin-top: 24px;
-        }
-
-        .batch-header {
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            margin-bottom: 20px;
-        }
-
-        .batch-progress {
-            background: var(--light);
-            height: 8px;
-            border-radius: 4px;
-            overflow: hidden;
-            margin-bottom: 24px;
-        }
-
-        .batch-progress-bar {
-            height: 100%;
-            background: linear-gradient(90deg, var(--primary), var(--secondary));
-            transition: width 0.3s ease;
-            border-radius: 4px;
-        }
-
-        .receipt-grid {
-            display: grid;
-            grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
-            gap: 16px;
-            margin-bottom: 24px;
-        }
-
-        .receipt-card {
-            background: white;
-            border-radius: 12px;
-            overflow: hidden;
-            box-shadow: 0 2px 8px rgba(0,0,0,0.08);
-            transition: all 0.3s ease;
-            position: relative;
-        }
-
-        .receipt-card:hover {
-            transform: translateY(-4px);
-            box-shadow: 0 4px 16px rgba(0,0,0,0.12);
-        }
-
-        .receipt-card.processing {
-            box-shadow: 0 0 0 3px rgba(78, 205, 196, 0.3);
-            animation: glow 2s infinite;
-        }
-
-        @keyframes glow {
-            0%, 100% {
-                box-shadow: 0 0 0 3px rgba(78, 205, 196, 0.3);
-            }
-            50% {
-                box-shadow: 0 0 0 6px rgba(78, 205, 196, 0.5);
-            }
-        }
-
-        .receipt-card img {
-            width: 100%;
-            height: 150px;
-            object-fit: cover;
-        }
-
-        .receipt-status {
-            padding: 12px;
-            font-size: 0.85em;
-        }
-
-        .receipt-progress-wrapper {
-            padding: 0 12px 12px 12px;
-        }
-
-        .receipt-mini-progress {
-            height: 4px;
-            background: var(--light);
-            border-radius: 2px;
-            overflow: hidden;
-            margin-top: 8px;
-        }
-
-        .receipt-mini-progress-bar {
-            height: 100%;
-            background: linear-gradient(90deg, var(--secondary), var(--primary));
-            width: 0%;
-            transition: width 0.3s ease;
-        }
-
-        .receipt-details {
-            padding: 0 12px 8px 12px;
-            font-size: 0.8em;
-            color: #666;
-            min-height: 40px;
-        }
-
-        .status-badge {
-            display: inline-block;
-            padding: 4px 10px;
-            border-radius: 12px;
-            font-weight: 600;
-            font-size: 0.85em;
-        }
-
-        .status-pending {
-            background: #FFF3CD;
-            color: #856404;
-        }
-
-        .status-uploading {
-            background: #E7F3FF;
-            color: #0066CC;
-            animation: pulse 1.5s infinite;
-        }
-
-        .status-processing {
-            background: #D1ECF1;
-            color: #0C5460;
-            animation: pulse 1.5s infinite;
-        }
-
-        .status-analyzing {
-            background: #E8DAFF;
-            color: #6A1B9A;
-            animation: pulse 1.5s infinite;
-        }
-
-        .status-done {
-            background: #D4EDDA;
-            color: #155724;
-        }
-
-        .status-error {
-            background: #F8D7DA;
-            color: #721C24;
-        }
-
-        @keyframes pulse {
-            0%, 100% { opacity: 1; }
-            50% { opacity: 0.7; }
-        }
-
-        .batch-actions {
-            display: flex;
-            gap: 12px;
-            margin-top: 24px;
-        }
-
-        .btn-secondary {
-            background: white;
-            color: var(--primary);
-            border: 2px solid var(--primary);
-        }
-
-        .btn-secondary:hover {
-            background: var(--primary);
-            color: white;
-        }
-
-        /* Summary box */
-        .summary-box {
-            background: linear-gradient(135deg, var(--success), var(--secondary));
-            padding: 20px;
-            border-radius: 16px;
-            color: white;
-            font-weight: 600;
-            margin-top: 24px;
-            box-shadow: 0 4px 16px rgba(78,205,196,0.3);
-        }
+        input[type="file"] { display: none; }
     </style>
 </head>
 <body>
@@ -969,996 +317,12 @@
             <button class="nav-tab" onclick="switchTab('history')"><span>History</span></button>
         </nav>
 
-        <!-- Scan Tab -->
         <div id="scan" class="tab-content active">
             <div class="card">
                 <h2 class="card-title">Snap Your Receipt</h2>
                 <div class="upload-zone" onclick="document.getElementById('fileInput').click()">
                     <div class="upload-icon">📸</div>
                     <h3 class="upload-title">Click to Upload</h3>
-                    <p class="upload-subtitle">Select one or multiple receipts at once</p>
+                    <p class="upload-subtitle">Select one or multiple receipts</p>
                 </div>
-                <input type="file" id="fileInput" accept="image/*" capture="environment" multiple>
-                
-                <div id="processingArea" style="display: none;">
-                    <img id="receiptPreview" class="receipt-preview">
-                    <div id="loadingState" class="loading" style="display: none;">
-                        <div class="spinner"></div>
-                        <p class="loading-text">AI is reading your receipt... ✨</p>
-                    </div>
-                    <div id="resultsArea" style="display: none;">
-                        <h3 style="margin-top: 24px; margin-bottom: 16px; font-family: 'Fraunces', serif; font-size: 1.5em;">Items Found</h3>
-                        <div id="itemsList" class="item-list"></div>
-                        <button class="btn" onclick="saveReceipt()" style="margin-top: 24px;"><span>Save to Budget 💾</span></button>
-                    </div>
-                </div>
-            </div>
-        </div>
-
-        <!-- Dashboard Tab -->
-        <div id="dashboard" class="tab-content">
-            <div class="stats-grid">
-                <div class="stat-card">
-                    <div class="stat-icon">💸</div>
-                    <div class="stat-label">Total Spent</div>
-                    <div class="stat-value" id="totalSpent">0 kr</div>
-                </div>
-                <div class="stat-card">
-                    <div class="stat-icon">🧾</div>
-                    <div class="stat-label">Receipts</div>
-                    <div class="stat-value" id="receiptCount">0</div>
-                </div>
-                <div class="stat-card">
-                    <div class="stat-icon">🛒</div>
-                    <div class="stat-label">Items Tracked</div>
-                    <div class="stat-value" id="itemCount">0</div>
-                </div>
-            </div>
-
-            <div class="card">
-                <h2 class="card-title">Spending Overview</h2>
-                <p style="color: #666; margin-bottom: 16px;">Click any slice to explore details</p>
-                <div class="chart-container">
-                    <canvas id="categoryChart"></canvas>
-                </div>
-            </div>
-
-            <div class="card" id="deepDiveCard" style="display: none;">
-                <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 24px;">
-                    <h2 class="card-title" id="deepDiveTitle" style="margin: 0;">Category Deep Dive</h2>
-                    <button class="close-btn" onclick="closeDeepDive()">✕ Close</button>
-                </div>
-                <div id="deepDiveDetails"></div>
-            </div>
-
-            <div class="card">
-                <h2 class="card-title">Price Comparison</h2>
-                <p style="color: #666; margin-bottom: 16px;">Find the best deals across stores</p>
-                <div id="priceComparison"></div>
-            </div>
-        </div>
-
-        <!-- Data Tab -->
-        <div id="data" class="tab-content">
-            <div class="card">
-                <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px;">
-                    <h2 class="card-title" style="margin: 0;">All Transactions</h2>
-                    <button class="btn" onclick="exportToCSV()" style="padding: 10px 20px;">
-                        <span>📥 Export CSV</span>
-                    </button>
-                </div>
-                <div class="filters">
-                    <input type="text" id="searchInput" placeholder="🔍 Search items or stores...">
-                    <select id="filterCategory" onchange="updateDataTable()">
-                        <option value="">All Categories</option>
-                    </select>
-                </div>
-                <div style="overflow-x: auto;">
-                    <table id="dataTable">
-                        <thead>
-                            <tr>
-                                <th onclick="sortTable('date')">Date ↕</th>
-                                <th onclick="sortTable('store')">Store ↕</th>
-                                <th onclick="sortTable('item')">Item ↕</th>
-                                <th onclick="sortTable('category')">Category ↕</th>
-                                <th onclick="sortTable('subcategory')">Subcategory ↕</th>
-                                <th onclick="sortTable('price')" style="text-align: right;">Price ↕</th>
-                            </tr>
-                        </thead>
-                        <tbody id="dataTableBody">
-                        </tbody>
-                    </table>
-                </div>
-                <div class="summary-box" id="dataTableSummary"></div>
-            </div>
-        </div>
-
-        <!-- History Tab -->
-        <div id="history" class="tab-content">
-            <div class="card">
-                <h2 class="card-title">Receipt History</h2>
-                <div id="historyList"></div>
-            </div>
-        </div>
-    </div>
-
-    <script>
-        let currentReceipt = null;
-        let allReceipts = [];
-
-        // Load saved data
-        async function loadData() {
-            try {
-                // Check if window.storage is available (Claude.ai feature)
-                if (typeof window.storage !== 'undefined' && window.storage) {
-                    const result = await window.storage.get('receipts');
-                    if (result && result.value) {
-                        allReceipts = JSON.parse(result.value);
-                        updateDashboard();
-                        updateHistory();
-                    }
-                } else {
-                    // Fallback to localStorage for deployed version
-                    const stored = localStorage.getItem('spendy-receipts');
-                    if (stored) {
-                        allReceipts = JSON.parse(stored);
-                        updateDashboard();
-                        updateHistory();
-                    }
-                }
-            } catch (error) {
-                console.log('No saved data:', error);
-                allReceipts = [];
-            }
-        }
-
-        loadData();
-
-        function switchTab(tabName) {
-            document.querySelectorAll('.nav-tab').forEach(t => t.classList.remove('active'));
-            document.querySelectorAll('.tab-content').forEach(c => c.classList.remove('active'));
-            
-            event.target.classList.add('active');
-            document.getElementById(tabName).classList.add('active');
-            
-            if (tabName === 'dashboard') updateDashboard();
-            else if (tabName === 'history') updateHistory();
-            else if (tabName === 'data') updateDataTable();
-        }
-
-        document.getElementById('fileInput').addEventListener('change', async (e) => {
-            const files = Array.from(e.target.files);
-            if (files.length === 0) return;
-
-            // Validate all are images
-            const invalidFiles = files.filter(f => !f.type.startsWith('image/'));
-            if (invalidFiles.length > 0) {
-                alert('Please upload only image files');
-                return;
-            }
-
-            // If single file, use old flow
-            if (files.length === 1) {
-                const reader = new FileReader();
-                reader.onload = async (event) => {
-                    const imgData = event.target.result;
-                    document.getElementById('receiptPreview').src = imgData;
-                    document.getElementById('processingArea').style.display = 'block';
-                    document.getElementById('loadingState').style.display = 'block';
-                    document.getElementById('resultsArea').style.display = 'none';
-
-                    await analyzeReceipt(imgData);
-                };
-                reader.readAsDataURL(files[0]);
-            } else {
-                // Batch processing
-                await processBatchReceipts(files);
-            }
-        });
-
-        async function processBatchReceipts(files) {
-            document.getElementById('processingArea').style.display = 'block';
-            document.getElementById('loadingState').style.display = 'none';
-            document.getElementById('resultsArea').style.display = 'block';
-            
-            const batchResults = [];
-            const itemsList = document.getElementById('itemsList');
-            
-            itemsList.innerHTML = `
-                <div class="batch-container">
-                    <div class="batch-header">
-                        <h3 style="font-family: 'Fraunces', serif; font-size: 1.5em;">Processing ${files.length} Receipts</h3>
-                        <span id="batchCounter" style="font-weight: 600; color: var(--primary);">0 / ${files.length}</span>
-                    </div>
-                    <div class="batch-progress">
-                        <div class="batch-progress-bar" id="batchProgressBar" style="width: 0%"></div>
-                    </div>
-                    <div class="receipt-grid" id="receiptGrid"></div>
-                </div>
-            `;
-
-            const grid = document.getElementById('receiptGrid');
-            const progressBar = document.getElementById('batchProgressBar');
-            const counter = document.getElementById('batchCounter');
-
-            // Create cards for each receipt
-            const cardPromises = files.map((file, index) => {
-                return new Promise((resolve) => {
-                    const reader = new FileReader();
-                    reader.onload = (e) => {
-                        const card = document.createElement('div');
-                        card.className = 'receipt-card';
-                        card.id = `receipt-${index}`;
-                        card.innerHTML = `
-                            <img src="${e.target.result}" alt="Receipt ${index + 1}">
-                            <div class="receipt-status">
-                                <span class="status-badge status-pending" id="status-${index}">⏳ Pending</span>
-                            </div>
-                            <div class="receipt-progress-wrapper">
-                                <div class="receipt-mini-progress">
-                                    <div class="receipt-mini-progress-bar" id="progress-${index}"></div>
-                                </div>
-                            </div>
-                            <div class="receipt-details" id="details-${index}">
-                                Waiting in queue...
-                            </div>
-                        `;
-                        grid.appendChild(card);
-                        resolve();
-                    };
-                    reader.readAsDataURL(file);
-                });
-            });
-
-            // Wait for all cards to be created
-            await Promise.all(cardPromises);
-
-            // Process each receipt sequentially with detailed progress
-            let completed = 0;
-            for (let i = 0; i < files.length; i++) {
-                const file = files[i];
-                const card = document.getElementById(`receipt-${i}`);
-                const statusBadge = document.getElementById(`status-${i}`);
-                const progressBar = document.getElementById(`progress-${i}`);
-                const details = document.getElementById(`details-${i}`);
-                
-                // Add processing glow effect
-                card.classList.add('processing');
-
-                try {
-                    // Stage 1: Loading image
-                    statusBadge.className = 'status-badge status-uploading';
-                    statusBadge.textContent = '📤 Uploading...';
-                    progressBar.style.width = '20%';
-                    details.textContent = 'Reading image data...';
-                    await sleep(300);
-
-                    const imgData = await readFileAsDataURL(file);
-                    
-                    // Stage 2: Sending to AI
-                    statusBadge.className = 'status-badge status-processing';
-                    statusBadge.textContent = '🤖 Sending to AI...';
-                    progressBar.style.width = '40%';
-                    details.textContent = 'Connecting to Claude AI...';
-                    await sleep(300);
-                    
-                    // Stage 3: AI Analyzing
-                    statusBadge.className = 'status-badge status-analyzing';
-                    statusBadge.textContent = '🔍 Analyzing...';
-                    progressBar.style.width = '60%';
-                    details.textContent = 'AI is reading the receipt...';
-                    
-                    const receiptData = await analyzeReceiptBatch(imgData, (stage) => {
-                        // Real-time updates during analysis
-                        if (stage === 'extracting') {
-                            progressBar.style.width = '70%';
-                            details.textContent = 'Extracting items and prices...';
-                        } else if (stage === 'categorizing') {
-                            progressBar.style.width = '85%';
-                            details.textContent = 'Categorizing items...';
-                        }
-                    });
-                    
-                    // Stage 4: Complete
-                    progressBar.style.width = '100%';
-                    details.textContent = `Found ${receiptData.items.length} items • ${receiptData.total ? receiptData.total.toFixed(2) + ' kr' : 'Total N/A'}`;
-                    
-                    batchResults.push(receiptData);
-                    statusBadge.className = 'status-badge status-done';
-                    statusBadge.textContent = `✓ Complete`;
-                    
-                    // Success animation
-                    card.classList.remove('processing');
-                    card.style.transform = 'scale(1.05)';
-                    setTimeout(() => {
-                        card.style.transform = 'scale(1)';
-                    }, 300);
-                    
-                } catch (error) {
-                    console.error(`Error processing receipt ${i + 1}:`, error);
-                    statusBadge.className = 'status-badge status-error';
-                    statusBadge.textContent = '✗ Error';
-                    progressBar.style.width = '100%';
-                    progressBar.style.background = '#dc3545';
-                    details.textContent = error.message || 'Failed to process';
-                    card.classList.remove('processing');
-                }
-
-                completed++;
-                const overallProgress = (completed / files.length) * 100;
-                document.getElementById('batchProgressBar').style.width = `${overallProgress}%`;
-                counter.textContent = `${completed} / ${files.length}`;
-            }
-
-            // Show summary and save button
-            const successCount = batchResults.length;
-            const totalItems = batchResults.reduce((sum, r) => sum + r.items.length, 0);
-            const totalAmount = batchResults.reduce((sum, r) => sum + (r.total || 0), 0);
-
-            itemsList.innerHTML += `
-                <div style="background: linear-gradient(135deg, var(--success), var(--secondary)); padding: 24px; border-radius: 16px; color: white; margin-top: 24px; animation: slideUp 0.5s ease-out;">
-                    <h3 style="font-family: 'Fraunces', serif; font-size: 1.4em; margin-bottom: 12px;">Batch Complete! 🎉</h3>
-                    <div style="display: grid; grid-template-columns: repeat(3, 1fr); gap: 16px; margin-bottom: 20px;">
-                        <div>
-                            <div style="font-size: 2em; font-weight: 700;">${successCount}</div>
-                            <div style="opacity: 0.9;">Receipts</div>
-                        </div>
-                        <div>
-                            <div style="font-size: 2em; font-weight: 700;">${totalItems}</div>
-                            <div style="opacity: 0.9;">Items</div>
-                        </div>
-                        <div>
-                            <div style="font-size: 2em; font-weight: 700;">${totalAmount.toFixed(0)}</div>
-                            <div style="opacity: 0.9;">kr Total</div>
-                        </div>
-                    </div>
-                    ${files.length > successCount ? `<div style="background: rgba(255,255,255,0.2); padding: 12px; border-radius: 8px; margin-bottom: 12px;">⚠️ ${files.length - successCount} receipt(s) failed to process</div>` : ''}
-                </div>
-                <div class="batch-actions">
-                    <button class="btn" onclick="saveBatchReceipts()" style="flex: 1;"><span>💾 Save All ${successCount} Receipts</span></button>
-                    <button class="btn-secondary btn" onclick="reviewBatchReceipts()" style="flex: 1;"><span>👀 Review Details</span></button>
-                </div>
-            `;
-
-            // Store batch results globally
-            window.currentBatchResults = batchResults;
-        }
-
-        function sleep(ms) {
-            return new Promise(resolve => setTimeout(resolve, ms));
-        }
-
-        function readFileAsDataURL(file) {
-            return new Promise((resolve, reject) => {
-                const reader = new FileReader();
-                reader.onload = (e) => resolve(e.target.result);
-                reader.onerror = reject;
-                reader.readAsDataURL(file);
-            });
-        }
-
-        async function analyzeReceiptBatch(imageData, progressCallback) {
-            if (progressCallback) progressCallback('extracting');
-            
-            // Call our secure backend API instead of calling Claude directly
-            const response = await fetch('/api/analyze', {
-                method: 'POST',
-                headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify({ imageData })
-            });
-
-            if (!response.ok) {
-                const errorData = await response.json();
-                throw new Error(errorData.error || `API Error: ${response.status}`);
-            }
-
-            if (progressCallback) progressCallback('categorizing');
-
-            const receiptData = await response.json();
-            
-            if (!receiptData.items || !Array.isArray(receiptData.items)) {
-                throw new Error('Invalid receipt data');
-            }
-            
-            return receiptData;
-        }
-
-        async function saveBatchReceipts() {
-            if (!window.currentBatchResults || window.currentBatchResults.length === 0) return;
-
-            allReceipts.push(...window.currentBatchResults);
-            
-            try {
-                // Try window.storage first (Claude.ai), fallback to localStorage
-                if (typeof window.storage !== 'undefined' && window.storage) {
-                    await window.storage.set('receipts', JSON.stringify(allReceipts));
-                } else {
-                    localStorage.setItem('spendy-receipts', JSON.stringify(allReceipts));
-                }
-                
-                alert(`✅ Successfully saved ${window.currentBatchResults.length} receipts!`);
-                
-                document.getElementById('processingArea').style.display = 'none';
-                document.getElementById('fileInput').value = '';
-                window.currentBatchResults = null;
-                
-                document.querySelectorAll('.nav-tab')[1].click();
-            } catch (error) {
-                alert('Error saving receipts: ' + error.message);
-            }
-        }
-
-        function reviewBatchReceipts() {
-            if (!window.currentBatchResults || window.currentBatchResults.length === 0) return;
-
-            const itemsList = document.getElementById('itemsList');
-            
-            let allItemsHTML = '';
-            window.currentBatchResults.forEach((receipt, idx) => {
-                allItemsHTML += `
-                    <div style="margin-bottom: 24px; padding: 20px; background: var(--light); border-radius: 16px;">
-                        <h4 style="font-family: 'Fraunces', serif; margin-bottom: 12px; font-size: 1.2em;">Receipt ${idx + 1}: ${receipt.store || 'Unknown Store'}</h4>
-                        <div style="color: #666; margin-bottom: 12px;">
-                            <strong>Date:</strong> ${receipt.date || 'Not visible'} • 
-                            <strong>Total:</strong> ${receipt.total ? receipt.total.toFixed(2) + ' kr' : 'Not visible'}
-                        </div>
-                        ${receipt.items.map(item => `
-                            <div class="item">
-                                <div class="item-name">${item.name}</div>
-                                <div class="item-category">${item.category}${item.subcategory ? ' › ' + item.subcategory : ''}</div>
-                                <div class="item-price">${item.price.toFixed(2)} kr</div>
-                            </div>
-                        `).join('')}
-                    </div>
-                `;
-            });
-
-            itemsList.innerHTML = `
-                <div class="batch-header">
-                    <h3 style="font-family: 'Fraunces', serif; font-size: 1.5em;">Review ${window.currentBatchResults.length} Receipts</h3>
-                </div>
-                ${allItemsHTML}
-                <div class="batch-actions">
-                    <button class="btn" onclick="saveBatchReceipts()" style="flex: 1;"><span>💾 Save All to Budget</span></button>
-                    <button class="btn-secondary btn" onclick="cancelBatch()" style="flex: 1;"><span>✕ Cancel</span></button>
-                </div>
-            `;
-        }
-
-        function cancelBatch() {
-            document.getElementById('processingArea').style.display = 'none';
-            document.getElementById('fileInput').value = '';
-            window.currentBatchResults = null;
-        }
-
-        async function analyzeReceipt(imageData) {
-            try {
-                const base64Data = imageData.split(',')[1];
-                let mediaType = 'image/jpeg';
-                if (imageData.startsWith('data:image/png')) mediaType = 'image/png';
-                else if (imageData.startsWith('data:image/webp')) mediaType = 'image/webp';
-                
-                const response = await fetch('https://api.anthropic.com/v1/messages', {
-                    method: 'POST',
-                    headers: { 'Content-Type': 'application/json' },
-                    body: JSON.stringify({
-                        model: 'claude-sonnet-4-20250514',
-                        max_tokens: 2000,
-                        messages: [{
-                            role: 'user',
-                            content: [
-                                {
-                                    type: 'image',
-                                    source: { type: 'base64', media_type: mediaType, data: base64Data }
-                                },
-                                {
-                                    type: 'text',
-                                    text: `Analyze this receipt. Return ONLY valid JSON, no other text.
-
-RULES:
-1. Only JSON output
-2. Use null if info not visible
-3. All prices in SEK
-
-Structure:
-{
-  "store": "name or null",
-  "date": "YYYY-MM-DD or null",
-  "items": [
-    {
-      "name": "item name",
-      "price": 0.00,
-      "category": "category",
-      "subcategory": "subcategory or null"
-    }
-  ],
-  "total": 0.00
-}
-
-Categories: Groceries, Household, Personal Care, Electronics, Clothing, Dining, Transportation, Health, Entertainment, Other
-Grocery subcategories: Produce, Dairy, Meat, Bakery, Beverages, Snacks, Frozen, Pantry`
-                                }
-                            ]
-                        }]
-                    })
-                });
-
-                if (!response.ok) throw new Error(`API Error: ${response.status}`);
-
-                const data = await response.json();
-                const textContent = data.content.find(c => c.type === 'text')?.text || '';
-                
-                let cleanedText = textContent.trim().replace(/```json\n?/g, '').replace(/```/g, '');
-                const jsonMatch = cleanedText.match(/\{[\s\S]*\}/);
-                if (jsonMatch) cleanedText = jsonMatch[0];
-                
-                const receiptData = JSON.parse(cleanedText);
-                if (!receiptData.store || !receiptData.items || !Array.isArray(receiptData.items)) {
-                    throw new Error('Invalid receipt data');
-                }
-                
-                currentReceipt = receiptData;
-                displayResults(receiptData);
-            } catch (error) {
-                alert('Error analyzing receipt: ' + error.message);
-                console.error(error);
-                document.getElementById('loadingState').style.display = 'none';
-                document.getElementById('processingArea').style.display = 'none';
-            }
-        }
-
-        function displayResults(data) {
-            document.getElementById('loadingState').style.display = 'none';
-            document.getElementById('resultsArea').style.display = 'block';
-
-            document.getElementById('itemsList').innerHTML = `
-                <div style="background: var(--light); padding: 20px; border-radius: 16px; margin-bottom: 20px;">
-                    <strong style="font-size: 1.1em;">Store:</strong> ${data.store || 'Not visible'}<br>
-                    <strong style="font-size: 1.1em;">Date:</strong> ${data.date || 'Not visible'}<br>
-                    <strong style="font-size: 1.1em;">Total:</strong> ${data.total ? data.total.toFixed(2) + ' kr' : 'Not visible'}
-                </div>
-                ${data.items.map(item => `
-                    <div class="item">
-                        <div class="item-name">${item.name}</div>
-                        <div class="item-category">${item.category}${item.subcategory ? ' › ' + item.subcategory : ''}</div>
-                        <div class="item-price">${item.price.toFixed(2)} kr</div>
-                    </div>
-                `).join('')}
-            `;
-        }
-
-        async function saveReceipt() {
-            if (!currentReceipt) return;
-
-            allReceipts.push(currentReceipt);
-            
-            try {
-                // Try window.storage first (Claude.ai), fallback to localStorage
-                if (typeof window.storage !== 'undefined' && window.storage) {
-                    await window.storage.set('receipts', JSON.stringify(allReceipts));
-                } else {
-                    localStorage.setItem('spendy-receipts', JSON.stringify(allReceipts));
-                }
-                
-                alert('✅ Receipt saved successfully!');
-                
-                document.getElementById('processingArea').style.display = 'none';
-                document.getElementById('fileInput').value = '';
-                currentReceipt = null;
-                
-                document.querySelectorAll('.nav-tab')[1].click();
-            } catch (error) {
-                alert('Error saving: ' + error.message);
-            }
-        }
-
-        function updateDashboard() {
-            if (allReceipts.length === 0) {
-                document.getElementById('totalSpent').textContent = '0 kr';
-                document.getElementById('receiptCount').textContent = '0';
-                document.getElementById('itemCount').textContent = '0';
-                document.getElementById('priceComparison').innerHTML = '<div class="empty-state"><div class="empty-icon">📭</div><p>No data yet. Start scanning receipts!</p></div>';
-                return;
-            }
-
-            const totalSpent = allReceipts.reduce((sum, r) => sum + (r.total || 0), 0);
-            const totalItems = allReceipts.reduce((sum, r) => sum + r.items.length, 0);
-
-            document.getElementById('totalSpent').textContent = totalSpent.toFixed(2) + ' kr';
-            document.getElementById('receiptCount').textContent = allReceipts.length;
-            document.getElementById('itemCount').textContent = totalItems;
-
-            const categoryTotals = {};
-            allReceipts.forEach(receipt => {
-                receipt.items.forEach(item => {
-                    const cat = item.category || 'Other';
-                    categoryTotals[cat] = (categoryTotals[cat] || 0) + item.price;
-                });
-            });
-
-            updateCategoryChart(categoryTotals);
-            updatePriceComparison();
-        }
-
-        function updateCategoryChart(categoryTotals) {
-            const ctx = document.getElementById('categoryChart');
-            
-            if (window.categoryChartInstance) {
-                window.categoryChartInstance.destroy();
-            }
-
-            window.categoryChartInstance = new Chart(ctx, {
-                type: 'doughnut',
-                data: {
-                    labels: Object.keys(categoryTotals),
-                    datasets: [{
-                        data: Object.values(categoryTotals),
-                        backgroundColor: [
-                            '#FF6B6B', '#4ECDC4', '#FFE66D', '#A78BFA',
-                            '#95E1D3', '#FF8E53', '#44A3FF', '#FFBE0B'
-                        ],
-                        borderWidth: 0
-                    }]
-                },
-                options: {
-                    responsive: true,
-                    maintainAspectRatio: false,
-                    plugins: {
-                        legend: {
-                            position: 'bottom',
-                            labels: {
-                                padding: 20,
-                                font: { size: 13, weight: '600' }
-                            }
-                        }
-                    },
-                    onClick: (event, activeElements) => {
-                        if (activeElements.length > 0) {
-                            const index = activeElements[0].index;
-                            const category = Object.keys(categoryTotals)[index];
-                            showCategoryDeepDive(category);
-                        }
-                    }
-                }
-            });
-        }
-
-        function showCategoryDeepDive(category) {
-            const card = document.getElementById('deepDiveCard');
-            const title = document.getElementById('deepDiveTitle');
-            const details = document.getElementById('deepDiveDetails');
-            
-            const subcategories = {};
-            allReceipts.forEach(receipt => {
-                receipt.items.forEach(item => {
-                    if (item.category === category) {
-                        const sub = item.subcategory || 'Uncategorized';
-                        if (!subcategories[sub]) {
-                            subcategories[sub] = { total: 0, items: [] };
-                        }
-                        subcategories[sub].total += item.price;
-                        subcategories[sub].items.push({
-                            name: item.name,
-                            price: item.price,
-                            store: receipt.store,
-                            date: receipt.date
-                        });
-                    }
-                });
-            });
-            
-            const sorted = Object.entries(subcategories).sort((a, b) => b[1].total - a[1].total);
-            
-            title.textContent = `${category} Breakdown`;
-            
-            details.innerHTML = sorted.map(([sub, data]) => {
-                const subId = `detail-${sub.replace(/\s+/g, '-')}`;
-                
-                const itemGroups = {};
-                data.items.forEach(item => {
-                    const key = item.name.toLowerCase();
-                    if (!itemGroups[key]) {
-                        itemGroups[key] = {
-                            displayName: item.name,
-                            purchases: [],
-                            total: 0,
-                            count: 0
-                        };
-                    }
-                    itemGroups[key].purchases.push(item);
-                    itemGroups[key].total += item.price;
-                    itemGroups[key].count++;
-                });
-                
-                const sortedItems = Object.values(itemGroups)
-                    .map(g => {
-                        g.avgPrice = g.total / g.count;
-                        return g;
-                    })
-                    .sort((a, b) => b.total - a.total);
-                
-                return `
-                    <div class="expandable">
-                        <div class="expandable-header" onclick="toggleExpand('${subId}')">
-                            <div class="expandable-title">
-                                <span class="expand-icon" id="${subId}-icon">▼</span>
-                                ${sub}
-                            </div>
-                            <strong>${data.total.toFixed(2)} kr</strong>
-                        </div>
-                        <div class="expandable-content" id="${subId}-content">
-                            <div class="expandable-body">
-                                ${sortedItems.map(g => `
-                                    <div style="margin-bottom: 20px; padding: 16px; background: var(--light); border-radius: 12px;">
-                                        <div style="display: flex; justify-content: space-between; margin-bottom: 12px;">
-                                            <strong style="font-size: 1.1em;">${g.displayName}</strong>
-                                            <strong style="color: var(--primary); font-size: 1.1em;">${g.total.toFixed(2)} kr</strong>
-                                        </div>
-                                        <div style="color: #666; font-size: 0.9em; margin-bottom: 12px;">
-                                            Purchased ${g.count}x • Avg: ${g.avgPrice.toFixed(2)} kr
-                                        </div>
-                                        ${g.purchases.map(p => `
-                                            <div style="display: flex; justify-content: space-between; padding: 8px 0; border-bottom: 1px solid #eee;">
-                                                <div>
-                                                    <div style="font-weight: 600;">${p.store || 'Unknown'}</div>
-                                                    <div style="font-size: 0.85em; color: #999;">${p.date || 'N/A'}</div>
-                                                </div>
-                                                <div style="font-weight: 600;">${p.price.toFixed(2)} kr</div>
-                                            </div>
-                                        `).join('')}
-                                    </div>
-                                `).join('')}
-                            </div>
-                        </div>
-                    </div>
-                `;
-            }).join('');
-            
-            card.style.display = 'block';
-            card.scrollIntoView({ behavior: 'smooth' });
-        }
-
-        function toggleExpand(id) {
-            const content = document.getElementById(`${id}-content`);
-            const icon = document.getElementById(`${id}-icon`);
-            const header = icon.closest('.expandable-header');
-            
-            const isExpanded = content.classList.contains('expanded');
-            content.classList.toggle('expanded');
-            icon.classList.toggle('rotated');
-            header.classList.toggle('active');
-        }
-
-        function closeDeepDive() {
-            document.getElementById('deepDiveCard').style.display = 'none';
-        }
-
-        function updatePriceComparison() {
-            const prices = {};
-            allReceipts.forEach(receipt => {
-                receipt.items.forEach(item => {
-                    const key = item.name.toLowerCase();
-                    if (!prices[key]) prices[key] = [];
-                    prices[key].push({
-                        store: receipt.store,
-                        price: item.price,
-                        date: receipt.date
-                    });
-                });
-            });
-
-            const html = Object.entries(prices)
-                .filter(([_, p]) => p.length > 1)
-                .slice(0, 5)
-                .map(([name, p]) => {
-                    p.sort((a, b) => a.price - b.price);
-                    return `
-                        <div style="margin-bottom: 20px; padding: 16px; background: var(--light); border-radius: 12px;">
-                            <h3 style="text-transform: capitalize; margin-bottom: 12px; font-family: 'Fraunces', serif;">${name}</h3>
-                            ${p.map((item, i) => `
-                                <div style="display: flex; justify-content: space-between; padding: 10px 0; border-bottom: 1px solid #fff;">
-                                    <strong>${item.store}</strong>
-                                    <span style="font-weight: 600; ${i === 0 ? 'color: var(--success);' : ''}">${item.price.toFixed(2)} kr ${i === 0 ? '✓' : ''}</span>
-                                </div>
-                            `).join('')}
-                        </div>
-                    `;
-                }).join('');
-
-            document.getElementById('priceComparison').innerHTML = html || 
-                '<div class="empty-state"><p>Price comparisons appear when you have items from different stores</p></div>';
-        }
-
-        function updateHistory() {
-            const list = document.getElementById('historyList');
-            
-            if (allReceipts.length === 0) {
-                list.innerHTML = '<div class="empty-state"><div class="empty-icon">📭</div><p>No receipts yet</p></div>';
-                return;
-            }
-
-            list.innerHTML = allReceipts.map(receipt => `
-                <div class="expandable">
-                    <div class="expandable-header" onclick="toggleExpand('hist-${allReceipts.indexOf(receipt)}')">
-                        <div>
-                            <div style="font-weight: 600; font-size: 1.1em;">${receipt.store || 'Unknown'}</div>
-                            <div style="color: #666; font-size: 0.9em;">${receipt.date || 'N/A'}</div>
-                        </div>
-                        <div style="text-align: right;">
-                            <div style="font-size: 1.2em; font-weight: 700;">${receipt.total ? receipt.total.toFixed(2) + ' kr' : 'N/A'}</div>
-                            <div style="color: #666; font-size: 0.9em;">${receipt.items.length} items</div>
-                        </div>
-                    </div>
-                    <div class="expandable-content" id="hist-${allReceipts.indexOf(receipt)}-content">
-                        <div class="expandable-body">
-                            ${receipt.items.map(item => `
-                                <div class="item">
-                                    <div class="item-name">${item.name}</div>
-                                    <div class="item-category">${item.category}</div>
-                                    <div class="item-price">${item.price.toFixed(2)} kr</div>
-                                </div>
-                            `).join('')}
-                        </div>
-                    </div>
-                </div>
-            `).reverse().join('');
-        }
-
-        // Data table
-        let currentTableData = [];
-        let currentSort = { column: 'date', direction: 'desc' };
-
-        function updateDataTable() {
-            const filter = document.getElementById('filterCategory').value;
-            const search = document.getElementById('searchInput').value.toLowerCase();
-            
-            const categoryFilter = document.getElementById('filterCategory');
-            if (categoryFilter.options.length === 1) {
-                const cats = new Set();
-                allReceipts.forEach(r => {
-                    r.items.forEach(i => cats.add(i.category || 'Other'));
-                });
-                Array.from(cats).sort().forEach(cat => {
-                    const opt = document.createElement('option');
-                    opt.value = cat;
-                    opt.textContent = cat;
-                    categoryFilter.appendChild(opt);
-                });
-            }
-            
-            currentTableData = [];
-            allReceipts.forEach(receipt => {
-                receipt.items.forEach(item => {
-                    currentTableData.push({
-                        date: receipt.date || 'N/A',
-                        store: receipt.store || 'Unknown',
-                        item: item.name,
-                        category: item.category || 'Other',
-                        subcategory: item.subcategory || 'N/A',
-                        price: item.price
-                    });
-                });
-            });
-            
-            let filtered = currentTableData;
-            if (filter) filtered = filtered.filter(r => r.category === filter);
-            if (search) filtered = filtered.filter(r => 
-                r.item.toLowerCase().includes(search) ||
-                r.store.toLowerCase().includes(search)
-            );
-            
-            filtered.sort((a, b) => {
-                let aVal = a[currentSort.column];
-                let bVal = b[currentSort.column];
-                
-                if (currentSort.column === 'price') {
-                    aVal = parseFloat(aVal);
-                    bVal = parseFloat(bVal);
-                } else {
-                    aVal = String(aVal).toLowerCase();
-                    bVal = String(bVal).toLowerCase();
-                }
-                
-                if (currentSort.direction === 'asc') {
-                    return aVal > bVal ? 1 : -1;
-                } else {
-                    return aVal < bVal ? 1 : -1;
-                }
-            });
-            
-            const tbody = document.getElementById('dataTableBody');
-            if (filtered.length === 0) {
-                tbody.innerHTML = '<tr><td colspan="6" style="text-align: center; padding: 40px;">No data found</td></tr>';
-            } else {
-                tbody.innerHTML = filtered.map(row => `
-                    <tr>
-                        <td>${row.date}</td>
-                        <td>${row.store}</td>
-                        <td style="font-weight: 600;">${row.item}</td>
-                        <td>${row.category}</td>
-                        <td>${row.subcategory}</td>
-                        <td style="text-align: right; font-weight: 600;">${row.price.toFixed(2)} kr</td>
-                    </tr>
-                `).join('');
-            }
-            
-            const total = filtered.reduce((sum, row) => sum + row.price, 0);
-            document.getElementById('dataTableSummary').textContent = 
-                `📊 Showing ${filtered.length} items • Total: ${total.toFixed(2)} kr`;
-        }
-
-        function sortTable(column) {
-            if (currentSort.column === column) {
-                currentSort.direction = currentSort.direction === 'asc' ? 'desc' : 'asc';
-            } else {
-                currentSort.column = column;
-                currentSort.direction = 'asc';
-            }
-            updateDataTable();
-        }
-
-        document.getElementById('searchInput')?.addEventListener('input', updateDataTable);
-
-        // CSV Export functionality
-        function exportToCSV() {
-            if (allReceipts.length === 0) {
-                alert('No data to export! Scan some receipts first.');
-                return;
-            }
-
-            // Build CSV data
-            const csvRows = [];
-            
-            // Header row
-            csvRows.push(['Date', 'Store', 'Item', 'Category', 'Subcategory', 'Price (kr)', 'Receipt Total (kr)'].join(','));
-            
-            // Data rows
-            allReceipts.forEach(receipt => {
-                receipt.items.forEach(item => {
-                    const row = [
-                        receipt.date || 'N/A',
-                        `"${(receipt.store || 'Unknown').replace(/"/g, '""')}"`, // Escape quotes
-                        `"${item.name.replace(/"/g, '""')}"`,
-                        item.category || 'Other',
-                        item.subcategory || 'N/A',
-                        item.price.toFixed(2),
-                        receipt.total ? receipt.total.toFixed(2) : 'N/A'
-                    ];
-                    csvRows.push(row.join(','));
-                });
-            });
-            
-            // Add summary row
-            const totalSpent = allReceipts.reduce((sum, r) => sum + (r.total || 0), 0);
-            const totalItems = allReceipts.reduce((sum, r) => sum + r.items.length, 0);
-            csvRows.push('');
-            csvRows.push(['Summary', '', '', '', '', '', ''].join(','));
-            csvRows.push(['Total Receipts', allReceipts.length, '', '', '', '', ''].join(','));
-            csvRows.push(['Total Items', totalItems, '', '', '', '', ''].join(','));
-            csvRows.push(['Total Amount', '', '', '', '', totalSpent.toFixed(2), ''].join(','));
-            
-            // Create CSV string
-            const csvString = csvRows.join('\n');
-            
-            // Create download link
-            const blob = new Blob([csvString], { type: 'text/csv;charset=utf-8;' });
-            const link = document.createElement('a');
-            const url = URL.createObjectURL(blob);
-            
-            // Generate filename with current date
-            const today = new Date().toISOString().split('T')[0];
-            const filename = `spendy-budget-export-${today}.csv`;
-            
-            link.setAttribute('href', url);
-            link.setAttribute('download', filename);
-            link.style.visibility = 'hidden';
-            document.body.appendChild(link);
-            link.click();
-            document.body.removeChild(link);
-            
-            // Show success message
-            alert(`✅ Exported ${allReceipts.length} receipts (${totalItems} items) to ${filename}\n\nYou can now:\n• Open it in Excel/Google Sheets\n• Email it as an attachment\n• Import it into other tools`);
-        }
-    </script>
-</body>
-</html>
+                <input type="file" id="fileInput" accept="image/*" multiple
