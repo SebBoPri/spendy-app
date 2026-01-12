@@ -7,7 +7,7 @@ export default async function handler(req, res) {
     return res.status(405).json({ error: 'Method not allowed' });
   }
 
-  // Enable CORS
+  // Enable CORS (Allows your website to talk to this script)
   res.setHeader('Access-Control-Allow-Origin', '*');
   res.setHeader('Access-Control-Allow-Methods', 'POST, OPTIONS');
   res.setHeader('Access-Control-Allow-Headers', 'Content-Type');
@@ -47,6 +47,7 @@ export default async function handler(req, res) {
         'anthropic-version': '2023-06-01'
       },
       body: JSON.stringify({
+        // Updated to the current January 2026 model
         model: 'claude-3-5-sonnet-20241022',
         max_tokens: 2000,
         messages: [{
@@ -106,7 +107,7 @@ Grocery subcategories: Produce, Dairy, Meat, Bakery, Beverages, Snacks, Frozen, 
     // Extract text from response
     const textContent = data.content.find(c => c.type === 'text')?.text || '';
     
-    // Clean up JSON
+    // Clean up JSON (removes markdown formatting if AI adds it)
     let cleanedText = textContent.trim()
       .replace(/```json\n?/g, '')
       .replace(/```/g, '');
@@ -116,14 +117,14 @@ Grocery subcategories: Produce, Dairy, Meat, Bakery, Beverages, Snacks, Frozen, 
       cleanedText = jsonMatch[0];
     }
     
-    // Parse and validate
+    // Parse the data
     const receiptData = JSON.parse(cleanedText);
     
+    // Verify the structure is correct before sending back to UI
     if (!receiptData.items || !Array.isArray(receiptData.items)) {
       return res.status(400).json({ error: 'Invalid receipt data structure' });
     }
     
-    // Return the parsed receipt data
     return res.status(200).json(receiptData);
 
   } catch (error) {
@@ -134,4 +135,3 @@ Grocery subcategories: Produce, Dairy, Meat, Bakery, Beverages, Snacks, Frozen, 
     });
   }
 }
-
