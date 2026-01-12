@@ -1966,6 +1966,27 @@ Grocery subcategories: Produce, Dairy, Meat, Bakery, Beverages, Snacks, Frozen, 
             // Show success message
             alert(`✅ Exported ${allReceipts.length} receipts (${totalItems} items) to ${filename}\n\nYou can now:\n• Open it in Excel/Google Sheets\n• Email it as an attachment\n• Import it into other tools`);
         }
+        // Function to delete a receipt
+        function deleteReceipt(index) {
+            if (confirm('Are you sure you want to delete this receipt?')) {
+                // 1. Remove the receipt from the array
+                allReceipts.splice(index, 1);
+                
+                // 2. Save the updated list back to storage
+                if (typeof window.storage !== 'undefined' && window.storage) {
+                    window.storage.set('receipts', JSON.stringify(allReceipts));
+                } else {
+                    localStorage.setItem('spendy-receipts', JSON.stringify(allReceipts));
+                }
+                
+                // 3. Refresh the UI
+                updateDashboard();
+                updateHistory();
+                updateDataTable();
+                
+                alert('Receipt deleted!');
+            }
+        }
     </script>
 </body>
 </html>
