@@ -1784,19 +1784,23 @@ Grocery subcategories: Produce, Dairy, Meat, Bakery, Beverages, Snacks, Frozen, 
                 return;
             }
 
-            list.innerHTML = allReceipts.map(receipt => `
+            // We use 'reverse' so newest is at top, but 'index' must match the original array for deletion
+            const historyHTML = allReceipts.map((receipt, index) => `
                 <div class="expandable">
-                    <div class="expandable-header" onclick="toggleExpand('hist-${allReceipts.indexOf(receipt)}')">
+                    <div class="expandable-header" onclick="toggleExpand('hist-${index}')">
                         <div>
                             <div style="font-weight: 600; font-size: 1.1em;">${receipt.store || 'Unknown'}</div>
                             <div style="color: #666; font-size: 0.9em;">${receipt.date || 'N/A'}</div>
                         </div>
-                        <div style="text-align: right;">
-                            <div style="font-size: 1.2em; font-weight: 700;">${receipt.total ? receipt.total.toFixed(2) + ' kr' : 'N/A'}</div>
-                            <div style="color: #666; font-size: 0.9em;">${receipt.items.length} items</div>
+                        <div style="text-align: right; display: flex; align-items: center; gap: 15px;">
+                            <div>
+                                <div style="font-size: 1.2em; font-weight: 700;">${receipt.total ? receipt.total.toFixed(2) + ' kr' : 'N/A'}</div>
+                                <div style="color: #666; font-size: 0.9em;">${receipt.items.length} items</div>
+                            </div>
+                            <button onclick="event.stopPropagation(); deleteReceipt(${index})" style="background: none; border: 1px solid #ff6b6b; color: #ff6b6b; padding: 5px 10px; border-radius: 8px; cursor: pointer; font-weight: bold;">🗑️</button>
                         </div>
                     </div>
-                    <div class="expandable-content" id="hist-${allReceipts.indexOf(receipt)}-content">
+                    <div class="expandable-content" id="hist-${index}-content">
                         <div class="expandable-body">
                             ${receipt.items.map(item => `
                                 <div class="item">
@@ -1809,6 +1813,8 @@ Grocery subcategories: Produce, Dairy, Meat, Bakery, Beverages, Snacks, Frozen, 
                     </div>
                 </div>
             `).reverse().join('');
+
+            list.innerHTML = historyHTML;
         }
 
         // Data table
