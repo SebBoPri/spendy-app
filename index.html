@@ -1089,11 +1089,22 @@
         // Load saved data
         async function loadData() {
             try {
-                const result = await window.storage.get('receipts');
-                if (result && result.value) {
-                    allReceipts = JSON.parse(result.value);
-                    updateDashboard();
-                    updateHistory();
+                // Check if window.storage is available (Claude.ai feature)
+                if (typeof window.storage !== 'undefined' && window.storage) {
+                    const result = await window.storage.get('receipts');
+                    if (result && result.value) {
+                        allReceipts = JSON.parse(result.value);
+                        updateDashboard();
+                        updateHistory();
+                    }
+                } else {
+                    // Fallback to localStorage for deployed version
+                    const stored = localStorage.getItem('spendy-receipts');
+                    if (stored) {
+                        allReceipts = JSON.parse(stored);
+                        updateDashboard();
+                        updateHistory();
+                    }
                 }
             } catch (error) {
                 console.log('No saved data:', error);
@@ -1358,7 +1369,13 @@
             allReceipts.push(...window.currentBatchResults);
             
             try {
-                await window.storage.set('receipts', JSON.stringify(allReceipts));
+                // Try window.storage first (Claude.ai), fallback to localStorage
+                if (typeof window.storage !== 'undefined' && window.storage) {
+                    await window.storage.set('receipts', JSON.stringify(allReceipts));
+                } else {
+                    localStorage.setItem('spendy-receipts', JSON.stringify(allReceipts));
+                }
+                
                 alert(`✅ Successfully saved ${window.currentBatchResults.length} receipts!`);
                 
                 document.getElementById('processingArea').style.display = 'none';
@@ -1516,7 +1533,13 @@ Grocery subcategories: Produce, Dairy, Meat, Bakery, Beverages, Snacks, Frozen, 
             allReceipts.push(currentReceipt);
             
             try {
-                await window.storage.set('receipts', JSON.stringify(allReceipts));
+                // Try window.storage first (Claude.ai), fallback to localStorage
+                if (typeof window.storage !== 'undefined' && window.storage) {
+                    await window.storage.set('receipts', JSON.stringify(allReceipts));
+                } else {
+                    localStorage.setItem('spendy-receipts', JSON.stringify(allReceipts));
+                }
+                
                 alert('✅ Receipt saved successfully!');
                 
                 document.getElementById('processingArea').style.display = 'none';
