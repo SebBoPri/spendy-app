@@ -6,6 +6,7 @@
     <title>Spendy - Your Fun Budget Companion</title>
     <link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;700&family=Fraunces:wght@600;700;900&display=swap" rel="stylesheet">
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
     <style>
         * {
             margin: 0;
@@ -967,6 +968,15 @@
             </div>
             <h1>Spendy</h1>
             <p class="tagline">Your playful budget companion</p>
+            <div id="auth-section" style="margin-top: 20px;">
+    <button id="loginBtn" class="btn" onclick="signInWithGoogle()">
+        <span>Sign In with Google 👤</span>
+    </button>
+    <div id="userProfile" style="display: none; color: white;">
+        <span id="userEmail" style="font-weight: 600; background: rgba(0,0,0,0.2); padding: 5px 12px; border-radius: 20px;"></span>
+        <button class="btn" onclick="signOut()" style="margin-left: 10px; padding: 5px 15px; font-size: 0.8em; background: var(--primary);">Sign Out</button>
+    </div>
+</div>
         </header>
 
         <nav class="nav-tabs">
@@ -1096,6 +1106,53 @@
     </div>
 
     <script>
+        // 1. Setup the connection to Supabase
+// These use the variables you just set up in Vercel
+const supabaseUrl = 'https://ztdvxcekvkonipdddraj.supabase.co';
+const supabaseKey = 'YOUR_ANON_KEY_HERE'; // For local testing, paste the anon key. 
+const _supabase = supabasejs.createClient(supabaseUrl, supabaseKey);
+// --- AUTH LISTENERS ---
+        // This "helper" detects the exact second a user finishes logging in or out
+        _supabase.auth.onAuthStateChange((event, session) => {
+            console.log("Auth Event:", event); // This helps you debug in the console
+            if (event === 'SIGNED_IN' && session) {
+                setupUser(session.user);
+            } else if (event === 'SIGNED_OUT') {
+                currentUser = null;
+                document.getElementById('loginBtn').style.display = 'block';
+                document.getElementById('userProfile').style.display = 'none';
+            }
+        });
+let currentUser = null;
+
+// 2. Automatically check if the user is logged in when the page opens
+async function checkUserSession() {
+    const { data: { session }, error } = await _supabase.auth.getSession();
+    if (session) {
+        setupUser(session.user);
+    }
+}
+
+// 3. Update the UI when a user logs in
+function setupUser(user) {
+    currentUser = user;
+    document.getElementById('loginBtn').style.display = 'none';
+    document.getElementById('userProfile').style.display = 'block';
+    document.getElementById('userEmail').textContent = user.email;
+    
+    // Once logged in, load their personal data
+    loadData(); 
+}
+
+// Run the check immediately
+checkUserSession();
+        // NEW: Initialize Supabase
+// These will pull from your Vercel Environment Variables automatically once deployed
+const supabaseUrl = 'https://ztdvxcekvkonipdddraj.supabase.co'; 
+const supabaseKey = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Inp0ZHZ4Y2VrdmtvbmlwZGRkcmFqIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NjgyNzU0NDYsImV4cCI6MjA4Mzg1MTQ0Nn0.FYMo-w6HomXjaclhqdOWArIcLMqA2ZakBwYfTsgS7xI'; // Note: For local testing, paste your key here. For Vercel, we will automate this later.
+const supabase = supabasejs.createClient(supabaseUrl, supabaseKey);
+
+let currentUser = null;
         let currentReceipt = null;
         let allReceipts = [];
 
@@ -1126,8 +1183,27 @@
         }
 
         loadData();
+// Function called by your "Sign In with Google" button
+async function signInWithGoogle() {
+    const { data, error } = await _supabase.auth.signInWithOAuth({
+        provider: 'google',
+        options: {
+            redirectTo: window.location.origin // Sends them back to your Vercel URL
+        }
+    });
+    
+    if (error) console.error('Login Error:', error.message);
+}
 
-        function switchTab(tabName) {
+// Function called by your "Sign Out" button
+async function signOut() {
+    const { error } = await _supabase.auth.signOut();
+    if (!error) {
+        currentUser = null;
+        location.reload(); // Refresh the page to reset the app state
+    }
+}
+        const_supabase=
             document.querySelectorAll('.nav-tab').forEach(t => t.classList.remove('active'));
             document.querySelectorAll('.tab-content').forEach(c => c.classList.remove('active'));
             
@@ -2008,6 +2084,40 @@
                 alert('Receipt deleted!');
             }
         }
+        // Handle Sign In
+async function signInWithGoogle() {
+    const { data, error } = await supabase.auth.signInWithOAuth({
+        provider: 'google',
+        options: {
+            redirectTo: window.location.origin
+        }
+    });
+}
+
+// Handle Sign Out
+async function signOut() {
+    await supabase.auth.signOut();
+    localStorage.removeItem('spendy-receipts'); // Optional: Clear local cache on logout
+    location.reload();
+}
+
+// Check if user is already logged in
+async function getSession() {
+    const { data: { session } } = await supabase.auth.getSession();
+    if (session) {
+        currentUser = session.user;
+        showUserProfile(currentUser);
+    }
+}
+
+function showUserProfile(user) {
+    document.getElementById('loginBtn').style.display = 'none';
+    document.getElementById('userProfile').style.display = 'block';
+    document.getElementById('userEmail').textContent = user.email;
+}
+
+// Run session check on page load
+getSession();
     </script>
 </body>
 </html>
