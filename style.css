@@ -1,0 +1,18 @@
+* {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+}
+
+:root {
+    --primary: #FF6B6B;
+    --secondary: #4ECDC4;
+    /* ... the rest of your variables ... */
+}
+
+body {
+    font-family: 'DM Sans', sans-serif;
+    /* ... the rest of your styles ... */
+}
+
+/* ... include all the animations and other classes ... */
