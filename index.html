@@ -1042,6 +1042,12 @@
                 <h2 class="card-title">Price Comparison</h2>
                 <p style="color: #666; margin-bottom: 16px;">Find the best deals across stores</p>
                 <div id="priceComparison"></div>
+            <div class="card">
+                <h2 class="card-title">Top Items Tracker</h2>
+                <p style="color: #666; margin-bottom: 24px;">Your most frequent and expensive purchases</p>
+                <div id="topItemsContainer" style="display: grid; grid-template-columns: repeat(auto-fit, minmax(300px, 1fr)); gap: 32px;">
+                    </div>
+            </div>
             </div>
         </div>
 
@@ -1539,6 +1545,7 @@
 
             updateCategoryChart(categoryTotals);
             updatePriceComparison();
+            updateTopItems();
         }
 
         function updateCategoryChart(categoryTotals) {
@@ -1729,7 +1736,61 @@
             document.getElementById('priceComparison').innerHTML = html || 
                 '<div class="empty-state"><p>Price comparisons appear when you have items from different stores</p></div>';
         }
+        function updateTopItems() {
+            const itemStats = {};
+            
+            allReceipts.forEach(receipt => {
+                receipt.items.forEach(item => {
+                    const name = item.name.trim().toLowerCase();
+                    if (!itemStats[name]) {
+                        itemStats[name] = { displayName: item.name, totalCost: 0, frequency: 0 };
+                    }
+                    itemStats[name].totalCost += item.price;
+                    itemStats[name].frequency += 1;
+                });
+            });
 
+            const statsArray = Object.values(itemStats);
+            if (statsArray.length === 0) return;
+
+            const mostFrequent = [...statsArray].sort((a, b) => b.frequency - a.frequency).slice(0, 10);
+            const mostExpensive = [...statsArray].sort((a, b) => b.totalCost - a.totalCost).slice(0, 10);
+
+            const maxFreq = mostFrequent[0].frequency;
+            const maxCost = mostExpensive[0].totalCost;
+
+            const container = document.getElementById('topItemsContainer');
+            container.innerHTML = `
+                <div>
+                    <h3 style="margin-bottom: 16px; font-family: 'Fraunces', serif;">Most Frequent 🔄</h3>
+                    ${mostFrequent.map(item => `
+                        <div style="margin-bottom: 15px;">
+                            <div style="display: flex; justify-content: space-between; margin-bottom: 5px; font-size: 0.95em;">
+                                <span><strong>${item.displayName}</strong></span>
+                                <span>${item.frequency} times</span>
+                            </div>
+                            <div style="height: 8px; background: #eee; border-radius: 4px; overflow: hidden;">
+                                <div style="height: 100%; width: ${(item.frequency / maxFreq) * 100}%; background: var(--secondary);"></div>
+                            </div>
+                        </div>
+                    `).join('')}
+                </div>
+                <div>
+                    <h3 style="margin-bottom: 16px; font-family: 'Fraunces', serif;">Highest Total Cost 💰</h3>
+                    ${mostExpensive.map(item => `
+                        <div style="margin-bottom: 15px;">
+                            <div style="display: flex; justify-content: space-between; margin-bottom: 5px; font-size: 0.95em;">
+                                <span><strong>${item.displayName}</strong></span>
+                                <span>${item.totalCost.toFixed(2)} kr</span>
+                            </div>
+                            <div style="height: 8px; background: #eee; border-radius: 4px; overflow: hidden;">
+                                <div style="height: 100%; width: ${(item.totalCost / maxCost) * 100}%; background: var(--primary);"></div>
+                            </div>
+                        </div>
+                    `).join('')}
+                </div>
+            `;
+        }
         function updateHistory() {
             const list = document.getElementById('historyList');
             
