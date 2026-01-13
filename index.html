@@ -6,6 +6,7 @@
     <title>Spendy - Your Fun Budget Companion</title>
     <link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;700&family=Fraunces:wght@600;700;900&display=swap" rel="stylesheet">
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
 
     <style>
         * {
@@ -1112,1026 +1113,168 @@
     </div>
 
     <script>
-        let currentReceipt = null;
-        let allReceipts = [];
-
-        // Load saved data
-        async function loadData() {
-            try {
-                // Check if window.storage is available (Claude.ai feature)
-                if (typeof window.storage !== 'undefined' && window.storage) {
-                    const result = await window.storage.get('receipts');
-                    if (result && result.value) {
-                        allReceipts = JSON.parse(result.value);
-                        updateDashboard();
-                        updateHistory();
-                    }
-                } else {
-                    // Fallback to localStorage for deployed version
-                    const stored = localStorage.getItem('spendy-receipts');
-                    if (stored) {
-                        allReceipts = JSON.parse(stored);
-                        updateDashboard();
-                        updateHistory();
-                    }
-                }
-            } catch (error) {
-                console.log('No saved data:', error);
-                allReceipts = [];
-            }
-        }
-async function loadLongTermData() {
-    const { data, error } = await _supabase
-        .from('receipts')
-        .select('*')
-        .order('created_at', { ascending: false });
-
-    if (error) {
-        console.error("Error fetching:", error);
-        return;
-    }
-
-    // Map database fields back to your app's internal format
-    allReceipts = data.map(r => ({
-        store: r.store_name,
-        date: r.purchase_date,
-        total: parseFloat(r.total_amount),
-        items: r.items
-    }));
-
-    updateDashboard();
-    updateHistory();
-}
-        loadData();
-
-        function switchTab(tabName) {
-            document.querySelectorAll('.nav-tab').forEach(t => t.classList.remove('active'));
-            document.querySelectorAll('.tab-content').forEach(c => c.classList.remove('active'));
-
-            event.target.classList.add('active');
-            document.getElementById(tabName).classList.add('active');
-
-            if (tabName === 'dashboard') updateDashboard();
-            else if (tabName === 'history') updateHistory();
-            else if (tabName === 'data') updateDataTable();
-        }
-
-        document.getElementById('fileInput').addEventListener('change', async (e) => {
-            const files = Array.from(e.target.files);
-            if (files.length === 0) return;
-
-            // Validate all are images
-            const invalidFiles = files.filter(f => !f.type.startsWith('image/'));
-            if (invalidFiles.length > 0) {
-                alert('Please upload only image files');
-                return;
-            }
-
-            // If single file, use old flow
-            if (files.length === 1) {
-                const reader = new FileReader();
-                reader.onload = async (event) => {
-                    const imgData = event.target.result;
-                    document.getElementById('receiptPreview').src = imgData;
-                    document.getElementById('processingArea').style.display = 'block';
-                    document.getElementById('loadingState').style.display = 'block';
-                    document.getElementById('resultsArea').style.display = 'none';
-
-                    await analyzeReceipt(imgData);
-                };
-                reader.readAsDataURL(files[0]);
-            } else {
-                // Batch processing
-                await processBatchReceipts(files);
-            }
-        });
-
-        async function processBatchReceipts(files) {
-            document.getElementById('processingArea').style.display = 'block';
-            document.getElementById('loadingState').style.display = 'none';
-            document.getElementById('resultsArea').style.display = 'block';
-
-            const batchResults = [];
-            const itemsList = document.getElementById('itemsList');
-
-            itemsList.innerHTML = `
-                <div class="batch-container">
-                    <div class="batch-header">
-                        <h3 style="font-family: 'Fraunces', serif; font-size: 1.5em;">Processing ${files.length} Receipts</h3>
-                        <span id="batchCounter" style="font-weight: 600; color: var(--primary);">0 / ${files.length}</span>
-                    </div>
-                    <div class="batch-progress">
-                        <div class="batch-progress-bar" id="batchProgressBar" style="width: 0%"></div>
-                    </div>
-                    <div class="receipt-grid" id="receiptGrid"></div>
-                </div>
-            `;
-
-            const grid = document.getElementById('receiptGrid');
-            const progressBar = document.getElementById('batchProgressBar');
-            const counter = document.getElementById('batchCounter');
-
-            // Create cards for each receipt
-            const cardPromises = files.map((file, index) => {
-                return new Promise((resolve) => {
-                    const reader = new FileReader();
-                    reader.onload = (e) => {
-                        const card = document.createElement('div');
-                        card.className = 'receipt-card';
-                        card.id = `receipt-${index}`;
-                        card.innerHTML = `
-                            <img src="${e.target.result}" alt="Receipt ${index + 1}">
-                            <div class="receipt-status">
-                                <span class="status-badge status-pending" id="status-${index}">⏳ Pending</span>
-                            </div>
-                            <div class="receipt-progress-wrapper">
-                                <div class="receipt-mini-progress">
-                                    <div class="receipt-mini-progress-bar" id="progress-${index}"></div>
-                                </div>
-                            </div>
-                            <div class="receipt-details" id="details-${index}">
-                                Waiting in queue...
-                            </div>
-                        `;
-                        grid.appendChild(card);
-                        resolve();
-                    };
-                    reader.readAsDataURL(file);
-                });
-            });
-
-            // Wait for all cards to be created
-            await Promise.all(cardPromises);
-
-            // Process each receipt sequentially with detailed progress
-            let completed = 0;
-            for (let i = 0; i < files.length; i++) {
-                const file = files[i];
-                const card = document.getElementById(`receipt-${i}`);
-                const statusBadge = document.getElementById(`status-${i}`);
-                const progressBar = document.getElementById(`progress-${i}`);
-                const details = document.getElementById(`details-${i}`);
-
-                // Add processing glow effect
-                card.classList.add('processing');
-
-                try {
-                    // Stage 1: Loading image
-                    statusBadge.className = 'status-badge status-uploading';
-                    statusBadge.textContent = '📤 Uploading...';
-                    progressBar.style.width = '20%';
-                    details.textContent = 'Reading image data...';
-                    await sleep(300);
-
-                    const imgData = await readFileAsDataURL(file);
-
-                    // Stage 2: Sending to AI
-                    statusBadge.className = 'status-badge status-processing';
-                    statusBadge.textContent = '🤖 Sending to AI...';
-                    progressBar.style.width = '40%';
-                    details.textContent = 'Connecting to Claude AI...';
-                    await sleep(300);
-
-                    // Stage 3: AI Analyzing
-                    statusBadge.className = 'status-badge status-analyzing';
-                    statusBadge.textContent = '🔍 Analyzing...';
-                    progressBar.style.width = '60%';
-                    details.textContent = 'AI is reading the receipt...';
-
-                    const receiptData = await analyzeReceiptBatch(imgData, (stage) => {
-                        // Real-time updates during analysis
-                        if (stage === 'extracting') {
-                            progressBar.style.width = '70%';
-                            details.textContent = 'Extracting items and prices...';
-                        } else if (stage === 'categorizing') {
-                            progressBar.style.width = '85%';
-                            details.textContent = 'Categorizing items...';
-                        }
-                    });
-
-                    // Stage 4: Complete
-                    progressBar.style.width = '100%';
-                    details.textContent = `Found ${receiptData.items.length} items • ${receiptData.total ? receiptData.total.toFixed(2) + ' kr' : 'Total N/A'}`;
-
-                    batchResults.push(receiptData);
-                    statusBadge.className = 'status-badge status-done';
-                    statusBadge.textContent = `✓ Complete`;
-
-                    // Success animation
-                    card.classList.remove('processing');
-                    card.style.transform = 'scale(1.05)';
-                    setTimeout(() => {
-                        card.style.transform = 'scale(1)';
-                    }, 300);
-
-                } catch (error) {
-                    console.error(`Error processing receipt ${i + 1}:`, error);
-                    statusBadge.className = 'status-badge status-error';
-                    statusBadge.textContent = '✗ Error';
-                    progressBar.style.width = '100%';
-                    progressBar.style.background = '#dc3545';
-                    details.textContent = error.message || 'Failed to process';
-                    card.classList.remove('processing');
-                }
-
-                completed++;
-                const overallProgress = (completed / files.length) * 100;
-                document.getElementById('batchProgressBar').style.width = `${overallProgress}%`;
-                counter.textContent = `${completed} / ${files.length}`;
-            }
-
-            // Show summary and save button
-            const successCount = batchResults.length;
-            const totalItems = batchResults.reduce((sum, r) => sum + r.items.length, 0);
-            const totalAmount = batchResults.reduce((sum, r) => sum + (r.total || 0), 0);
-
-            itemsList.innerHTML += `
-                <div style="background: linear-gradient(135deg, var(--success), var(--secondary)); padding: 24px; border-radius: 16px; color: white; margin-top: 24px; animation: slideUp 0.5s ease-out;">
-                    <h3 style="font-family: 'Fraunces', serif; font-size: 1.4em; margin-bottom: 12px;">Batch Complete! 🎉</h3>
-                    <div style="display: grid; grid-template-columns: repeat(3, 1fr); gap: 16px; margin-bottom: 20px;">
-                        <div>
-                            <div style="font-size: 2em; font-weight: 700;">${successCount}</div>
-                            <div style="opacity: 0.9;">Receipts</div>
-                        </div>
-                        <div>
-                            <div style="font-size: 2em; font-weight: 700;">${totalItems}</div>
-                            <div style="opacity: 0.9;">Items</div>
-                        </div>
-                        <div>
-                            <div style="font-size: 2em; font-weight: 700;">${totalAmount.toFixed(0)}</div>
-                            <div style="opacity: 0.9;">kr Total</div>
-                        </div>
-                    </div>
-                    ${files.length > successCount ? `<div style="background: rgba(255,255,255,0.2); padding: 12px; border-radius: 8px; margin-bottom: 12px;">⚠️ ${files.length - successCount} receipt(s) failed to process</div>` : ''}
-                </div>
-                <div class="batch-actions">
-                    <button class="btn" onclick="saveBatchReceipts()" style="flex: 1;"><span>💾 Save All ${successCount} Receipts</span></button>
-                    <button class="btn-secondary btn" onclick="reviewBatchReceipts()" style="flex: 1;"><span>👀 Review Details</span></button>
-                </div>
-            `;
-
-            // Store batch results globally
-            window.currentBatchResults = batchResults;
-        }
-
-        function sleep(ms) {
-            return new Promise(resolve => setTimeout(resolve, ms));
-        }
-
-        function readFileAsDataURL(file) {
-            return new Promise((resolve, reject) => {
-                const reader = new FileReader();
-                reader.onload = (e) => resolve(e.target.result);
-                reader.onerror = reject;
-                reader.readAsDataURL(file);
-            });
-        }
-
-        async function analyzeReceiptBatch(imageData, progressCallback) {
-            if (progressCallback) progressCallback('extracting');
-
-            // Call our secure backend API instead of calling Claude directly
-            const response = await fetch('/api/analyze', {
-                method: 'POST',
-                headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify({ imageData })
-            });
-
-            if (!response.ok) {
-                const errorData = await response.json();
-                throw new Error(errorData.error || `API Error: ${response.status}`);
-            }
-
-            if (progressCallback) progressCallback('categorizing');
-
-            const receiptData = await response.json();
-
-            if (!receiptData.items || !Array.isArray(receiptData.items)) {
-                throw new Error('Invalid receipt data');
-            }
-
-            return receiptData;
-        }
-
-        async function saveBatchReceipts() {
-            if (!window.currentBatchResults || window.currentBatchResults.length === 0) return;
-
-            allReceipts.push(...window.currentBatchResults);
-
-            try {
-                // Try window.storage first (Claude.ai), fallback to localStorage
-                if (typeof window.storage !== 'undefined' && window.storage) {
-                    await window.storage.set('receipts', JSON.stringify(allReceipts));
-                } else {
-                    localStorage.setItem('spendy-receipts', JSON.stringify(allReceipts));
-                }
-
-                alert(`✅ Successfully saved ${window.currentBatchResults.length} receipts!`);
-
-                document.getElementById('processingArea').style.display = 'none';
-                document.getElementById('fileInput').value = '';
-                window.currentBatchResults = null;
-
-                document.querySelectorAll('.nav-tab')[1].click();
-            } catch (error) {
-                alert('Error saving receipts: ' + error.message);
-            }
-        }
-
-        function reviewBatchReceipts() {
-            if (!window.currentBatchResults || window.currentBatchResults.length === 0) return;
-
-            const itemsList = document.getElementById('itemsList');
-
-            let allItemsHTML = '';
-            window.currentBatchResults.forEach((receipt, idx) => {
-                allItemsHTML += `
-                    <div style="margin-bottom: 24px; padding: 20px; background: var(--light); border-radius: 16px;">
-                        <h4 style="font-family: 'Fraunces', serif; margin-bottom: 12px; font-size: 1.2em;">Receipt ${idx + 1}: ${receipt.store || 'Unknown Store'}</h4>
-                        <div style="color: #666; margin-bottom: 12px;">
-                            <strong>Date:</strong> ${receipt.date || 'Not visible'} • 
-                            <strong>Total:</strong> ${receipt.total ? receipt.total.toFixed(2) + ' kr' : 'Not visible'}
-                        </div>
-                        ${receipt.items.map(item => `
-                            <div class="item">
-                                <div class="item-name">${item.name}</div>
-                                <div class="item-category">${item.category}${item.subcategory ? ' › ' + item.subcategory : ''}</div>
-                                <div class="item-price">${item.price.toFixed(2)} kr</div>
-                            </div>
-                        `).join('')}
-                    </div>
-                `;
-            });
-
-            itemsList.innerHTML = `
-                <div class="batch-header">
-                    <h3 style="font-family: 'Fraunces', serif; font-size: 1.5em;">Review ${window.currentBatchResults.length} Receipts</h3>
-                </div>
-                ${allItemsHTML}
-                <div class="batch-actions">
-                    <button class="btn" onclick="saveBatchReceipts()" style="flex: 1;"><span>💾 Save All to Budget</span></button>
-                    <button class="btn-secondary btn" onclick="cancelBatch()" style="flex: 1;"><span>✕ Cancel</span></button>
-                </div>
-            `;
-        }
-
-        function cancelBatch() {
-            document.getElementById('processingArea').style.display = 'none';
-            document.getElementById('fileInput').value = '';
-            window.currentBatchResults = null;
-        }
-
-         async function analyzeReceipt(imageData) {
-            try {
-                // Use your secure Vercel bridge instead of calling Anthropic directly
-                const response = await fetch('/api/analyze', {
-                    method: 'POST',
-                    headers: { 'Content-Type': 'application/json' },
-                    body: JSON.stringify({ imageData })
-                });
-
-                if (!response.ok) {
-                    const errorData = await response.json();
-                    throw new Error(errorData.error || `API Error: ${response.status}`);
-                }
-
-                const receiptData = await response.json();
-
-                if (!receiptData.items || !Array.isArray(receiptData.items)) {
-                    throw new Error('Invalid receipt data received from AI');
-                }
-
-                currentReceipt = receiptData;
-                displayResults(receiptData);
-            } catch (error) {
-                alert('Error analyzing receipt: ' + error.message);
-                console.error(error);
-                document.getElementById('loadingState').style.display = 'none';
-                document.getElementById('processingArea').style.display = 'none';
-            }
-        }
-
-        function displayResults(data) {
-            document.getElementById('loadingState').style.display = 'none';
-            document.getElementById('resultsArea').style.display = 'block';
-
-            document.getElementById('itemsList').innerHTML = `
-                <div style="background: var(--light); padding: 20px; border-radius: 16px; margin-bottom: 20px;">
-                    <strong style="font-size: 1.1em;">Store:</strong> ${data.store || 'Not visible'}<br>
-                    <strong style="font-size: 1.1em;">Date:</strong> ${data.date || 'Not visible'}<br>
-                    <strong style="font-size: 1.1em;">Total:</strong> ${data.total ? data.total.toFixed(2) + ' kr' : 'Not visible'}
-                </div>
-                ${data.items.map(item => `
-                    <div class="item">
-                        <div class="item-name">${item.name}</div>
-                        <div class="item-category">${item.category}${item.subcategory ? ' › ' + item.subcategory : ''}</div>
-                        <div class="item-price">${item.price.toFixed(2)} kr</div>
-                    </div>
-                `).join('')}
-            `;
-        }
-
-        async function saveReceipt() {
-            if (!currentReceipt) return;
-
-            allReceipts.push(currentReceipt);
-
-            try {
-                // Try window.storage first (Claude.ai), fallback to localStorage
-                if (typeof window.storage !== 'undefined' && window.storage) {
-                    await window.storage.set('receipts', JSON.stringify(allReceipts));
-                } else {
-                    localStorage.setItem('spendy-receipts', JSON.stringify(allReceipts));
-                }
-
-                alert('✅ Receipt saved successfully!');
-
-                document.getElementById('processingArea').style.display = 'none';
-                document.getElementById('fileInput').value = '';
-                currentReceipt = null;
-
-                document.querySelectorAll('.nav-tab')[1].click();
-            } catch (error) {
-                alert('Error saving: ' + error.message);
-            }
-        }
-
-        function updateDashboard() {
-            if (allReceipts.length === 0) {
-                document.getElementById('totalSpent').textContent = '0 kr';
-                document.getElementById('receiptCount').textContent = '0';
-                document.getElementById('itemCount').textContent = '0';
-                document.getElementById('priceComparison').innerHTML = '<div class="empty-state"><div class="empty-icon">📭</div><p>No data yet. Start scanning receipts!</p></div>';
-                return;
-            }
-
-            const totalSpent = allReceipts.reduce((sum, r) => sum + (r.total || 0), 0);
-            const totalItems = allReceipts.reduce((sum, r) => sum + r.items.length, 0);
-
-            document.getElementById('totalSpent').textContent = totalSpent.toFixed(2) + ' kr';
-            document.getElementById('receiptCount').textContent = allReceipts.length;
-            document.getElementById('itemCount').textContent = totalItems;
-
-            const categoryTotals = {};
-            allReceipts.forEach(receipt => {
-                receipt.items.forEach(item => {
-                    const cat = item.category || 'Other';
-                    categoryTotals[cat] = (categoryTotals[cat] || 0) + item.price;
-                });
-            });
-
-            updateCategoryChart(categoryTotals);
-            updatePriceComparison();
-            updateTopItems();
-        }
-
-        function updateCategoryChart(categoryTotals) {
-            const ctx = document.getElementById('categoryChart');
-
-            if (window.categoryChartInstance) {
-                window.categoryChartInstance.destroy();
-            }
-
-            window.categoryChartInstance = new Chart(ctx, {
-                type: 'doughnut',
-                data: {
-                    labels: Object.keys(categoryTotals),
-                    datasets: [{
-                        data: Object.values(categoryTotals),
-                        backgroundColor: [
-                            '#FF6B6B', '#4ECDC4', '#FFE66D', '#A78BFA',
-                            '#95E1D3', '#FF8E53', '#44A3FF', '#FFBE0B'
-                        ],
-                        borderWidth: 0
-                    }]
-                },
-                options: {
-                    responsive: true,
-                    maintainAspectRatio: false,
-                    plugins: {
-                        legend: {
-                            position: 'bottom',
-                            labels: {
-                                padding: 20,
-                                font: { size: 13, weight: '600' }
-                            }
-                        }
-                    },
-                    onClick: (event, activeElements) => {
-                        if (activeElements.length > 0) {
-                            const index = activeElements[0].index;
-                            const category = Object.keys(categoryTotals)[index];
-                            showCategoryDeepDive(category);
-                        }
-                    }
-                }
-            });
-        }
-
-        function showCategoryDeepDive(category) {
-            const card = document.getElementById('deepDiveCard');
-            const title = document.getElementById('deepDiveTitle');
-            const details = document.getElementById('deepDiveDetails');
-
-            const subcategories = {};
-            allReceipts.forEach(receipt => {
-                receipt.items.forEach(item => {
-                    if (item.category === category) {
-                        const sub = item.subcategory || 'Uncategorized';
-                        if (!subcategories[sub]) {
-                            subcategories[sub] = { total: 0, items: [] };
-                        }
-                        subcategories[sub].total += item.price;
-                        subcategories[sub].items.push({
-                            name: item.name,
-                            price: item.price,
-                            store: receipt.store,
-                            date: receipt.date
-                        });
-                    }
-                });
-            });
-
-            const sorted = Object.entries(subcategories).sort((a, b) => b[1].total - a[1].total);
-
-            title.textContent = `${category} Breakdown`;
-
-            details.innerHTML = sorted.map(([sub, data]) => {
-                const subId = `detail-${sub.replace(/\s+/g, '-')}`;
-
-                const itemGroups = {};
-                data.items.forEach(item => {
-                    const key = item.name.toLowerCase();
-                    if (!itemGroups[key]) {
-                        itemGroups[key] = {
-                            displayName: item.name,
-                            purchases: [],
-                            total: 0,
-                            count: 0
-                        };
-                    }
-                    itemGroups[key].purchases.push(item);
-                    itemGroups[key].total += item.price;
-                    itemGroups[key].count++;
-                });
-
-                const sortedItems = Object.values(itemGroups)
-                    .map(g => {
-                        g.avgPrice = g.total / g.count;
-                        return g;
-                    })
-                    .sort((a, b) => b.total - a.total);
-
-                return `
-                    <div class="expandable">
-                        <div class="expandable-header" onclick="toggleExpand('${subId}')">
-                            <div class="expandable-title">
-                                <span class="expand-icon" id="${subId}-icon">▼</span>
-                                ${sub}
-                            </div>
-                            <strong>${data.total.toFixed(2)} kr</strong>
-                        </div>
-                        <div class="expandable-content" id="${subId}-content">
-                            <div class="expandable-body">
-                                ${sortedItems.map(g => `
-                                    <div style="margin-bottom: 20px; padding: 16px; background: var(--light); border-radius: 12px;">
-                                        <div style="display: flex; justify-content: space-between; margin-bottom: 12px;">
-                                            <strong style="font-size: 1.1em;">${g.displayName}</strong>
-                                            <strong style="color: var(--primary); font-size: 1.1em;">${g.total.toFixed(2)} kr</strong>
-                                        </div>
-                                        <div style="color: #666; font-size: 0.9em; margin-bottom: 12px;">
-                                            Purchased ${g.count}x • Avg: ${g.avgPrice.toFixed(2)} kr
-                                        </div>
-                                        ${g.purchases.map(p => `
-                                            <div style="display: flex; justify-content: space-between; padding: 8px 0; border-bottom: 1px solid #eee;">
-                                                <div>
-                                                    <div style="font-weight: 600;">${p.store || 'Unknown'}</div>
-                                                    <div style="font-size: 0.85em; color: #999;">${p.date || 'N/A'}</div>
-                                                </div>
-                                                <div style="font-weight: 600;">${p.price.toFixed(2)} kr</div>
-                                            </div>
-                                        `).join('')}
-                                    </div>
-                                `).join('')}
-                            </div>
-                        </div>
-                    </div>
-                `;
-            }).join('');
-
-            card.style.display = 'block';
-            card.scrollIntoView({ behavior: 'smooth' });
-        }
-
-        function toggleExpand(id) {
-            const content = document.getElementById(`${id}-content`);
-            const icon = document.getElementById(`${id}-icon`);
-            const header = icon.closest('.expandable-header');
-
-            const isExpanded = content.classList.contains('expanded');
-            content.classList.toggle('expanded');
-            icon.classList.toggle('rotated');
-            header.classList.toggle('active');
-        }
-
-        function closeDeepDive() {
-            document.getElementById('deepDiveCard').style.display = 'none';
-        }
-
-        function updatePriceComparison() {
-            const prices = {};
-            allReceipts.forEach(receipt => {
-                receipt.items.forEach(item => {
-                    const key = item.name.toLowerCase();
-                    if (!prices[key]) prices[key] = [];
-                    prices[key].push({
-                        store: receipt.store,
-                        price: item.price,
-                        date: receipt.date
-                    });
-                });
-            });
-
-            const html = Object.entries(prices)
-                .filter(([_, p]) => p.length > 1)
-                .slice(0, 5)
-                .map(([name, p]) => {
-                    p.sort((a, b) => a.price - b.price);
-                    return `
-                        <div style="margin-bottom: 20px; padding: 16px; background: var(--light); border-radius: 12px;">
-                            <h3 style="text-transform: capitalize; margin-bottom: 12px; font-family: 'Fraunces', serif;">${name}</h3>
-                            ${p.map((item, i) => `
-                                <div style="display: flex; justify-content: space-between; padding: 10px 0; border-bottom: 1px solid #fff;">
-                                    <strong>${item.store}</strong>
-                                    <span style="font-weight: 600; ${i === 0 ? 'color: var(--success);' : ''}">${item.price.toFixed(2)} kr ${i === 0 ? '✓' : ''}</span>
-                                </div>
-                            `).join('')}
-                        </div>
-                    `;
-                }).join('');
-
-            document.getElementById('priceComparison').innerHTML = html || 
-                '<div class="empty-state"><p>Price comparisons appear when you have items from different stores</p></div>';
-        }
-        function updateTopItems() {
-            const itemStats = {};
-
-            allReceipts.forEach(receipt => {
-                receipt.items.forEach(item => {
-                    const name = item.name.trim().toLowerCase();
-                    if (!itemStats[name]) {
-                        itemStats[name] = { displayName: item.name, totalCost: 0, frequency: 0 };
-                    }
-                    itemStats[name].totalCost += item.price;
-                    itemStats[name].frequency += 1;
-                });
-            });
-
-            const statsArray = Object.values(itemStats);
-            if (statsArray.length === 0) return;
-
-            const mostFrequent = [...statsArray].sort((a, b) => b.frequency - a.frequency).slice(0, 10);
-            const mostExpensive = [...statsArray].sort((a, b) => b.totalCost - a.totalCost).slice(0, 10);
-
-            const maxFreq = mostFrequent[0].frequency;
-            const maxCost = mostExpensive[0].totalCost;
-
-            const container = document.getElementById('topItemsContainer');
-            container.innerHTML = `
-                <div>
-                    <h3 style="margin-bottom: 16px; font-family: 'Fraunces', serif;">Most Frequent 🔄</h3>
-                    ${mostFrequent.map(item => `
-                        <div style="margin-bottom: 15px;">
-                            <div style="display: flex; justify-content: space-between; margin-bottom: 5px; font-size: 0.95em;">
-                                <span><strong>${item.displayName}</strong></span>
-                                <span>${item.frequency} times</span>
-                            </div>
-                            <div style="height: 8px; background: #eee; border-radius: 4px; overflow: hidden;">
-                                <div style="height: 100%; width: ${(item.frequency / maxFreq) * 100}%; background: var(--secondary);"></div>
-                            </div>
-                        </div>
-                    `).join('')}
-                </div>
-                <div>
-                    <h3 style="margin-bottom: 16px; font-family: 'Fraunces', serif;">Highest Total Cost 💰</h3>
-                    ${mostExpensive.map(item => `
-                        <div style="margin-bottom: 15px;">
-                            <div style="display: flex; justify-content: space-between; margin-bottom: 5px; font-size: 0.95em;">
-                                <span><strong>${item.displayName}</strong></span>
-                                <span>${item.totalCost.toFixed(2)} kr</span>
-                            </div>
-                            <div style="height: 8px; background: #eee; border-radius: 4px; overflow: hidden;">
-                                <div style="height: 100%; width: ${(item.totalCost / maxCost) * 100}%; background: var(--primary);"></div>
-                            </div>
-                        </div>
-                    `).join('')}
-                </div>
-            `;
-        }
-        function updateHistory() {
-            const list = document.getElementById('historyList');
-
-            if (allReceipts.length === 0) {
-                list.innerHTML = '<div class="empty-state"><div class="empty-icon">📭</div><p>No receipts yet</p></div>';
-                return;
-            }
-
-            // We use 'reverse' so newest is at top, but 'index' must match the original array for deletion
-            const historyHTML = allReceipts.map((receipt, index) => `
-                <div class="expandable">
-                    <div class="expandable-header" onclick="toggleExpand('hist-${index}')">
-                        <div>
-                            <div style="font-weight: 600; font-size: 1.1em;">${receipt.store || 'Unknown'}</div>
-                            <div style="color: #666; font-size: 0.9em;">${receipt.date || 'N/A'}</div>
-                        </div>
-                        <div style="text-align: right; display: flex; align-items: center; gap: 15px;">
-                            <div>
-                                <div style="font-size: 1.2em; font-weight: 700;">${receipt.total ? receipt.total.toFixed(2) + ' kr' : 'N/A'}</div>
-                                <div style="color: #666; font-size: 0.9em;">${receipt.items.length} items</div>
-                            </div>
-                            <button onclick="event.stopPropagation(); deleteReceipt(${index})" style="background: none; border: 1px solid #ff6b6b; color: #ff6b6b; padding: 5px 10px; border-radius: 8px; cursor: pointer; font-weight: bold;">🗑️</button>
-                        </div>
-                    </div>
-                    <div class="expandable-content" id="hist-${index}-content">
-                        <div class="expandable-body">
-                            ${receipt.items.map(item => `
-                                <div class="item">
-                                    <div class="item-name">${item.name}</div>
-                                    <div class="item-category">${item.category}</div>
-                                    <div class="item-price">${item.price.toFixed(2)} kr</div>
-                                </div>
-                            `).join('')}
-                        </div>
-                    </div>
-                </div>
-            `).reverse().join('');
-
-            list.innerHTML = historyHTML;
-        }
-
-        // Data table
-        let currentTableData = [];
-        let currentSort = { column: 'date', direction: 'desc' };
-
-        function updateDataTable() {
-            const filter = document.getElementById('filterCategory').value;
-            const search = document.getElementById('searchInput').value.toLowerCase();
-
-            const categoryFilter = document.getElementById('filterCategory');
-            if (categoryFilter.options.length === 1) {
-                const cats = new Set();
-                allReceipts.forEach(r => {
-                    r.items.forEach(i => cats.add(i.category || 'Other'));
-                });
-                Array.from(cats).sort().forEach(cat => {
-                    const opt = document.createElement('option');
-                    opt.value = cat;
-                    opt.textContent = cat;
-                    categoryFilter.appendChild(opt);
-                });
-            }
-
-            currentTableData = [];
-            allReceipts.forEach(receipt => {
-                receipt.items.forEach(item => {
-                    currentTableData.push({
-                        date: receipt.date || 'N/A',
-                        store: receipt.store || 'Unknown',
-                        item: item.name,
-                        category: item.category || 'Other',
-                        subcategory: item.subcategory || 'N/A',
-                        price: item.price
-                    });
-                });
-            });
-
-            let filtered = currentTableData;
-            if (filter) filtered = filtered.filter(r => r.category === filter);
-            if (search) filtered = filtered.filter(r => 
-                r.item.toLowerCase().includes(search) ||
-                r.store.toLowerCase().includes(search)
-            );
-
-            filtered.sort((a, b) => {
-                let aVal = a[currentSort.column];
-                let bVal = b[currentSort.column];
-
-                if (currentSort.column === 'price') {
-                    aVal = parseFloat(aVal);
-                    bVal = parseFloat(bVal);
-                } else {
-                    aVal = String(aVal).toLowerCase();
-                    bVal = String(bVal).toLowerCase();
-                }
-
-                if (currentSort.direction === 'asc') {
-                    return aVal > bVal ? 1 : -1;
-                } else {
-                    return aVal < bVal ? 1 : -1;
-                }
-            });
-
-            const tbody = document.getElementById('dataTableBody');
-            if (filtered.length === 0) {
-                tbody.innerHTML = '<tr><td colspan="6" style="text-align: center; padding: 40px;">No data found</td></tr>';
-            } else {
-                tbody.innerHTML = filtered.map(row => `
-                    <tr>
-                        <td>${row.date}</td>
-                        <td>${row.store}</td>
-                        <td style="font-weight: 600;">${row.item}</td>
-                        <td>${row.category}</td>
-                        <td>${row.subcategory}</td>
-                        <td style="text-align: right; font-weight: 600;">${row.price.toFixed(2)} kr</td>
-                    </tr>
-                `).join('');
-            }
-
-            const total = filtered.reduce((sum, row) => sum + row.price, 0);
-            document.getElementById('dataTableSummary').textContent = 
-                `📊 Showing ${filtered.length} items • Total: ${total.toFixed(2)} kr`;
-        }
-
-        function sortTable(column) {
-            if (currentSort.column === column) {
-                currentSort.direction = currentSort.direction === 'asc' ? 'desc' : 'asc';
-            } else {
-                currentSort.column = column;
-                currentSort.direction = 'asc';
-            }
-            updateDataTable();
-        }
-
-        document.getElementById('searchInput')?.addEventListener('input', updateDataTable);
-
-        // CSV Export functionality
-        function exportToCSV() {
-            if (allReceipts.length === 0) {
-                alert('No data to export! Scan some receipts first.');
-                return;
-            }
-
-            // Build CSV data
-            const csvRows = [];
-
-            // Header row
-            csvRows.push(['Date', 'Store', 'Item', 'Category', 'Subcategory', 'Price (kr)', 'Receipt Total (kr)'].join(','));
-
-            // Data rows
-            allReceipts.forEach(receipt => {
-                receipt.items.forEach(item => {
-                    const row = [
-                        receipt.date || 'N/A',
-                        `"${(receipt.store || 'Unknown').replace(/"/g, '""')}"`, // Escape quotes
-                        `"${item.name.replace(/"/g, '""')}"`,
-                        item.category || 'Other',
-                        item.subcategory || 'N/A',
-                        item.price.toFixed(2),
-                        receipt.total ? receipt.total.toFixed(2) : 'N/A'
-                    ];
-                    csvRows.push(row.join(','));
-                });
-            });
-
-            // Add summary row
-            const totalSpent = allReceipts.reduce((sum, r) => sum + (r.total || 0), 0);
-            const totalItems = allReceipts.reduce((sum, r) => sum + r.items.length, 0);
-            csvRows.push('');
-            csvRows.push(['Summary', '', '', '', '', '', ''].join(','));
-            csvRows.push(['Total Receipts', allReceipts.length, '', '', '', '', ''].join(','));
-            csvRows.push(['Total Items', totalItems, '', '', '', '', ''].join(','));
-            csvRows.push(['Total Amount', '', '', '', '', totalSpent.toFixed(2), ''].join(','));
-
-            // Create CSV string
-            const csvString = csvRows.join('\n');
-
-            // Create download link
-            const blob = new Blob([csvString], { type: 'text/csv;charset=utf-8;' });
-            const link = document.createElement('a');
-            const url = URL.createObjectURL(blob);
-
-            // Generate filename with current date
-            const today = new Date().toISOString().split('T')[0];
-            const filename = `spendy-budget-export-${today}.csv`;
-
-            link.setAttribute('href', url);
-            link.setAttribute('download', filename);
-            link.style.visibility = 'hidden';
-            document.body.appendChild(link);
-            link.click();
-            document.body.removeChild(link);
-
-            // Show success message
-            alert(`✅ Exported ${allReceipts.length} receipts (${totalItems} items) to ${filename}\n\nYou can now:\n• Open it in Excel/Google Sheets\n• Email it as an attachment\n• Import it into other tools`);
-        }
-        // Function to delete a receipt
-        function deleteReceipt(index) {
-            if (confirm('Are you sure you want to delete this receipt?')) {
-                // 1. Remove the receipt from the array
-                allReceipts.splice(index, 1);
-
-                // 2. Save the updated list back to storage
-                if (typeof window.storage !== 'undefined' && window.storage) {
-                    window.storage.set('receipts', JSON.stringify(allReceipts));
-                } else {
-                    localStorage.setItem('spendy-receipts', JSON.stringify(allReceipts));
-                }
-
-                // 3. Refresh the UI
-                updateDashboard();
-                updateHistory();
-                updateDataTable();
-
-                alert('Receipt deleted!');
-            }
-        }
-        // Initialize Supabase (Use your actual URL and Key)
+        // --- 1. INITIALIZATION & AUTH ---
 const { createClient } = supabase;
 const _supabase = createClient('https://ztdvxcekvkonipdddraj.supabase.co', 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Inp0ZHZ4Y2VrdmtvbmlwZGRkcmFqIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NjgyNzU0NDYsImV4cCI6MjA4Mzg1MTQ0Nn0.FYMo-w6HomXjaclhqdOWArIcLMqA2ZakBwYfTsgS7xI');
 
-async function saveReceipt() {
-    if (!currentReceipt) return;
+let currentReceipt = null;
+let allReceipts = [];
 
-    const { data: { user } } = await _supabase.auth.getUser();
-    if (!user) {
-        alert("Please sign in to save receipts permanently!");
-        return;
-    }
-
-    // 1. Prepare data for Supabase
-    const receiptToSave = {
-        user_id: user.id,
-        store_name: currentReceipt.store || "Unknown Store",
-        purchase_date: currentReceipt.date || new Date().toISOString(),
-        total_amount: currentReceipt.total || 0,
-        items: currentReceipt.items // The array of items found by AI
-    };
-
-    // 2. Insert into PostgreSQL
-    const { error } = await _supabase
-        .from('receipts')
-        .insert([receiptToSave]);
-
-    if (error) {
-        console.error("Error saving:", error);
-        alert("Failed to save to cloud.");
-    } else {
-        alert("✅ Saved permanently to your account!");
-        loadLongTermData(); // Refresh the list
-    }
-}
-        // 1. Function to handle both Login and Sign Up
+// Handle Login/Signup
 async function signIn() {
     const email = document.getElementById('email-input').value;
     const password = document.getElementById('password-input').value;
+    if (!email || !password) return alert("Please enter email and password.");
 
-    if (!email || !password) {
-        alert("Please enter both email and password.");
-        return;
-    }
-
-    // Attempt to Sign In
-    const { data, error } = await _supabase.auth.signInWithPassword({
-        email: email,
-        password: password,
-    });
-
-    // If login fails (user might not exist), attempt to Sign Up
+    const { data, error } = await _supabase.auth.signInWithPassword({ email, password });
     if (error) {
-        console.log("Login failed, attempting sign up...");
-        const { data: signUpData, error: signUpError } = await _supabase.auth.signUp({
-            email: email,
-            password: password,
-        });
-
-        if (signUpError) {
-            alert("Error: " + signUpError.message);
-        } else {
-            alert("Success! Please check your email for a confirmation link (if enabled) or try logging in again.");
-        }
+        const { error: signUpError } = await _supabase.auth.signUp({ email, password });
+        if (signUpError) alert(signUpError.message);
+        else alert("Account created! Check email if required, then login.");
     }
 }
+window.signIn = signIn;
 
-// 2. Auth State Observer: Automatically hides/shows the login screen
+// Auth Observer (Toggles Overlay)
 _supabase.auth.onAuthStateChanged((event, session) => {
     const overlay = document.getElementById('login-overlay');
     if (session) {
-        // User is logged in! Hide the overlay and load their data
         overlay.style.display = 'none';
-        console.log("Logged in as:", session.user.id);
-        
-        // Refresh your app data from Supabase
         loadLongTermData(); 
     } else {
-        // No user found, show the login screen
         overlay.style.display = 'flex';
     }
 });
 
-// 3. Optional: Add a Logout function to your nav or settings
-async function handleLogout() {
-    const { error } = await _supabase.auth.signOut();
-    if (error) console.error("Error logging out:", error.message);
+// --- 2. CLOUD DATA ENGINE (LONG TERM STORAGE) ---
+async function loadLongTermData() {
+    const { data, error } = await _supabase
+        .from('receipts')
+        .select('*')
+        .order('purchase_date', { ascending: false });
+
+    if (data) {
+        allReceipts = data.map(r => ({
+            store: r.store_name,
+            date: r.purchase_date,
+            total: parseFloat(r.total_amount),
+            items: r.items
+        }));
+        updateDashboard();
+        updateHistory();
+    }
 }
-    </script>
+
+async function saveReceipt() {
+    if (!currentReceipt) return;
+    const { data: { user } } = await _supabase.auth.getUser();
+    
+    const receiptToSave = {
+        user_id: user.id,
+        store_name: currentReceipt.store || "Unknown Store",
+        purchase_date: currentReceipt.date || new Date().toISOString().split('T')[0],
+        total_amount: currentReceipt.total || 0,
+        items: currentReceipt.items
+    };
+
+    const { error } = await _supabase.from('receipts').insert([receiptToSave]);
+    if (error) alert("Cloud Save Error: " + error.message);
+    else {
+        alert("✅ Saved to Cloud!");
+        currentReceipt = null;
+        document.getElementById('processingArea').style.display = 'none';
+        loadLongTermData();
+    }
+}
+window.saveReceipt = saveReceipt;
+
+// --- 3. PLAYFUL UI LOGIC (RETAINED FROM ORIGINAL) ---
+
+function switchTab(tabName) {
+    document.querySelectorAll('.nav-tab').forEach(t => t.classList.remove('active'));
+    document.querySelectorAll('.tab-content').forEach(c => c.classList.remove('active'));
+    
+    // Fix: access current event target safely
+    if (event) event.target.closest('.nav-tab').classList.add('active');
+    document.getElementById(tabName).classList.add('active');
+
+    if (tabName === 'dashboard') updateDashboard();
+    else if (tabName === 'history') updateHistory();
+    else if (tabName === 'data') updateDataTable();
+}
+
+// AI Analysis Logic
+async function analyzeReceipt(imageData) {
+    try {
+        const response = await fetch('/api/analyze', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ imageData })
+        });
+        const receiptData = await response.json();
+        currentReceipt = receiptData;
+        displayResults(receiptData);
+    } catch (error) {
+        alert('Error analyzing: ' + error.message);
+    }
+}
+
+function displayResults(data) {
+    document.getElementById('loadingState').style.display = 'none';
+    document.getElementById('resultsArea').style.display = 'block';
+    document.getElementById('itemsList').innerHTML = `
+        <div style="background: var(--light); padding: 20px; border-radius: 16px; margin-bottom: 20px;">
+            <strong>Store:</strong> ${data.store || 'N/A'}<br>
+            <strong>Total:</strong> ${data.total?.toFixed(2)} kr
+        </div>
+        ${data.items.map(item => `
+            <div class="item">
+                <div class="item-name">${item.name}</div>
+                <div class="item-price">${item.price.toFixed(2)} kr</div>
+            </div>
+        `).join('')}
+    `;
+}
+
+// Stats & Charts
+function updateDashboard() {
+    const totalSpent = allReceipts.reduce((sum, r) => sum + (r.total || 0), 0);
+    document.getElementById('totalSpent').textContent = totalSpent.toFixed(2) + ' kr';
+    document.getElementById('receiptCount').textContent = allReceipts.length;
+    
+    // Update Chart
+    const categoryTotals = {};
+    allReceipts.forEach(r => r.items.forEach(i => {
+        categoryTotals[i.category] = (categoryTotals[i.category] || 0) + i.price;
+    }));
+    updateCategoryChart(categoryTotals);
+}
+
+// Helper: Chart rendering
+function updateCategoryChart(categoryTotals) {
+    const ctx = document.getElementById('categoryChart');
+    if (window.categoryChartInstance) window.categoryChartInstance.destroy();
+    window.categoryChartInstance = new Chart(ctx, {
+        type: 'doughnut',
+        data: {
+            labels: Object.keys(categoryTotals),
+            datasets: [{
+                data: Object.values(categoryTotals),
+                backgroundColor: ['#FF6B6B', '#4ECDC4', '#FFE66D', '#A78BFA']
+            }]
+        }
+    });
+}
+
+// Batch Processing & Utilities
+function sleep(ms) { return new Promise(r => setTimeout(r, ms)); }
+function toggleExpand(id) {
+    document.getElementById(`${id}-content`).classList.toggle('expanded');
+    document.getElementById(`${id}-icon`).classList.toggle('rotated');
+}
+
+// --- INITIAL LOAD ---
+// Note: We don't call loadData() here anymore because onAuthStateChanged handles it.
+</script>
+    </script>    
 </body>
