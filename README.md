@@ -4,7 +4,7 @@ THe following app is a budgeting app that can scan your recipets, and using AI, 
 ## Backlog 
 
 
-**1.** Dashboard: "Top 10 Most Expensive & Frequent Items" Your app already has the data; we just need to add a new section to the Dashboard tab. Frequency Tracking: We will add a small script that counts how many times "Chicken" appears across all receipts. Cost Tracking: It will sum up every "Chicken" entry (e.g., 50kr + 70kr + 40kr) to show you that you've spent 160kr total on chicken this month. New Card: I will provide a new "Top Items" card that lists these top 10 items with a small progress bar for each.
+**1.** DONE: Dashboard: "Top 10 Most Expensive & Frequent Items" Your app already has the data; we just need to add a new section to the Dashboard tab. Frequency Tracking: We will add a small script that counts how many times "Chicken" appears across all receipts. Cost Tracking: It will sum up every "Chicken" entry (e.g., 50kr + 70kr + 40kr) to show you that you've spent 160kr total on chicken this month. New Card: I will provide a new "Top Items" card that lists these top 10 items with a small progress bar for each.
 
 **2.** User Log-ins (Personalized Accounts) Right now, your data is saved to your browser's "LocalStorage." If you clear your history or switch phones, the data is gone.
   Step 1: I will help you set up Supabase (a free database).
