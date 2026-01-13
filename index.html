@@ -1174,7 +1174,28 @@
                 allReceipts = [];
             }
         }
+async function loadLongTermData() {
+    const { data, error } = await _supabase
+        .from('receipts')
+        .select('*')
+        .order('created_at', { ascending: false });
 
+    if (error) {
+        console.error("Error fetching:", error);
+        return;
+    }
+
+    // Map database fields back to your app's internal format
+    allReceipts = data.map(r => ({
+        store: r.store_name,
+        date: r.purchase_date,
+        total: parseFloat(r.total_amount),
+        items: r.items
+    }));
+
+    updateDashboard();
+    updateHistory();
+}
         loadData();
 
         function switchTab(tabName) {
@@ -2058,5 +2079,40 @@
                 alert('Receipt deleted!');
             }
         }
+        // Initialize Supabase (Use your actual URL and Key)
+const { createClient } = supabase;
+const _supabase = createClient('https://ztdvxcekvkonipdddraj.supabase.co', 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Inp0ZHZ4Y2VrdmtvbmlwZGRkcmFqIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NjgyNzU0NDYsImV4cCI6MjA4Mzg1MTQ0Nn0.FYMo-w6HomXjaclhqdOWArIcLMqA2ZakBwYfTsgS7xI');
+
+async function saveReceipt() {
+    if (!currentReceipt) return;
+
+    const { data: { user } } = await _supabase.auth.getUser();
+    if (!user) {
+        alert("Please sign in to save receipts permanently!");
+        return;
+    }
+
+    // 1. Prepare data for Supabase
+    const receiptToSave = {
+        user_id: user.id,
+        store_name: currentReceipt.store || "Unknown Store",
+        purchase_date: currentReceipt.date || new Date().toISOString(),
+        total_amount: currentReceipt.total || 0,
+        items: currentReceipt.items // The array of items found by AI
+    };
+
+    // 2. Insert into PostgreSQL
+    const { error } = await _supabase
+        .from('receipts')
+        .insert([receiptToSave]);
+
+    if (error) {
+        console.error("Error saving:", error);
+        alert("Failed to save to cloud.");
+    } else {
+        alert("✅ Saved permanently to your account!");
+        loadLongTermData(); // Refresh the list
+    }
+}
     </script>
 </body>
