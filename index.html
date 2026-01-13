@@ -1109,63 +1109,9 @@
                 <div id="historyList"></div>
             </div>
         </div>
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
     </div>
 
     <script>
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
         let currentReceipt = null;
         let allReceipts = [];
 
@@ -2133,6 +2079,59 @@ async function saveReceipt() {
         alert("✅ Saved permanently to your account!");
         loadLongTermData(); // Refresh the list
     }
+}
+        // 1. Function to handle both Login and Sign Up
+async function signIn() {
+    const email = document.getElementById('email-input').value;
+    const password = document.getElementById('password-input').value;
+
+    if (!email || !password) {
+        alert("Please enter both email and password.");
+        return;
+    }
+
+    // Attempt to Sign In
+    const { data, error } = await _supabase.auth.signInWithPassword({
+        email: email,
+        password: password,
+    });
+
+    // If login fails (user might not exist), attempt to Sign Up
+    if (error) {
+        console.log("Login failed, attempting sign up...");
+        const { data: signUpData, error: signUpError } = await _supabase.auth.signUp({
+            email: email,
+            password: password,
+        });
+
+        if (signUpError) {
+            alert("Error: " + signUpError.message);
+        } else {
+            alert("Success! Please check your email for a confirmation link (if enabled) or try logging in again.");
+        }
+    }
+}
+
+// 2. Auth State Observer: Automatically hides/shows the login screen
+_supabase.auth.onAuthStateChanged((event, session) => {
+    const overlay = document.getElementById('login-overlay');
+    if (session) {
+        // User is logged in! Hide the overlay and load their data
+        overlay.style.display = 'none';
+        console.log("Logged in as:", session.user.id);
+        
+        // Refresh your app data from Supabase
+        loadLongTermData(); 
+    } else {
+        // No user found, show the login screen
+        overlay.style.display = 'flex';
+    }
+});
+
+// 3. Optional: Add a Logout function to your nav or settings
+async function handleLogout() {
+    const { error } = await _supabase.auth.signOut();
+    if (error) console.error("Error logging out:", error.message);
 }
     </script>
 </body>
