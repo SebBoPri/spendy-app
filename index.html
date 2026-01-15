@@ -1211,11 +1211,11 @@
                 <h2 class="card-title">🔒 Change Password</h2>
                 <div style="margin-bottom: 20px;">
                     <label style="display: block; font-weight: 600; margin-bottom: 8px;">New Password</label>
-                    <input type="password" id="new-password-input" placeholder="Minimum 6 characters" style="width: 100%; padding: 12px; border-radius: 8px; border: 1px solid #ddd;">
+                    <input type="password" id="account-new-password-input" placeholder="Minimum 6 characters" style="width: 100%; padding: 12px; border-radius: 8px; border: 1px solid #ddd;">
                 </div>
                 <div style="margin-bottom: 20px;">
                     <label style="display: block; font-weight: 600; margin-bottom: 8px;">Confirm New Password</label>
-                    <input type="password" id="confirm-password-input" placeholder="Re-enter password" style="width: 100%; padding: 12px; border-radius: 8px; border: 1px solid #ddd;">
+                    <input type="password" id="account-confirm-password-input" placeholder="Re-enter password" style="width: 100%; padding: 12px; border-radius: 8px; border: 1px solid #ddd;">
                 </div>
                 <button class="btn" onclick="changePassword()"><span>Update Password</span></button>
             </div>
@@ -2579,8 +2579,8 @@
 
         // Change Password
         async function changePassword() {
-            const newPassword = document.getElementById('new-password-input').value;
-            const confirmPassword = document.getElementById('confirm-password-input').value;
+            const newPassword = document.getElementById('account-new-password-input').value;
+            const confirmPassword = document.getElementById('account-confirm-password-input').value;
 
             if (!newPassword || !confirmPassword) {
                 alert('Please fill in both password fields');
