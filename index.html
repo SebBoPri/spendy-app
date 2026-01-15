@@ -993,6 +993,69 @@
             margin-right: 6px;
             animation: pulse 2s infinite;
         }
+
+        /* Dark Mode Styles */
+        body.dark-mode {
+            background: linear-gradient(135deg, #1a1a2e 0%, #16213e 100%);
+            color: #f0f0f0;
+        }
+
+        body.dark-mode .card {
+            background: rgba(42, 45, 52, 0.95);
+            color: #f0f0f0;
+        }
+
+        body.dark-mode .card-title {
+            color: #f0f0f0;
+        }
+
+        body.dark-mode input[type="text"],
+        body.dark-mode input[type="email"],
+        body.dark-mode input[type="password"],
+        body.dark-mode input[type="url"],
+        body.dark-mode select {
+            background: rgba(60, 60, 80, 0.8);
+            border-color: rgba(100, 100, 120, 0.5);
+            color: #f0f0f0;
+        }
+
+        body.dark-mode .nav-tab {
+            color: rgba(255, 255, 255, 0.8);
+        }
+
+        body.dark-mode .nav-tab.active {
+            background: rgba(255, 255, 255, 0.95);
+            color: var(--primary);
+        }
+
+        body.dark-mode .item,
+        body.dark-mode tbody tr {
+            background: rgba(60, 60, 80, 0.6);
+        }
+
+        body.dark-mode .stat-card {
+            background: rgba(42, 45, 52, 0.95);
+        }
+
+        body.dark-mode .stat-value,
+        body.dark-mode .item-name,
+        body.dark-mode .item-price,
+        body.dark-mode td {
+            color: #f0f0f0;
+        }
+
+        body.dark-mode .expandable {
+            background: rgba(60, 60, 80, 0.6);
+        }
+
+        body.dark-mode .expandable-header {
+            background: rgba(42, 45, 52, 0.95);
+        }
+
+        body.dark-mode th {
+            background: rgba(42, 45, 52, 0.95);
+            color: #f0f0f0;
+        }
     </style>
 </head>
 <body>
@@ -1048,6 +1111,7 @@
             <button class="nav-tab" onclick="switchTab('dashboard')"><span>Dashboard</span></button>
             <button class="nav-tab" onclick="switchTab('data')"><span>Data</span></button>
             <button class="nav-tab" onclick="switchTab('history')"><span>History</span></button>
+            <button class="nav-tab" id="account-tab" onclick="switchTab('account')" style="display: none;"><span>⚙️ Account</span></button>
         </nav>
 
 
@@ -1169,11 +1233,86 @@
                 <div id="historyList"></div>
             </div>
         </div>
+
+        <!-- Account Tab -->
+        <div id="account" class="tab-content">
+            <div class="card">
+                <h2 class="card-title">👤 Profile Settings</h2>
+                <div style="margin-bottom: 20px;">
+                    <label style="display: block; font-weight: 600; margin-bottom: 8px;">Display Name</label>
+                    <input type="text" id="display-name-input" placeholder="Your name" style="width: 100%; padding: 12px; border-radius: 8px; border: 1px solid #ddd;">
+                </div>
+                <div style="margin-bottom: 20px;">
+                    <label style="display: block; font-weight: 600; margin-bottom: 8px;">Profile Picture URL (optional)</label>
+                    <input type="url" id="profile-pic-input" placeholder="https://example.com/avatar.jpg" style="width: 100%; padding: 12px; border-radius: 8px; border: 1px solid #ddd;">
+                    <div id="profile-pic-preview" style="margin-top: 10px; display: none;">
+                        <img id="profile-pic-img" style="width: 80px; height: 80px; border-radius: 50%; object-fit: cover; box-shadow: 0 4px 8px rgba(0,0,0,0.1);">
+                    </div>
+                </div>
+                <button class="btn" onclick="updateProfile()"><span>Save Profile</span></button>
+            </div>
+
+            <div class="card">
+                <h2 class="card-title">🔒 Change Password</h2>
+                <div style="margin-bottom: 20px;">
+                    <label style="display: block; font-weight: 600; margin-bottom: 8px;">New Password</label>
+                    <input type="password" id="new-password-input" placeholder="Minimum 6 characters" style="width: 100%; padding: 12px; border-radius: 8px; border: 1px solid #ddd;">
+                </div>
+                <div style="margin-bottom: 20px;">
+                    <label style="display: block; font-weight: 600; margin-bottom: 8px;">Confirm New Password</label>
+                    <input type="password" id="confirm-password-input" placeholder="Re-enter password" style="width: 100%; padding: 12px; border-radius: 8px; border: 1px solid #ddd;">
+                </div>
+                <button class="btn" onclick="changePassword()"><span>Update Password</span></button>
+            </div>
+
+            <div class="card">
+                <h2 class="card-title">⚙️ Preferences</h2>
+                <div style="margin-bottom: 20px;">
+                    <label style="display: block; font-weight: 600; margin-bottom: 8px;">Currency</label>
+                    <select id="currency-select" style="width: 100%; padding: 12px; border-radius: 8px; border: 1px solid #ddd;">
+                        <option value="kr">Swedish Krona (kr)</option>
+                        <option value="$">US Dollar ($)</option>
+                        <option value="€">Euro (€)</option>
+                        <option value="£">British Pound (£)</option>
+                        <option value="¥">Japanese Yen (¥)</option>
+                        <option value="₹">Indian Rupee (₹)</option>
+                    </select>
+                </div>
+                <div style="margin-bottom: 20px;">
+                    <label style="display: block; font-weight: 600; margin-bottom: 8px;">Theme</label>
+                    <div style="display: flex; gap: 10px;">
+                        <button class="btn" onclick="toggleDarkMode()" style="flex: 1;"><span id="theme-toggle-text">🌙 Enable Dark Mode</span></button>
+                    </div>
+                </div>
+                <button class="btn" onclick="savePreferences()"><span>Save Preferences</span></button>
+            </div>
+
+            <div class="card">
+                <h2 class="card-title">📥 Export Data</h2>
+                <p style="color: #666; margin-bottom: 16px;">Download all your receipts and transaction data</p>
+                <div style="display: flex; gap: 10px;">
+                    <button class="btn" onclick="exportAllDataJSON()"><span>📄 Export as JSON</span></button>
+                    <button class="btn" onclick="exportToCSV()"><span>📊 Export as CSV</span></button>
+                </div>
+            </div>
+
+            <div class="card" style="border: 2px solid var(--primary);">
+                <h2 class="card-title" style="color: var(--primary);">⚠️ Danger Zone</h2>
+                <p style="color: #666; margin-bottom: 16px;">Permanently delete your account and all associated data. This action cannot be undone.</p>
+                <button class="btn" style="background: linear-gradient(135deg, #FF6B6B, #E63946);" onclick="deleteAccount()"><span>🗑️ Delete Account</span></button>
+            </div>
+        </div>
     </div>
 
     <script>
         let currentReceipt = null;
         let allReceipts = [];
+        let userPreferences = {
+            currency: 'kr',
+            darkMode: false,
+            displayName: '',
+            profilePic: ''
+        };
 
         // Load saved data
         async function loadData() {
@@ -2143,8 +2282,12 @@
                 document.getElementById('login-overlay').style.display = 'none';
                 updateUserStatus(data.user);
 
+                // Show account tab
+                document.getElementById('account-tab').style.display = 'block';
+
                 // Load user's receipts from Supabase
                 await loadLongTermData();
+                loadUserPreferences();
             } catch (err) {
                 alert('Error: ' + err.message);
             }
@@ -2182,8 +2325,12 @@
                 document.getElementById('login-overlay').style.display = 'none';
                 updateUserStatus(data.user);
 
+                // Show account tab
+                document.getElementById('account-tab').style.display = 'block';
+
                 // Load user's receipts from Supabase
                 await loadLongTermData();
+                loadUserPreferences();
             } catch (err) {
                 alert('Error: ' + err.message);
             }
@@ -2193,6 +2340,7 @@
         function continueAsGuest() {
             document.getElementById('login-overlay').style.display = 'none';
             loadData(); // Load local data only
+            loadUserPreferences(); // Load preferences even as guest
         }
 
         // Update user status display
@@ -2282,10 +2430,246 @@
                 document.getElementById('login-overlay').style.display = 'none';
                 updateUserStatus(session.user);
                 loadLongTermData();
+                loadUserPreferences();
+                document.getElementById('account-tab').style.display = 'block';
             } else {
                 updateUserStatus(null);
+                document.getElementById('account-tab').style.display = 'none';
             }
         });
+
+        // ============ ACCOUNT MANAGEMENT FUNCTIONS ============
+
+        // Load user preferences from localStorage
+        function loadUserPreferences() {
+            const saved = localStorage.getItem('spendy-preferences');
+            if (saved) {
+                userPreferences = JSON.parse(saved);
+
+                // Apply preferences
+                document.getElementById('currency-select').value = userPreferences.currency || 'kr';
+                document.getElementById('display-name-input').value = userPreferences.displayName || '';
+                document.getElementById('profile-pic-input').value = userPreferences.profilePic || '';
+
+                if (userPreferences.darkMode) {
+                    document.body.classList.add('dark-mode');
+                    document.getElementById('theme-toggle-text').textContent = '☀️ Disable Dark Mode';
+                }
+
+                if (userPreferences.profilePic) {
+                    showProfilePicPreview(userPreferences.profilePic);
+                }
+
+                // Update display name in header if available
+                if (userPreferences.displayName) {
+                    const emailSpan = document.getElementById('user-email');
+                    emailSpan.textContent = userPreferences.displayName;
+                }
+            }
+        }
+
+        // Profile picture preview
+        document.getElementById('profile-pic-input')?.addEventListener('input', (e) => {
+            const url = e.target.value;
+            if (url) {
+                showProfilePicPreview(url);
+            }
+        });
+
+        function showProfilePicPreview(url) {
+            const preview = document.getElementById('profile-pic-preview');
+            const img = document.getElementById('profile-pic-img');
+            img.src = url;
+            img.onerror = () => {
+                preview.style.display = 'none';
+                alert('Invalid image URL');
+            };
+            img.onload = () => {
+                preview.style.display = 'block';
+            };
+        }
+
+        // Update Profile
+        async function updateProfile() {
+            const displayName = document.getElementById('display-name-input').value;
+            const profilePic = document.getElementById('profile-pic-input').value;
+
+            userPreferences.displayName = displayName;
+            userPreferences.profilePic = profilePic;
+
+            localStorage.setItem('spendy-preferences', JSON.stringify(userPreferences));
+
+            // Update display in header
+            const emailSpan = document.getElementById('user-email');
+            if (displayName) {
+                emailSpan.textContent = displayName;
+            } else {
+                const { data: { user } } = await _supabase.auth.getUser();
+                if (user) {
+                    emailSpan.textContent = user.email;
+                }
+            }
+
+            alert('✅ Profile updated successfully!');
+        }
+
+        // Change Password
+        async function changePassword() {
+            const newPassword = document.getElementById('new-password-input').value;
+            const confirmPassword = document.getElementById('confirm-password-input').value;
+
+            if (!newPassword || !confirmPassword) {
+                alert('Please fill in both password fields');
+                return;
+            }
+
+            if (newPassword.length < 6) {
+                alert('Password must be at least 6 characters long');
+                return;
+            }
+
+            if (newPassword !== confirmPassword) {
+                alert('Passwords do not match');
+                return;
+            }
+
+            try {
+                const { error } = await _supabase.auth.updateUser({
+                    password: newPassword
+                });
+
+                if (error) {
+                    alert('Failed to update password: ' + error.message);
+                    return;
+                }
+
+                alert('✅ Password updated successfully!');
+                document.getElementById('new-password-input').value = '';
+                document.getElementById('confirm-password-input').value = '';
+            } catch (err) {
+                alert('Error: ' + err.message);
+            }
+        }
+
+        // Save Preferences (Currency)
+        function savePreferences() {
+            const currency = document.getElementById('currency-select').value;
+            userPreferences.currency = currency;
+
+            localStorage.setItem('spendy-preferences', JSON.stringify(userPreferences));
+
+            // Refresh displays with new currency
+            updateDashboard();
+            updateHistory();
+            updateDataTable();
+
+            alert('✅ Preferences saved! Currency changed to ' + currency);
+        }
+
+        // Toggle Dark Mode
+        function toggleDarkMode() {
+            userPreferences.darkMode = !userPreferences.darkMode;
+            localStorage.setItem('spendy-preferences', JSON.stringify(userPreferences));
+
+            document.body.classList.toggle('dark-mode');
+
+            const toggleText = document.getElementById('theme-toggle-text');
+            if (userPreferences.darkMode) {
+                toggleText.textContent = '☀️ Disable Dark Mode';
+            } else {
+                toggleText.textContent = '🌙 Enable Dark Mode';
+            }
+        }
+
+        // Export All Data as JSON
+        function exportAllDataJSON() {
+            if (allReceipts.length === 0) {
+                alert('No data to export! Scan some receipts first.');
+                return;
+            }
+
+            const exportData = {
+                exportDate: new Date().toISOString(),
+                version: '1.0',
+                preferences: userPreferences,
+                receipts: allReceipts,
+                summary: {
+                    totalReceipts: allReceipts.length,
+                    totalSpent: allReceipts.reduce((sum, r) => sum + (r.total || 0), 0),
+                    totalItems: allReceipts.reduce((sum, r) => sum + r.items.length, 0)
+                }
+            };
+
+            const dataStr = JSON.stringify(exportData, null, 2);
+            const blob = new Blob([dataStr], { type: 'application/json' });
+            const url = URL.createObjectURL(blob);
+            const link = document.createElement('a');
+            const today = new Date().toISOString().split('T')[0];
+            link.setAttribute('href', url);
+            link.setAttribute('download', `spendy-backup-${today}.json`);
+            link.style.visibility = 'hidden';
+            document.body.appendChild(link);
+            link.click();
+            document.body.removeChild(link);
+
+            alert(`✅ Exported ${allReceipts.length} receipts as JSON backup`);
+        }
+
+        // Delete Account
+        async function deleteAccount() {
+            const confirmation = prompt('⚠️ WARNING: This will permanently delete your account and ALL data.\n\nType "DELETE" to confirm:');
+
+            if (confirmation !== 'DELETE') {
+                alert('Account deletion cancelled.');
+                return;
+            }
+
+            const { data: { user } } = await _supabase.auth.getUser();
+
+            if (!user) {
+                alert('You must be logged in to delete your account');
+                return;
+            }
+
+            try {
+                // Delete all user receipts from database
+                const { error: deleteError } = await _supabase
+                    .from('receipts')
+                    .delete()
+                    .eq('user_id', user.id);
+
+                if (deleteError) {
+                    console.error('Error deleting receipts:', deleteError);
+                }
+
+                // Sign out and clear local data
+                await _supabase.auth.signOut();
+                localStorage.removeItem('spendy-receipts');
+                localStorage.removeItem('spendy-preferences');
+                allReceipts = [];
+
+                // Reset UI
+                updateUserStatus(null);
+                document.getElementById('login-overlay').style.display = 'flex';
+                updateDashboard();
+                updateHistory();
+                updateDataTable();
+
+                alert('✅ Account deleted successfully. We\'re sorry to see you go!');
+            } catch (err) {
+                alert('Error deleting account: ' + err.message);
+            }
+        }
+
+        // Helper function to format currency
+        function formatCurrency(amount) {
+            const currency = userPreferences.currency || 'kr';
+            if (currency === 'kr') {
+                return amount.toFixed(2) + ' kr';
+            } else {
+                return currency + amount.toFixed(2);
+            }
+        }
     </script>
 </body>
 </html>
