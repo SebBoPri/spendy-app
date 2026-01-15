@@ -1013,9 +1013,190 @@
             background: #1e2024;
             border-color: #2a2d33;
         }
+
+        /* Toast Notifications */
+        #toast-container {
+            position: fixed;
+            top: 20px;
+            right: 20px;
+            z-index: 10000;
+            display: flex;
+            flex-direction: column;
+            gap: 12px;
+            max-width: 400px;
+            pointer-events: none;
+        }
+
+        .toast {
+            background: var(--white);
+            border-radius: var(--radius-medium);
+            padding: 16px 20px;
+            box-shadow: var(--shadow-high);
+            display: flex;
+            align-items: flex-start;
+            gap: 12px;
+            min-width: 300px;
+            pointer-events: auto;
+            animation: slideInRight 0.3s ease-out;
+            border-left: 4px solid var(--primary);
+        }
+
+        .toast.success {
+            border-left-color: var(--income-green);
+        }
+
+        .toast.error {
+            border-left-color: var(--expense-red);
+        }
+
+        .toast.warning {
+            border-left-color: var(--warning-yellow);
+        }
+
+        .toast.info {
+            border-left-color: var(--info-blue);
+        }
+
+        .toast-icon {
+            font-size: 24px;
+            line-height: 1;
+            flex-shrink: 0;
+        }
+
+        .toast-content {
+            flex: 1;
+            min-width: 0;
+        }
+
+        .toast-title {
+            font-weight: 600;
+            font-size: 14px;
+            margin-bottom: 4px;
+            color: var(--text-primary);
+        }
+
+        .toast-message {
+            font-size: 13px;
+            color: var(--text-secondary);
+            line-height: 1.4;
+        }
+
+        .toast-close {
+            background: none;
+            border: none;
+            color: var(--text-tertiary);
+            cursor: pointer;
+            padding: 0;
+            font-size: 20px;
+            line-height: 1;
+            flex-shrink: 0;
+            width: 20px;
+            height: 20px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            border-radius: 50%;
+            transition: background 0.2s;
+        }
+
+        .toast-close:hover {
+            background: var(--background);
+        }
+
+        @keyframes slideInRight {
+            from {
+                transform: translateX(400px);
+                opacity: 0;
+            }
+            to {
+                transform: translateX(0);
+                opacity: 1;
+            }
+        }
+
+        @keyframes slideOutRight {
+            from {
+                transform: translateX(0);
+                opacity: 1;
+            }
+            to {
+                transform: translateX(400px);
+                opacity: 0;
+            }
+        }
+
+        .toast.removing {
+            animation: slideOutRight 0.3s ease-out forwards;
+        }
+
+        @media (max-width: 768px) {
+            #toast-container {
+                top: auto;
+                bottom: 20px;
+                right: 20px;
+                left: 20px;
+                max-width: none;
+            }
+
+            .toast {
+                min-width: auto;
+            }
+
+            @keyframes slideInRight {
+                from {
+                    transform: translateY(100px);
+                    opacity: 0;
+                }
+                to {
+                    transform: translateY(0);
+                    opacity: 1;
+                }
+            }
+
+            @keyframes slideOutRight {
+                from {
+                    transform: translateY(0);
+                    opacity: 1;
+                }
+                to {
+                    transform: translateY(100px);
+                    opacity: 0;
+                }
+            }
+        }
+
+        /* Drag and Drop Styles */
+        .upload-zone {
+            transition: all 0.3s ease;
+            position: relative;
+        }
+
+        .upload-zone.drag-over {
+            background: var(--primary-light);
+            border-color: var(--primary);
+            transform: scale(1.02);
+        }
+
+        .upload-zone.drag-over::after {
+            content: '';
+            position: absolute;
+            inset: 0;
+            border: 3px dashed var(--primary);
+            border-radius: var(--radius-xlarge);
+            animation: dashAnimation 1s linear infinite;
+        }
+
+        @keyframes dashAnimation {
+            to {
+                stroke-dashoffset: 20;
+            }
+        }
     </style>
 </head>
 <body>
+    <!-- Toast Notification Container -->
+    <div id="toast-container"></div>
+
     <div id="login-overlay" style="position: fixed; inset: 0; background: var(--background); z-index: 1000; display: flex; align-items: center; justify-content: center; padding: var(--spacing-lg);">
         <div class="card" style="width: 100%; max-width: 420px; text-align: center; box-shadow: var(--shadow-medium); padding: var(--spacing-xl);">
             <div style="width: 64px; height: 64px; background: var(--primary); border-radius: var(--radius-large); display: flex; align-items: center; justify-content: center; margin: 0 auto var(--spacing-lg); font-size: 32px;">💰</div>
@@ -1086,6 +1267,12 @@
                     <div id="loadingState" class="loading" style="display: none;">
                         <div class="spinner"></div>
                         <p class="loading-text">AI is reading your receipt... ✨</p>
+                        <div style="margin-top: 16px; text-align: center;">
+                            <div style="font-size: 24px; font-weight: 700; color: var(--primary); margin-bottom: 4px;" id="progress-percentage">0%</div>
+                            <div style="width: 100%; height: 8px; background: var(--border); border-radius: 4px; overflow: hidden;">
+                                <div id="progress-bar" style="width: 0%; height: 100%; background: linear-gradient(90deg, var(--primary), var(--primary-dark)); transition: width 0.3s ease;"></div>
+                            </div>
+                        </div>
                     </div>
                     <div id="resultsArea" style="display: none;">
                         <h3 style="margin-top: 24px; margin-bottom: 16px; font-family: 'Fraunces', serif; font-size: 1.5em;">Items Found</h3>
@@ -1121,6 +1308,14 @@
                 <p style="color: #666; margin-bottom: 16px;">Click any slice to explore details</p>
                 <div class="chart-container">
                     <canvas id="categoryChart"></canvas>
+                </div>
+            </div>
+
+            <div class="card">
+                <h2 class="card-title">Spending Trend</h2>
+                <p style="color: #666; margin-bottom: 16px;">Your spending over time</p>
+                <div class="chart-container">
+                    <canvas id="trendChart"></canvas>
                 </div>
             </div>
 
@@ -1268,6 +1463,97 @@
             displayName: '',
             profilePic: ''
         };
+
+        // ============ TOAST NOTIFICATION SYSTEM ============
+        function showToast(message, type = 'info', title = '') {
+            const container = document.getElementById('toast-container');
+
+            const icons = {
+                success: '✓',
+                error: '✕',
+                warning: '⚠',
+                info: 'ℹ'
+            };
+
+            const titles = {
+                success: title || 'Success',
+                error: title || 'Error',
+                warning: title || 'Warning',
+                info: title || 'Info'
+            };
+
+            const toast = document.createElement('div');
+            toast.className = `toast ${type}`;
+            toast.innerHTML = `
+                <div class="toast-icon">${icons[type]}</div>
+                <div class="toast-content">
+                    <div class="toast-title">${titles[type]}</div>
+                    <div class="toast-message">${message}</div>
+                </div>
+                <button class="toast-close" onclick="this.parentElement.remove()">×</button>
+            `;
+
+            container.appendChild(toast);
+
+            // Auto-remove after 4 seconds
+            setTimeout(() => {
+                toast.classList.add('removing');
+                setTimeout(() => toast.remove(), 300);
+            }, 4000);
+        }
+
+        // ============ DRAG & DROP FUNCTIONALITY ============
+        function initDragAndDrop() {
+            const uploadZone = document.querySelector('.upload-zone');
+            const fileInput = document.getElementById('fileInput');
+
+            if (!uploadZone) return;
+
+            // Prevent default drag behaviors
+            ['dragenter', 'dragover', 'dragleave', 'drop'].forEach(eventName => {
+                uploadZone.addEventListener(eventName, preventDefaults, false);
+                document.body.addEventListener(eventName, preventDefaults, false);
+            });
+
+            function preventDefaults(e) {
+                e.preventDefault();
+                e.stopPropagation();
+            }
+
+            // Highlight drop zone when dragging over it
+            ['dragenter', 'dragover'].forEach(eventName => {
+                uploadZone.addEventListener(eventName, () => {
+                    uploadZone.classList.add('drag-over');
+                }, false);
+            });
+
+            ['dragleave', 'drop'].forEach(eventName => {
+                uploadZone.addEventListener(eventName, () => {
+                    uploadZone.classList.remove('drag-over');
+                }, false);
+            });
+
+            // Handle dropped files
+            uploadZone.addEventListener('drop', (e) => {
+                const files = e.dataTransfer.files;
+                if (files.length > 0) {
+                    fileInput.files = files;
+                    fileInput.dispatchEvent(new Event('change'));
+                }
+            }, false);
+        }
+
+        // Initialize drag & drop when page loads
+        document.addEventListener('DOMContentLoaded', initDragAndDrop);
+
+        // ============ PROGRESS BAR FUNCTIONALITY ============
+        function updateProgress(percentage) {
+            const progressBar = document.getElementById('progress-bar');
+            const progressText = document.getElementById('progress-percentage');
+
+            if (progressBar) progressBar.style.width = `${percentage}%`;
+            if (progressText) progressText.textContent = `${percentage}%`;
+        }
 
         // Load saved data
         async function loadData() {
@@ -1576,13 +1862,13 @@
 
                     await loadLongTermData();
                     const totalReceipts = allReceipts.length;
-                    alert(`✅ ${batchCount} receipt${batchCount !== 1 ? 's' : ''} saved successfully! You now have ${totalReceipts} receipt${totalReceipts !== 1 ? 's' : ''} total.`);
+                    showToast(`${batchCount} receipt${batchCount !== 1 ? 's' : ''} saved successfully! You now have ${totalReceipts} receipt${totalReceipts !== 1 ? 's' : ''} total.`, 'success');
                 } else {
                     // Save locally if not logged in
                     allReceipts.push(...window.currentBatchResults);
                     localStorage.setItem('spendy-receipts', JSON.stringify(allReceipts));
                     const totalReceipts = allReceipts.length;
-                    alert(`✅ ${batchCount} receipt${batchCount !== 1 ? 's' : ''} saved locally! You now have ${totalReceipts} receipt${totalReceipts !== 1 ? 's' : ''} total.`);
+                    showToast(`${batchCount} receipt${batchCount !== 1 ? 's' : ''} saved locally! You now have ${totalReceipts} receipt${totalReceipts !== 1 ? 's' : ''} total.`, 'success');
                     updateDashboard();
                     updateHistory();
                     updateDataTable();
@@ -1593,7 +1879,7 @@
                 window.currentBatchResults = null;
                 document.querySelectorAll('.nav-tab')[1].click();
             } catch (error) {
-                alert('Error saving receipts: ' + error.message);
+                showToast(error.message, 'error', 'Save Failed');
             }
         }
 
@@ -1642,17 +1928,30 @@
 
          async function analyzeReceipt(imageData) {
             try {
+                // Simulate progress updates
+                updateProgress(10);
+                document.querySelector('.loading-text').textContent = 'Uploading image...';
+
                 // Use your secure Vercel bridge instead of calling Anthropic directly
+                updateProgress(30);
+                document.querySelector('.loading-text').textContent = 'AI is analyzing receipt...';
+
                 const response = await fetch('/api/analyze', {
                     method: 'POST',
                     headers: { 'Content-Type': 'application/json' },
                     body: JSON.stringify({ imageData })
                 });
 
+                updateProgress(60);
+                document.querySelector('.loading-text').textContent = 'Extracting items and prices...';
+
                 if (!response.ok) {
                     const errorData = await response.json();
                     throw new Error(errorData.error || `API Error: ${response.status}`);
                 }
+
+                updateProgress(80);
+                document.querySelector('.loading-text').textContent = 'Categorizing items...';
 
                 const receiptData = await response.json();
 
@@ -1660,13 +1959,16 @@
                     throw new Error('Invalid receipt data received from AI');
                 }
 
+                updateProgress(100);
+                document.querySelector('.loading-text').textContent = 'Complete! ✨';
+
                 currentReceipt = receiptData;
                 displayResults(receiptData);
 
                 // Automatically save the receipt
                 await saveReceiptAuto();
             } catch (error) {
-                alert('Error analyzing receipt: ' + error.message);
+                showToast(error.message, 'error', 'Analysis Failed');
                 console.error(error);
                 document.getElementById('loadingState').style.display = 'none';
                 document.getElementById('processingArea').style.display = 'none';
@@ -1715,14 +2017,14 @@
 
                 if (error) {
                     console.error("Error saving to cloud:", error);
-                    alert("Failed to save to cloud. Saving locally instead.");
+                    showToast("Failed to save to cloud. Saving locally instead.", 'warning');
                     // Fallback to localStorage
                     allReceipts.push(currentReceipt);
                     localStorage.setItem('spendy-receipts', JSON.stringify(allReceipts));
                 } else {
                     await loadLongTermData();
                     const totalReceipts = allReceipts.length;
-                    alert(`✅ Receipt saved successfully! You now have ${totalReceipts} receipt${totalReceipts !== 1 ? 's' : ''} saved.`);
+                    showToast(`Receipt saved successfully! You now have ${totalReceipts} receipt${totalReceipts !== 1 ? 's' : ''} saved.`, 'success');
                     document.getElementById('processingArea').style.display = 'none';
                     document.getElementById('fileInput').value = '';
                     currentReceipt = null;
@@ -1735,7 +2037,7 @@
             allReceipts.push(currentReceipt);
             localStorage.setItem('spendy-receipts', JSON.stringify(allReceipts));
             const totalReceipts = allReceipts.length;
-            alert(`✅ Receipt saved locally! You now have ${totalReceipts} receipt${totalReceipts !== 1 ? 's' : ''} saved.`);
+            showToast(`Receipt saved locally! You now have ${totalReceipts} receipt${totalReceipts !== 1 ? 's' : ''} saved.`, 'success');
             updateDashboard();
             updateHistory();
             updateDataTable();
@@ -1826,6 +2128,7 @@
             });
 
             updateCategoryChart(categoryTotals);
+            updateTrendChart();
             updatePriceComparison();
             updateTopItems();
         }
@@ -1867,6 +2170,78 @@
                             const index = activeElements[0].index;
                             const category = Object.keys(categoryTotals)[index];
                             showCategoryDeepDive(category);
+                        }
+                    }
+                }
+            });
+        }
+
+        function updateTrendChart() {
+            const ctx = document.getElementById('trendChart');
+            if (!ctx) return;
+
+            if (window.trendChartInstance) {
+                window.trendChartInstance.destroy();
+            }
+
+            // Group receipts by date
+            const dateSpending = {};
+            allReceipts.forEach(receipt => {
+                const date = receipt.date ? receipt.date.split('T')[0] : new Date().toISOString().split('T')[0];
+                dateSpending[date] = (dateSpending[date] || 0) + (receipt.total || 0);
+            });
+
+            // Sort by date and get last 14 days or all if less
+            const sortedDates = Object.keys(dateSpending).sort();
+            const last14Dates = sortedDates.slice(-14);
+            const labels = last14Dates.map(date => {
+                const d = new Date(date);
+                return d.toLocaleDateString('en-US', { month: 'short', day: 'numeric' });
+            });
+            const data = last14Dates.map(date => dateSpending[date]);
+
+            window.trendChartInstance = new Chart(ctx, {
+                type: 'line',
+                data: {
+                    labels: labels,
+                    datasets: [{
+                        label: 'Daily Spending',
+                        data: data,
+                        borderColor: '#5BA89F',
+                        backgroundColor: 'rgba(91, 168, 159, 0.1)',
+                        tension: 0.4,
+                        fill: true,
+                        borderWidth: 3,
+                        pointBackgroundColor: '#5BA89F',
+                        pointBorderColor: '#fff',
+                        pointBorderWidth: 2,
+                        pointRadius: 5,
+                        pointHoverRadius: 7
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    plugins: {
+                        legend: {
+                            display: false
+                        },
+                        tooltip: {
+                            callbacks: {
+                                label: function(context) {
+                                    return context.parsed.y.toFixed(2) + ' kr';
+                                }
+                            }
+                        }
+                    },
+                    scales: {
+                        y: {
+                            beginAtZero: true,
+                            ticks: {
+                                callback: function(value) {
+                                    return value + ' kr';
+                                }
+                            }
                         }
                     }
                 }
