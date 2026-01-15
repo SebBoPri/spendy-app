@@ -2467,25 +2467,40 @@
             updateDataTable();
         }
 
-        // Check if user is already logged in on page load
-        _supabase.auth.onAuthStateChange((event, session) => {
-            // Handle password recovery
-            if (event === 'PASSWORD_RECOVERY') {
-                showPasswordResetForm();
-                return;
-            }
+        // Check if URL contains password recovery token
+        function checkForPasswordRecovery() {
+            const hashParams = new URLSearchParams(window.location.hash.substring(1));
+            const type = hashParams.get('type');
 
-            if (session && session.user) {
-                document.getElementById('login-overlay').style.display = 'none';
-                updateUserStatus(session.user);
-                loadLongTermData();
-                loadUserPreferences();
-                document.getElementById('account-tab').style.display = 'block';
-            } else {
-                updateUserStatus(null);
-                document.getElementById('account-tab').style.display = 'none';
+            if (type === 'recovery') {
+                showPasswordResetForm();
+                return true;
             }
-        });
+            return false;
+        }
+
+        // Check on page load
+        if (!checkForPasswordRecovery()) {
+            // Check if user is already logged in on page load
+            _supabase.auth.onAuthStateChange((event, session) => {
+                // Handle password recovery
+                if (event === 'PASSWORD_RECOVERY') {
+                    showPasswordResetForm();
+                    return;
+                }
+
+                if (session && session.user) {
+                    document.getElementById('login-overlay').style.display = 'none';
+                    updateUserStatus(session.user);
+                    loadLongTermData();
+                    loadUserPreferences();
+                    document.getElementById('account-tab').style.display = 'block';
+                } else {
+                    updateUserStatus(null);
+                    document.getElementById('account-tab').style.display = 'none';
+                }
+            });
+        }
 
         // ============ ACCOUNT MANAGEMENT FUNCTIONS ============
 
