@@ -1505,6 +1505,9 @@
 
             // Store batch results globally
             window.currentBatchResults = batchResults;
+
+            // Automatically save batch receipts
+            await saveBatchReceipts();
         }
 
         function sleep(ms) {
@@ -1549,22 +1552,45 @@
         async function saveBatchReceipts() {
             if (!window.currentBatchResults || window.currentBatchResults.length === 0) return;
 
-            allReceipts.push(...window.currentBatchResults);
+            const batchCount = window.currentBatchResults.length;
+            const { data: { user } } = await _supabase.auth.getUser();
 
             try {
-                // Try window.storage first (Claude.ai), fallback to localStorage
-                if (typeof window.storage !== 'undefined' && window.storage) {
-                    await window.storage.set('receipts', JSON.stringify(allReceipts));
-                } else {
-                    localStorage.setItem('spendy-receipts', JSON.stringify(allReceipts));
-                }
+                if (user) {
+                    // Save to Supabase if logged in
+                    const receiptsToSave = window.currentBatchResults.map(receipt => ({
+                        user_id: user.id,
+                        store_name: receipt.store || "Unknown Store",
+                        purchase_date: receipt.date || new Date().toISOString(),
+                        total_amount: receipt.total || 0,
+                        items: receipt.items
+                    }));
 
-                alert(`✅ Successfully saved ${window.currentBatchResults.length} receipts!`);
+                    const { error } = await _supabase
+                        .from('receipts')
+                        .insert(receiptsToSave);
+
+                    if (error) {
+                        throw error;
+                    }
+
+                    await loadLongTermData();
+                    const totalReceipts = allReceipts.length;
+                    alert(`✅ ${batchCount} receipt${batchCount !== 1 ? 's' : ''} saved successfully! You now have ${totalReceipts} receipt${totalReceipts !== 1 ? 's' : ''} total.`);
+                } else {
+                    // Save locally if not logged in
+                    allReceipts.push(...window.currentBatchResults);
+                    localStorage.setItem('spendy-receipts', JSON.stringify(allReceipts));
+                    const totalReceipts = allReceipts.length;
+                    alert(`✅ ${batchCount} receipt${batchCount !== 1 ? 's' : ''} saved locally! You now have ${totalReceipts} receipt${totalReceipts !== 1 ? 's' : ''} total.`);
+                    updateDashboard();
+                    updateHistory();
+                    updateDataTable();
+                }
 
                 document.getElementById('processingArea').style.display = 'none';
                 document.getElementById('fileInput').value = '';
                 window.currentBatchResults = null;
-
                 document.querySelectorAll('.nav-tab')[1].click();
             } catch (error) {
                 alert('Error saving receipts: ' + error.message);
@@ -1636,6 +1662,9 @@
 
                 currentReceipt = receiptData;
                 displayResults(receiptData);
+
+                // Automatically save the receipt
+                await saveReceiptAuto();
             } catch (error) {
                 alert('Error analyzing receipt: ' + error.message);
                 console.error(error);
@@ -1662,6 +1691,58 @@
                     </div>
                 `).join('')}
             `;
+        }
+
+        async function saveReceiptAuto() {
+            if (!currentReceipt) return;
+
+            // Check if user is logged in to Supabase
+            const { data: { user } } = await _supabase.auth.getUser();
+
+            if (user) {
+                // Save to Supabase if logged in
+                const receiptToSave = {
+                    user_id: user.id,
+                    store_name: currentReceipt.store || "Unknown Store",
+                    purchase_date: currentReceipt.date || new Date().toISOString(),
+                    total_amount: currentReceipt.total || 0,
+                    items: currentReceipt.items
+                };
+
+                const { error } = await _supabase
+                    .from('receipts')
+                    .insert([receiptToSave]);
+
+                if (error) {
+                    console.error("Error saving to cloud:", error);
+                    alert("Failed to save to cloud. Saving locally instead.");
+                    // Fallback to localStorage
+                    allReceipts.push(currentReceipt);
+                    localStorage.setItem('spendy-receipts', JSON.stringify(allReceipts));
+                } else {
+                    await loadLongTermData();
+                    const totalReceipts = allReceipts.length;
+                    alert(`✅ Receipt saved successfully! You now have ${totalReceipts} receipt${totalReceipts !== 1 ? 's' : ''} saved.`);
+                    document.getElementById('processingArea').style.display = 'none';
+                    document.getElementById('fileInput').value = '';
+                    currentReceipt = null;
+                    document.querySelectorAll('.nav-tab')[1].click();
+                    return;
+                }
+            }
+
+            // If not logged in, save locally
+            allReceipts.push(currentReceipt);
+            localStorage.setItem('spendy-receipts', JSON.stringify(allReceipts));
+            const totalReceipts = allReceipts.length;
+            alert(`✅ Receipt saved locally! You now have ${totalReceipts} receipt${totalReceipts !== 1 ? 's' : ''} saved.`);
+            updateDashboard();
+            updateHistory();
+            updateDataTable();
+            document.getElementById('processingArea').style.display = 'none';
+            document.getElementById('fileInput').value = '';
+            currentReceipt = null;
+            document.querySelectorAll('.nav-tab')[1].click();
         }
 
         async function saveReceipt() {
