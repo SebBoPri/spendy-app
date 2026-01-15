@@ -1028,6 +1028,7 @@
                     <button class="btn" id="signin-btn" onclick="signIn()" style="flex: 1;"><span>Sign In</span></button>
                     <button class="btn btn-secondary" id="signup-btn" onclick="signUp()" style="flex: 1;"><span>Sign Up</span></button>
                 </div>
+                <button onclick="forgotPassword()" style="background: none; border: none; color: var(--primary); text-decoration: underline; cursor: pointer; padding: var(--spacing-sm); font-size: 14px;">Forgot Password?</button>
                 <button class="btn-secondary btn" onclick="continueAsGuest()" style="margin-top: var(--spacing-sm);"><span>Continue as Guest</span></button>
             </div>
         </div>
@@ -2273,7 +2274,13 @@
                     return;
                 }
 
-                alert('✅ Account created successfully! Please check your email to verify your account.');
+                // Check if email confirmation is required
+                if (data.user && !data.session) {
+                    alert('✅ Account created! Please check your email to verify your account before signing in.');
+                    return;
+                }
+
+                alert('✅ Account created successfully! You are now signed in.');
 
                 // Hide login overlay and show user status
                 document.getElementById('login-overlay').style.display = 'none';
@@ -2285,6 +2292,31 @@
                 // Load user's receipts from Supabase
                 await loadLongTermData();
                 loadUserPreferences();
+            } catch (err) {
+                alert('Error: ' + err.message);
+            }
+        }
+
+        // Forgot password function
+        async function forgotPassword() {
+            const email = document.getElementById('email-input').value;
+
+            if (!email) {
+                alert('Please enter your email address first');
+                return;
+            }
+
+            try {
+                const { error } = await _supabase.auth.resetPasswordForEmail(email, {
+                    redirectTo: window.location.origin + '/index.html'
+                });
+
+                if (error) {
+                    alert('Error: ' + error.message);
+                    return;
+                }
+
+                alert('✅ Password reset email sent! Check your inbox (and spam folder) for the reset link.');
             } catch (err) {
                 alert('Error: ' + err.message);
             }
