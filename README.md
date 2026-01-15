@@ -15,3 +15,6 @@ THe following app is a budgeting app that can scan your recipets, and using AI, 
   
 **4.** Auto-Categorization Learning
   To make the app "learn," we need to add a "Custom Map" in your storage. How it will work: When you change "Cat Food" from Groceries to Pets, the app will save a note: {"cat food": "Pets"}. The Code Change: We will update your analyze.js file to look at this "Custom Map" before it makes its final guess. Result: The next time you scan "Cat Food," the AI will still see it, but your app will automatically swap the category to Pets before saving it.
+
+**5.** Based on frequently bought items, get notificed of deals (e.g., if Chicken is frequently bought, i get deals for chicken from Coop, ICA etc)
+
