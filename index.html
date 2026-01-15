@@ -2308,7 +2308,7 @@
 
             try {
                 const { error } = await _supabase.auth.resetPasswordForEmail(email, {
-                    redirectTo: window.location.origin + '/index.html'
+                    redirectTo: 'https://spendy-app-sebastian-bs-projects-93a4e006.vercel.app/'
                 });
 
                 if (error) {
