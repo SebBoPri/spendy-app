@@ -6,6 +6,7 @@
     <title>Spendy - Your Fun Budget Companion</title>
     <link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;700&family=Fraunces:wght@600;700;900&display=swap" rel="stylesheet">
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
 
     <style>
         * {
@@ -951,7 +952,6 @@
     </style>
 </head>
 <body>
-    <body>
     <div id="login-overlay" style="position: fixed; inset: 0; background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); z-index: 1000; display: flex; align-items: center; justify-content: center; padding: 20px;">
         <div class="card" style="width: 100%; max-width: 400px; text-align: center; box-shadow: 0 20px 50px rgba(0,0,0,0.3);">
             <h2 class="card-title">Welcome to Spendy</h2>
@@ -964,13 +964,6 @@
         </div>
     </div>
 
-    <div class="bg-blob blob-1"></div>
-    <div class="bg-blob blob-2"></div>
-    <div class="bg-blob blob-3"></div>
-
-    <div class="container">
-        </div>
-</body>
     <div class="bg-blob blob-1"></div>
     <div class="bg-blob blob-2"></div>
     <div class="bg-blob blob-3"></div>
@@ -1058,12 +1051,13 @@
                 <h2 class="card-title">Price Comparison</h2>
                 <p style="color: #666; margin-bottom: 16px;">Find the best deals across stores</p>
                 <div id="priceComparison"></div>
+            </div>
+
             <div class="card">
                 <h2 class="card-title">Top Items Tracker</h2>
                 <p style="color: #666; margin-bottom: 24px;">Your most frequent and expensive purchases</p>
                 <div id="topItemsContainer" style="display: grid; grid-template-columns: repeat(auto-fit, minmax(300px, 1fr)); gap: 32px;">
-                    </div>
-            </div>
+                </div>
             </div>
         </div>
 
@@ -1140,28 +1134,7 @@
                 allReceipts = [];
             }
         }
-async function loadLongTermData() {
-    const { data, error } = await _supabase
-        .from('receipts')
-        .select('*')
-        .order('created_at', { ascending: false });
 
-    if (error) {
-        console.error("Error fetching:", error);
-        return;
-    }
-
-    // Map database fields back to your app's internal format
-    allReceipts = data.map(r => ({
-        store: r.store_name,
-        date: r.purchase_date,
-        total: parseFloat(r.total_amount),
-        items: r.items
-    }));
-
-    updateDashboard();
-    updateHistory();
-}
         loadData();
 
         function switchTab(tabName) {
@@ -1534,17 +1507,48 @@ async function loadLongTermData() {
         async function saveReceipt() {
             if (!currentReceipt) return;
 
+            // Check if user is logged in to Supabase
+            const { data: { user } } = await _supabase.auth.getUser();
+
+            if (user) {
+                // Save to Supabase if logged in
+                const receiptToSave = {
+                    user_id: user.id,
+                    store_name: currentReceipt.store || "Unknown Store",
+                    purchase_date: currentReceipt.date || new Date().toISOString(),
+                    total_amount: currentReceipt.total || 0,
+                    items: currentReceipt.items
+                };
+
+                const { error } = await _supabase
+                    .from('receipts')
+                    .insert([receiptToSave]);
+
+                if (error) {
+                    console.error("Error saving to cloud:", error);
+                    alert("Failed to save to cloud. Saving locally instead.");
+                } else {
+                    alert("✅ Saved permanently to your account!");
+                    await loadLongTermData();
+                    document.getElementById('processingArea').style.display = 'none';
+                    document.getElementById('fileInput').value = '';
+                    currentReceipt = null;
+                    document.querySelectorAll('.nav-tab')[1].click();
+                    return;
+                }
+            }
+
+            // Fallback to local storage if not logged in or Supabase failed
             allReceipts.push(currentReceipt);
 
             try {
-                // Try window.storage first (Claude.ai), fallback to localStorage
                 if (typeof window.storage !== 'undefined' && window.storage) {
                     await window.storage.set('receipts', JSON.stringify(allReceipts));
                 } else {
                     localStorage.setItem('spendy-receipts', JSON.stringify(allReceipts));
                 }
 
-                alert('✅ Receipt saved successfully!');
+                alert('✅ Receipt saved locally!');
 
                 document.getElementById('processingArea').style.display = 'none';
                 document.getElementById('fileInput').value = '';
@@ -2045,40 +2049,89 @@ async function loadLongTermData() {
                 alert('Receipt deleted!');
             }
         }
-        // Initialize Supabase (Use your actual URL and Key)
-const { createClient } = supabase;
-const _supabase = createClient('https://ztdvxcekvkonipdddraj.supabase.co', 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Inp0ZHZ4Y2VrdmtvbmlwZGRkcmFqIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NjgyNzU0NDYsImV4cCI6MjA4Mzg1MTQ0Nn0.FYMo-w6HomXjaclhqdOWArIcLMqA2ZakBwYfTsgS7xI');
+        // Initialize Supabase
+        const { createClient } = supabase;
+        const _supabase = createClient('https://ztdvxcekvkonipdddraj.supabase.co', 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Inp0ZHZ4Y2VrdmtvbmlwZGRkcmFqIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NjgyNzU0NDYsImV4cCI6MjA4Mzg1MTQ0Nn0.FYMo-w6HomXjaclhqdOWArIcLMqA2ZakBwYfTsgS7xI');
 
-async function saveReceipt() {
-    if (!currentReceipt) return;
+        // Sign in function
+        async function signIn() {
+            const email = document.getElementById('email-input').value;
+            const password = document.getElementById('password-input').value;
 
-    const { data: { user } } = await _supabase.auth.getUser();
-    if (!user) {
-        alert("Please sign in to save receipts permanently!");
-        return;
-    }
+            if (!email || !password) {
+                alert('Please enter both email and password');
+                return;
+            }
 
-    // 1. Prepare data for Supabase
-    const receiptToSave = {
-        user_id: user.id,
-        store_name: currentReceipt.store || "Unknown Store",
-        purchase_date: currentReceipt.date || new Date().toISOString(),
-        total_amount: currentReceipt.total || 0,
-        items: currentReceipt.items // The array of items found by AI
-    };
+            try {
+                // Try to sign in first
+                let { data, error } = await _supabase.auth.signInWithPassword({ email, password });
 
-    // 2. Insert into PostgreSQL
-    const { error } = await _supabase
-        .from('receipts')
-        .insert([receiptToSave]);
+                // If sign in fails, try to sign up
+                if (error && error.message.includes('Invalid login credentials')) {
+                    const { data: signUpData, error: signUpError } = await _supabase.auth.signUp({ email, password });
 
-    if (error) {
-        console.error("Error saving:", error);
-        alert("Failed to save to cloud.");
-    } else {
-        alert("✅ Saved permanently to your account!");
-        loadLongTermData(); // Refresh the list
-    }
-}
+                    if (signUpError) {
+                        alert('Error: ' + signUpError.message);
+                        return;
+                    }
+
+                    alert('Account created! Please check your email to verify.');
+                    data = signUpData;
+                } else if (error) {
+                    alert('Error: ' + error.message);
+                    return;
+                }
+
+                // Hide login overlay
+                document.getElementById('login-overlay').style.display = 'none';
+
+                // Load user's receipts from Supabase
+                await loadLongTermData();
+            } catch (err) {
+                alert('Error: ' + err.message);
+            }
+        }
+
+        // Load receipts from Supabase
+        async function loadLongTermData() {
+            const { data: { user } } = await _supabase.auth.getUser();
+
+            if (!user) {
+                return;
+            }
+
+            const { data, error } = await _supabase
+                .from('receipts')
+                .select('*')
+                .eq('user_id', user.id)
+                .order('created_at', { ascending: false });
+
+            if (error) {
+                console.error("Error fetching receipts:", error);
+                return;
+            }
+
+            // Map database fields back to app's internal format
+            allReceipts = data.map(r => ({
+                store: r.store_name,
+                date: r.purchase_date,
+                total: parseFloat(r.total_amount),
+                items: r.items
+            }));
+
+            updateDashboard();
+            updateHistory();
+            updateDataTable();
+        }
+
+        // Check if user is already logged in on page load
+        _supabase.auth.onAuthStateChange((event, session) => {
+            if (session) {
+                document.getElementById('login-overlay').style.display = 'none';
+                loadLongTermData();
+            }
+        });
     </script>
 </body>
+</html>
