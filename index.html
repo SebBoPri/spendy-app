@@ -16,35 +16,54 @@
         }
 
         :root {
-            /* Professional Color Palette */
-            --primary-teal: #27AE60;
-            --accent-blue: #2D9CDB;
-            --expense-coral: #E74C3C;
-            --warning-amber: #F39C12;
-            --dark-slate: #333333;
-            --medium-grey: #7F8C8D;
-            --light-grey: #ECF0F1;
-            --off-white: #F8F9FA;
-            --pure-white: #FFFFFF;
-            --card-shadow: rgba(0, 0, 0, 0.05);
+            /* Financial Hub Design System */
+            --primary: #5BA89F;
+            --primary-dark: #478A82;
+            --primary-light: #E8F5F3;
 
-            /* Legacy support */
-            --primary: #27AE60;
-            --secondary: #2D9CDB;
-            --accent: #F39C12;
-            --dark: #333333;
-            --light: #F8F9FA;
-            --success: #27AE60;
+            --expense-red: #E63946;
+            --income-green: #5BA89F;
+            --warning-yellow: #F4A261;
+            --info-blue: #4A90E2;
+
+            --text-primary: #1A1A1A;
+            --text-secondary: #4A4A4A;
+            --text-tertiary: #8A8A8A;
+
+            --border: #E5E5E5;
+            --background: #F8F9FA;
+            --white: #FFFFFF;
+
+            --spacing-xs: 4px;
+            --spacing-sm: 8px;
+            --spacing-md: 16px;
+            --spacing-lg: 24px;
+            --spacing-xl: 32px;
+
+            --radius-small: 8px;
+            --radius-medium: 12px;
+            --radius-large: 16px;
+            --radius-xlarge: 20px;
+
+            --shadow-low: 0 2px 8px rgba(0, 0, 0, 0.08);
+            --shadow-medium: 0 4px 16px rgba(0, 0, 0, 0.12);
+            --shadow-high: 0 8px 24px rgba(0, 0, 0, 0.16);
+
+            /* Legacy */
+            --secondary: #4A90E2;
+            --accent: #F4A261;
+            --dark: #1A1A1A;
+            --success: #5BA89F;
         }
 
         body {
-            font-family: 'Inter', 'Roboto', 'DM Sans', sans-serif;
-            background: var(--off-white);
+            font-family: 'Inter', -apple-system, 'SF Pro Display', 'Roboto', sans-serif;
+            background: var(--background);
             min-height: 100vh;
             padding: 0;
-            color: var(--dark-slate);
-            position: relative;
-            overflow-x: hidden;
+            color: var(--text-primary);
+            font-size: 14px;
+            line-height: 1.5;
         }
 
         /* Clean background - no blobs for professional look */
@@ -52,91 +71,79 @@
         .container {
             max-width: 1200px;
             margin: 0 auto;
-            padding: 32px 24px;
-            position: relative;
-            z-index: 1;
+            padding: var(--spacing-lg);
         }
 
-        /* Clean, professional header */
+        /* Financial Hub Header */
         header {
-            text-align: center;
-            margin-bottom: 40px;
-            padding: 24px 0;
-        }
-
-        .logo {
-            display: inline-flex;
-            align-items: center;
-            gap: 12px;
-            margin-bottom: 12px;
-        }
-
-        .logo-icon {
-            width: 44px;
-            height: 44px;
-            background: var(--primary-teal);
-            border-radius: 12px;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            font-size: 24px;
-            box-shadow: 0 4px 20px var(--card-shadow);
+            margin-bottom: var(--spacing-xl);
+            padding: var(--spacing-md) 0;
         }
 
         h1 {
-            font-family: 'Inter', sans-serif;
-            font-size: 2.5em;
+            font-size: 28px;
             font-weight: 700;
-            color: var(--dark-slate);
-            letter-spacing: -1px;
-            margin-bottom: 8px;
+            color: var(--text-primary);
+            letter-spacing: -0.5px;
+            margin-bottom: var(--spacing-sm);
         }
 
         .tagline {
-            color: var(--medium-grey);
-            font-size: 1em;
+            color: var(--text-tertiary);
+            font-size: 14px;
             font-weight: 400;
         }
 
-        /* Clean professional navigation */
+        /* Bottom Navigation Bar (Financial Hub Style) */
         .nav-tabs {
             display: flex;
-            gap: 8px;
-            margin-bottom: 40px;
-            background: var(--pure-white);
-            padding: 8px;
-            border-radius: 16px;
-            box-shadow: 0 2px 20px var(--card-shadow);
+            gap: 0;
+            margin-bottom: var(--spacing-xl);
+            background: var(--white);
+            padding: var(--spacing-sm);
+            border-radius: var(--radius-large);
+            box-shadow: var(--shadow-low);
+            border-top: 1px solid var(--border);
         }
 
         .nav-tab {
             flex: 1;
-            padding: 14px 20px;
+            padding: var(--spacing-md) var(--spacing-sm);
             background: transparent;
             border: none;
-            border-radius: 12px;
-            color: var(--medium-grey);
-            font-size: 15px;
-            font-weight: 600;
+            border-radius: var(--radius-medium);
+            color: var(--text-tertiary);
+            font-size: 11px;
+            font-weight: 500;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
             cursor: pointer;
             transition: all 0.2s ease;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: var(--spacing-xs);
             position: relative;
         }
 
         .nav-tab:hover:not(.active) {
-            background: var(--light-grey);
-            color: var(--dark-slate);
+            color: var(--text-secondary);
         }
 
         .nav-tab.active {
-            background: var(--primary-teal);
-            color: var(--pure-white);
-            box-shadow: 0 4px 12px rgba(39, 174, 96, 0.25);
+            color: var(--primary);
         }
 
-        .nav-tab span {
-            position: relative;
-            z-index: 1;
+        .nav-tab.active::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 50%;
+            transform: translateX(-50%);
+            width: 32px;
+            height: 3px;
+            background: var(--primary);
+            border-radius: 0 0 3px 3px;
         }
 
         /* Content sections */
@@ -154,173 +161,186 @@
             to { opacity: 1; transform: translateY(0); }
         }
 
-        /* Professional card design with generous spacing */
+        /* Financial Hub Card Design */
         .card {
-            background: var(--pure-white);
-            border-radius: 20px;
-            padding: 32px;
-            margin-bottom: 28px;
-            box-shadow: 0 2px 20px var(--card-shadow);
-            border: 1px solid var(--light-grey);
-            transition: all 0.2s ease;
-            position: relative;
+            background: var(--white);
+            border-radius: var(--radius-xlarge);
+            padding: var(--spacing-lg);
+            margin-bottom: var(--spacing-md);
+            box-shadow: var(--shadow-low);
+            transition: box-shadow 0.2s ease;
         }
 
         .card:hover {
-            box-shadow: 0 4px 28px rgba(0, 0, 0, 0.08);
+            box-shadow: var(--shadow-medium);
         }
 
         .card-title {
-            font-family: 'Inter', sans-serif;
-            font-size: 1.5em;
+            font-size: 20px;
             font-weight: 700;
-            margin-bottom: 24px;
-            color: var(--dark-slate);
-            letter-spacing: -0.5px;
+            margin-bottom: var(--spacing-lg);
+            color: var(--text-primary);
+            letter-spacing: -0.3px;
         }
 
-        /* Clean, modern stat cards */
+        /* Balance Card with Gradient */
+        .balance-card {
+            background: linear-gradient(135deg, var(--primary) 0%, var(--primary-dark) 100%);
+            color: var(--white);
+            padding: var(--spacing-xl);
+            box-shadow: var(--shadow-medium);
+        }
+
+        .balance-label {
+            font-size: 11px;
+            font-weight: 600;
+            letter-spacing: 1px;
+            text-transform: uppercase;
+            opacity: 0.9;
+            margin-bottom: var(--spacing-sm);
+        }
+
+        .balance-amount {
+            font-size: 40px;
+            font-weight: 700;
+            line-height: 1.1;
+            letter-spacing: -1px;
+            margin-bottom: var(--spacing-lg);
+        }
+
+        /* Stats Grid - Financial Hub Style */
         .stats-grid {
             display: grid;
-            grid-template-columns: repeat(auto-fit, minmax(240px, 1fr));
-            gap: 24px;
-            margin-bottom: 40px;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: var(--spacing-md);
+            margin-bottom: var(--spacing-xl);
         }
 
         .stat-card {
-            background: var(--pure-white);
-            padding: 32px;
-            border-radius: 20px;
-            box-shadow: 0 2px 20px var(--card-shadow);
-            border: 1px solid var(--light-grey);
-            position: relative;
-            transition: all 0.2s ease;
+            background: var(--white);
+            padding: var(--spacing-lg);
+            border-radius: var(--radius-xlarge);
+            box-shadow: var(--shadow-low);
+            transition: transform 0.2s ease, box-shadow 0.2s ease;
         }
 
         .stat-card:hover {
-            transform: translateY(-4px);
-            box-shadow: 0 4px 28px rgba(0, 0, 0, 0.08);
+            transform: translateY(-2px);
+            box-shadow: var(--shadow-medium);
         }
 
         .stat-icon {
-            width: 52px;
-            height: 52px;
-            border-radius: 14px;
+            width: 48px;
+            height: 48px;
+            border-radius: var(--radius-round);
             display: flex;
             align-items: center;
             justify-content: center;
             font-size: 24px;
-            margin-bottom: 20px;
+            margin-bottom: var(--spacing-md);
         }
 
         .stat-card:nth-child(1) .stat-icon {
-            background: var(--primary-teal);
-            color: white;
+            background: rgba(91, 168, 159, 0.1);
+            color: var(--primary);
         }
 
         .stat-card:nth-child(2) .stat-icon {
-            background: var(--accent-blue);
-            color: white;
+            background: rgba(74, 144, 226, 0.1);
+            color: var(--info-blue);
         }
 
         .stat-card:nth-child(3) .stat-icon {
-            background: var(--warning-amber);
-            color: white;
+            background: rgba(244, 162, 97, 0.1);
+            color: var(--warning-yellow);
         }
 
         .stat-label {
-            font-size: 0.85em;
-            color: var(--medium-grey);
-            margin-bottom: 10px;
+            font-size: 11px;
+            color: var(--text-tertiary);
+            margin-bottom: var(--spacing-sm);
             font-weight: 600;
             text-transform: uppercase;
             letter-spacing: 0.8px;
         }
 
         .stat-value {
-            font-family: 'Inter', sans-serif;
-            font-size: 2.5em;
+            font-size: 32px;
             font-weight: 700;
-            color: var(--dark-slate);
-            letter-spacing: -1px;
+            color: var(--text-primary);
+            letter-spacing: -0.8px;
         }
 
-        /* Clean, professional upload zone */
+        /* Upload Zone - Financial Hub Style */
         .upload-zone {
-            border: 2px dashed var(--light-grey);
-            border-radius: 20px;
-            padding: 64px 32px;
+            border: 2px dashed var(--border);
+            border-radius: var(--radius-xlarge);
+            padding: var(--spacing-3xl) var(--spacing-xl);
             text-align: center;
             cursor: pointer;
             transition: all 0.2s ease;
-            background: var(--off-white);
-            position: relative;
+            background: var(--white);
         }
 
         .upload-zone:hover {
-            border-color: var(--primary-teal);
-            background: rgba(39, 174, 96, 0.05);
+            border-color: var(--primary);
+            background: var(--primary-light);
         }
 
         .upload-icon {
-            width: 72px;
-            height: 72px;
-            background: var(--primary-teal);
-            border-radius: 16px;
+            width: 64px;
+            height: 64px;
+            background: var(--primary);
+            border-radius: var(--radius-large);
             display: flex;
             align-items: center;
             justify-content: center;
-            font-size: 36px;
-            margin: 0 auto 20px;
-            box-shadow: 0 4px 16px rgba(39, 174, 96, 0.2);
+            font-size: 32px;
+            margin: 0 auto var(--spacing-md);
+            box-shadow: var(--shadow-low);
             transition: all 0.2s ease;
         }
 
         .upload-zone:hover .upload-icon {
             transform: translateY(-4px);
-            box-shadow: 0 6px 20px rgba(39, 174, 96, 0.3);
+            box-shadow: var(--shadow-medium);
         }
 
         .upload-title {
-            font-family: 'Inter', sans-serif;
-            font-size: 1.4em;
+            font-size: 18px;
             font-weight: 700;
-            color: var(--dark-slate);
-            margin-bottom: 8px;
+            color: var(--text-primary);
+            margin-bottom: var(--spacing-sm);
         }
 
         .upload-subtitle {
-            color: var(--medium-grey);
-            font-size: 0.95em;
+            color: var(--text-tertiary);
+            font-size: 14px;
         }
 
-        /* Clean professional buttons */
+        /* Financial Hub Buttons */
         .btn {
-            background: var(--primary-teal);
-            color: white;
+            background: var(--primary);
+            color: var(--white);
             border: none;
-            padding: 14px 28px;
-            border-radius: 12px;
+            padding: var(--spacing-md) var(--spacing-lg);
+            border-radius: var(--radius-medium);
             font-size: 15px;
             font-weight: 600;
             cursor: pointer;
             transition: all 0.2s ease;
-            box-shadow: 0 2px 8px rgba(39, 174, 96, 0.25);
+            box-shadow: 0 2px 8px rgba(91, 168, 159, 0.3);
+            min-height: 48px;
         }
 
         .btn:hover {
-            background: #229954;
+            background: var(--primary-dark);
             transform: translateY(-2px);
-            box-shadow: 0 4px 12px rgba(39, 174, 96, 0.35);
+            box-shadow: 0 4px 12px rgba(91, 168, 159, 0.4);
         }
 
         .btn:active {
-            transform: translateY(0);
-        }
-
-        .btn span {
-            position: relative;
-            z-index: 1;
+            transform: scale(0.98);
         }
 
         /* Interactive chart area */
@@ -483,13 +503,15 @@
         input[type="url"],
         select {
             flex: 1;
-            padding: 12px 16px;
-            border: 1px solid var(--light-grey);
-            border-radius: 12px;
+            padding: 12px var(--spacing-md);
+            border: 1px solid var(--border);
+            border-radius: var(--radius-medium);
             font-size: 15px;
+            font-family: inherit;
             transition: all 0.2s ease;
-            background: var(--pure-white);
-            color: var(--dark-slate);
+            background: var(--white);
+            color: var(--text-primary);
+            min-height: 48px;
         }
 
         input[type="text"]:focus,
@@ -498,8 +520,12 @@
         input[type="url"]:focus,
         select:focus {
             outline: none;
-            border-color: var(--primary-teal);
-            box-shadow: 0 0 0 3px rgba(39, 174, 96, 0.1);
+            border-color: var(--primary);
+            box-shadow: 0 0 0 3px var(--primary-light);
+        }
+
+        input::placeholder {
+            color: var(--text-tertiary);
         }
 
         /* Deep dive expandable */
@@ -770,58 +796,118 @@
         }
 
         .btn-secondary {
-            background: var(--pure-white);
-            color: var(--primary-teal);
-            border: 2px solid var(--primary-teal);
+            background: transparent;
+            color: var(--primary);
+            border: 1px solid var(--border);
         }
 
         .btn-secondary:hover {
-            background: var(--primary-teal);
-            color: white;
+            background: var(--primary-light);
+            border-color: var(--primary);
+        }
+
+        /* Transaction List Items - Financial Hub Style */
+        .item,
+        .history-item {
+            display: flex;
+            align-items: center;
+            padding: var(--spacing-md);
+            border-radius: var(--radius-medium);
+            margin-bottom: var(--spacing-sm);
+            transition: background 0.2s ease;
+            min-height: 72px;
+        }
+
+        .item:hover,
+        .history-item:hover {
+            background: var(--background);
+        }
+
+        .item-icon {
+            width: 48px;
+            height: 48px;
+            border-radius: var(--radius-round);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 20px;
+            margin-right: var(--spacing-md);
+            flex-shrink: 0;
+        }
+
+        .item-details {
+            flex: 1;
+        }
+
+        .item-name {
+            font-size: 16px;
+            font-weight: 600;
+            color: var(--text-primary);
+            margin-bottom: var(--spacing-xs);
+        }
+
+        .item-category {
+            font-size: 14px;
+            color: var(--text-tertiary);
+        }
+
+        .item-price {
+            font-size: 16px;
+            font-weight: 600;
+            margin-left: var(--spacing-md);
+            white-space: nowrap;
+        }
+
+        .item-price.negative {
+            color: var(--expense-red);
+        }
+
+        .item-price.positive {
+            color: var(--income-green);
         }
 
         /* Summary box */
         .summary-box {
-            background: linear-gradient(135deg, var(--success), var(--secondary));
-            padding: 20px;
-            border-radius: 16px;
-            color: white;
+            background: linear-gradient(135deg, var(--primary) 0%, var(--primary-dark) 100%);
+            padding: var(--spacing-lg);
+            border-radius: var(--radius-large);
+            color: var(--white);
             font-weight: 600;
-            margin-top: 24px;
-            box-shadow: 0 4px 16px rgba(78,205,196,0.3);
+            margin-top: var(--spacing-lg);
+            box-shadow: var(--shadow-medium);
         }
 
-        /* User status and logout button */
+        /* User Status - Financial Hub Style */
         #user-status .logout-btn {
-            background: rgba(255,107,107,0.9);
-            color: white;
+            background: var(--expense-red);
+            color: var(--white);
             border: none;
-            padding: 8px 20px;
-            border-radius: 8px;
+            padding: var(--spacing-sm) var(--spacing-md);
+            border-radius: var(--radius-small);
             cursor: pointer;
             font-weight: 600;
             font-size: 13px;
-            transition: all 0.3s ease;
+            transition: all 0.2s ease;
         }
 
         #user-status .logout-btn:hover {
-            background: rgba(255,107,107,1);
+            background: #d32f2f;
             transform: translateY(-2px);
-            box-shadow: 0 4px 12px rgba(255,107,107,0.4);
+            box-shadow: 0 4px 12px rgba(230, 57, 70, 0.4);
         }
 
         #user-status .user-badge {
-            background: rgba(255,255,255,0.95);
-            padding: 14px 22px;
-            border-radius: 14px;
+            background: var(--white);
+            padding: var(--spacing-md) var(--spacing-lg);
+            border-radius: var(--radius-medium);
             display: inline-block;
-            box-shadow: 0 4px 16px rgba(0,0,0,0.1);
+            box-shadow: var(--shadow-low);
         }
 
         #user-status .user-email-display {
-            color: var(--dark);
+            color: var(--text-primary);
             font-weight: 600;
-            margin-bottom: 8px;
+            margin-bottom: var(--spacing-sm);
             font-size: 14px;
         }
 
@@ -829,39 +915,48 @@
             display: inline-block;
             width: 8px;
             height: 8px;
-            background: #4ECDC4;
-            border-radius: 50%;
-            margin-right: 6px;
-            animation: pulse 2s infinite;
+            background: var(--primary);
+            border-radius: var(--radius-round);
+            margin-right: var(--spacing-sm);
         }
 
-        /* Professional Dark Mode */
+        /* Dark Mode - Financial Hub */
         body.dark-mode {
-            background: #1a1d23;
+            background: #121416;
             color: #e8e9ed;
         }
 
         body.dark-mode .card {
-            background: #25282e;
-            color: #e8e9ed;
-            border-color: #33363c;
+            background: #1e2024;
+            border-color: #2a2d33;
         }
 
-        body.dark-mode .card-title {
+        body.dark-mode .balance-card {
+            background: linear-gradient(135deg, #478A82 0%, #3a6f69 100%);
+        }
+
+        body.dark-mode .card-title,
+        body.dark-mode h1 {
             color: #f5f5f7;
         }
 
+        body.dark-mode .tagline,
+        body.dark-mode .stat-label,
+        body.dark-mode .item-category {
+            color: #8a8d94;
+        }
+
         body.dark-mode .nav-tabs {
-            background: #25282e;
+            background: #1e2024;
+            border-color: #2a2d33;
         }
 
         body.dark-mode .nav-tab {
-            color: #a0a3a8;
+            color: #8a8d94;
         }
 
         body.dark-mode .nav-tab.active {
-            background: var(--primary-teal);
-            color: white;
+            color: var(--primary);
         }
 
         body.dark-mode input[type="text"],
@@ -869,70 +964,71 @@
         body.dark-mode input[type="password"],
         body.dark-mode input[type="url"],
         body.dark-mode select {
-            background: #1f2227;
-            border-color: #33363c;
+            background: #121416;
+            border-color: #2a2d33;
             color: #e8e9ed;
         }
 
         body.dark-mode .item,
+        body.dark-mode .history-item,
         body.dark-mode tbody tr {
-            background: #2a2d33;
+            background: transparent;
+        }
+
+        body.dark-mode .item:hover,
+        body.dark-mode .history-item:hover {
+            background: #1a1d21;
         }
 
         body.dark-mode .stat-card {
-            background: #25282e;
-            border-color: #33363c;
+            background: #1e2024;
+            border-color: #2a2d33;
         }
 
         body.dark-mode .stat-value,
         body.dark-mode .item-name,
-        body.dark-mode .item-price,
         body.dark-mode td {
             color: #f5f5f7;
         }
 
-        body.dark-mode .stat-label,
-        body.dark-mode .tagline {
-            color: #a0a3a8;
-        }
-
-        body.dark-mode h1 {
-            color: #f5f5f7;
-        }
-
         body.dark-mode .expandable {
-            background: #2a2d33;
+            background: #1a1d21;
         }
 
         body.dark-mode .expandable-header {
-            background: #25282e;
+            background: #1e2024;
         }
 
         body.dark-mode th {
-            background: #25282e;
+            background: #1e2024;
             color: #f5f5f7;
         }
 
         body.dark-mode .upload-zone {
-            background: #1f2227;
-            border-color: #33363c;
+            background: #1e2024;
+            border-color: #2a2d33;
+        }
+
+        body.dark-mode #user-status .user-badge {
+            background: #1e2024;
+            border-color: #2a2d33;
         }
     </style>
 </head>
 <body>
-    <div id="login-overlay" style="position: fixed; inset: 0; background: var(--off-white); z-index: 1000; display: flex; align-items: center; justify-content: center; padding: 20px;">
-        <div class="card" style="width: 100%; max-width: 420px; text-align: center; box-shadow: 0 8px 40px rgba(0,0,0,0.12);">
-            <div style="width: 60px; height: 60px; background: var(--primary-teal); border-radius: 16px; display: flex; align-items: center; justify-content: center; margin: 0 auto 20px; font-size: 32px;">💰</div>
-            <h2 class="card-title" id="auth-title" style="margin-bottom: 12px;">Welcome to Spendy</h2>
-            <p style="margin-bottom: 32px; color: var(--medium-grey); font-size: 0.95em;" id="auth-subtitle">Sign in to save receipts forever</p>
-            <div style="display: flex; flex-direction: column; gap: 16px;">
+    <div id="login-overlay" style="position: fixed; inset: 0; background: var(--background); z-index: 1000; display: flex; align-items: center; justify-content: center; padding: var(--spacing-lg);">
+        <div class="card" style="width: 100%; max-width: 420px; text-align: center; box-shadow: var(--shadow-medium); padding: var(--spacing-xl);">
+            <div style="width: 64px; height: 64px; background: var(--primary); border-radius: var(--radius-large); display: flex; align-items: center; justify-content: center; margin: 0 auto var(--spacing-lg); font-size: 32px;">💰</div>
+            <h2 class="card-title" id="auth-title" style="margin-bottom: var(--spacing-sm); font-size: 24px;">Financial Hub</h2>
+            <p style="margin-bottom: var(--spacing-xl); color: var(--text-tertiary); font-size: 14px;" id="auth-subtitle">Sign in to track your receipts and manage your budget</p>
+            <div style="display: flex; flex-direction: column; gap: var(--spacing-md);">
                 <input type="email" id="email-input" placeholder="Email" style="width: 100%;">
                 <input type="password" id="password-input" placeholder="Password" style="width: 100%;">
-                <div style="display: flex; gap: 12px;">
+                <div style="display: flex; gap: var(--spacing-md);">
                     <button class="btn" id="signin-btn" onclick="signIn()" style="flex: 1;"><span>Sign In</span></button>
                     <button class="btn btn-secondary" id="signup-btn" onclick="signUp()" style="flex: 1;"><span>Sign Up</span></button>
                 </div>
-                <button class="btn-secondary btn" onclick="continueAsGuest()" style="margin-top: 8px;"><span>Continue as Guest</span></button>
+                <button class="btn-secondary btn" onclick="continueAsGuest()" style="margin-top: var(--spacing-sm);"><span>Continue as Guest</span></button>
             </div>
         </div>
     </div>
