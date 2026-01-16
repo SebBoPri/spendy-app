@@ -1191,11 +1191,91 @@
                 stroke-dashoffset: 20;
             }
         }
+
+        /* Bounce animation for celebrations */
+        @keyframes bounce {
+            0%, 100% {
+                transform: translateY(0) scale(1);
+            }
+            25% {
+                transform: translateY(-20px) scale(1.1);
+            }
+            50% {
+                transform: translateY(0) scale(1);
+            }
+            75% {
+                transform: translateY(-10px) scale(1.05);
+            }
+        }
+
+        /* Confetti animation */
+        @keyframes confetti-fall {
+            0% {
+                transform: translateY(-100vh) rotate(0deg);
+                opacity: 1;
+            }
+            100% {
+                transform: translateY(100vh) rotate(720deg);
+                opacity: 0;
+            }
+        }
+
+        .confetti {
+            position: fixed;
+            width: 10px;
+            height: 10px;
+            background: #f0f;
+            top: -10px;
+            animation: confetti-fall 3s linear;
+            pointer-events: none;
+            z-index: 9999;
+        }
     </style>
 </head>
 <body>
     <!-- Toast Notification Container -->
     <div id="toast-container"></div>
+
+    <!-- Savings Goal Modal -->
+    <div id="goalModal" style="display: none; position: fixed; inset: 0; background: rgba(0,0,0,0.5); z-index: 2000; align-items: center; justify-content: center; padding: 20px;">
+        <div class="card" style="max-width: 500px; width: 100%; margin: 0;">
+            <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 24px;">
+                <h2 class="card-title" style="margin: 0;">Set Savings Goal</h2>
+                <button onclick="closeGoalModal()" style="background: none; border: none; font-size: 24px; cursor: pointer; color: var(--text-secondary);">×</button>
+            </div>
+            <div style="margin-bottom: 20px;">
+                <label style="display: block; font-weight: 600; margin-bottom: 8px;">Monthly Savings Target (kr)</label>
+                <input type="number" id="goalTargetInput" placeholder="500" min="1" style="width: 100%; padding: 12px; border-radius: 8px; border: 1px solid var(--border); font-size: 16px;">
+                <p style="color: var(--text-secondary); font-size: 0.85em; margin-top: 4px;">How much do you want to save in discounts this month?</p>
+            </div>
+            <div style="display: flex; gap: 10px;">
+                <button class="btn" onclick="saveGoal()" style="flex: 1;"><span>Set Goal</span></button>
+                <button class="btn btn-secondary" onclick="closeGoalModal()" style="flex: 1;"><span>Cancel</span></button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Level Up Celebration Modal -->
+    <div id="levelUpModal" style="display: none; position: fixed; inset: 0; background: rgba(0,0,0,0.7); z-index: 3000; align-items: center; justify-content: center; padding: 20px;">
+        <div class="card" style="max-width: 400px; width: 100%; text-align: center; background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); color: white; position: relative; overflow: hidden;">
+            <div style="font-size: 80px; margin-bottom: 16px; animation: bounce 0.6s ease-in-out;">🎉</div>
+            <h2 style="color: white; font-size: 2em; margin-bottom: 8px;">Level Up!</h2>
+            <div style="font-size: 3em; font-weight: 700; margin-bottom: 8px;">Level <span id="newLevelNumber">2</span></div>
+            <div style="font-size: 1.3em; opacity: 0.9; margin-bottom: 24px;"><span id="newLevelName">Silver</span></div>
+            <button class="btn" onclick="closeLevelUpModal()" style="background: white; color: #667eea;"><span>Awesome!</span></button>
+        </div>
+    </div>
+
+    <!-- Goal Completed Modal -->
+    <div id="goalCompletedModal" style="display: none; position: fixed; inset: 0; background: rgba(0,0,0,0.7); z-index: 3000; align-items: center; justify-content: center; padding: 20px;">
+        <div class="card" style="max-width: 400px; width: 100%; text-align: center;">
+            <div style="font-size: 80px; margin-bottom: 16px; animation: bounce 0.6s ease-in-out;">🎯</div>
+            <h2 class="card-title" style="font-size: 2em; margin-bottom: 8px;">Goal Reached!</h2>
+            <p style="font-size: 1.3em; margin-bottom: 8px;">You saved <strong><span id="goalAmountSaved">500</span> kr</strong> in discounts!</p>
+            <p style="color: var(--text-secondary); margin-bottom: 24px;">Great job hitting your savings target!</p>
+            <button class="btn" onclick="closeGoalCompletedModal()"><span>Celebrate!</span></button>
+        </div>
+    </div>
 
     <div id="login-overlay" style="position: fixed; inset: 0; background: var(--background); z-index: 1000; display: flex; align-items: center; justify-content: center; padding: var(--spacing-lg);">
         <div class="card" style="width: 100%; max-width: 420px; text-align: center; box-shadow: var(--shadow-medium); padding: var(--spacing-xl);">
@@ -1300,6 +1380,81 @@
                     <div class="stat-icon">🛒</div>
                     <div class="stat-label">Items Tracked</div>
                     <div class="stat-value" id="itemCount">0</div>
+                </div>
+            </div>
+
+            <!-- Progress & Level Card -->
+            <div class="card" id="levelCard" style="background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); color: white;">
+                <div style="display: flex; justify-content: space-between; align-items: start; margin-bottom: 20px;">
+                    <div>
+                        <h2 style="color: white; margin: 0 0 8px 0; font-size: 1.5em;">Level <span id="userLevel">1</span></h2>
+                        <div style="font-size: 1.1em; opacity: 0.9;" id="levelName">Bronze</div>
+                    </div>
+                    <div style="text-align: right;">
+                        <div style="font-size: 2em; font-weight: 700; margin-bottom: 4px;"><span id="totalXP">0</span> XP</div>
+                        <div style="opacity: 0.8; font-size: 0.9em;"><span id="xpToNext">100</span> to next level</div>
+                    </div>
+                </div>
+                <div style="margin-bottom: 8px;">
+                    <div style="width: 100%; height: 12px; background: rgba(255,255,255,0.2); border-radius: 6px; overflow: hidden;">
+                        <div id="xpProgressBar" style="width: 0%; height: 100%; background: linear-gradient(90deg, #10b981, #059669); transition: width 0.5s ease;"></div>
+                    </div>
+                </div>
+                <div style="text-align: center; opacity: 0.9; font-size: 0.9em;"><span id="xpProgressPercent">0</span>% to Level <span id="nextLevel">2</span></div>
+            </div>
+
+            <!-- Savings Goal Card -->
+            <div class="card" id="savingsGoalCard" style="display: none;">
+                <div style="display: flex; justify-content: space-between; align-items: start; margin-bottom: 20px;">
+                    <h2 class="card-title" style="margin: 0;">Savings Goal</h2>
+                    <button class="btn" onclick="showGoalModal()" style="padding: 8px 16px; font-size: 0.9em;"><span>Edit Goal</span></button>
+                </div>
+                <div style="margin-bottom: 16px;">
+                    <div style="display: flex; justify-content: space-between; margin-bottom: 8px;">
+                        <span style="font-weight: 600; font-size: 1.2em; color: var(--income-green);"><span id="goalCurrent">0</span> kr</span>
+                        <span style="font-weight: 600; font-size: 1.2em;">of <span id="goalTarget">500</span> kr</span>
+                    </div>
+                    <div style="width: 100%; height: 24px; background: var(--border); border-radius: 12px; overflow: hidden;">
+                        <div id="goalProgressBar" style="width: 0%; height: 100%; background: linear-gradient(90deg, var(--income-green), #059669); transition: width 0.5s ease; display: flex; align-items: center; justify-content: center; color: white; font-weight: 700; font-size: 0.85em;"></div>
+                    </div>
+                </div>
+                <div style="display: flex; justify-content: space-between; color: var(--text-secondary); font-size: 0.9em;">
+                    <span><span id="goalDaysRemaining">30</span> days remaining</span>
+                    <span><span id="goalProgressPercent">0</span>% complete</span>
+                </div>
+            </div>
+
+            <!-- Create Goal Card (shown when no goal exists) -->
+            <div class="card" id="createGoalCard">
+                <h2 class="card-title">Set a Savings Goal</h2>
+                <p style="color: var(--text-secondary); margin-bottom: 20px;">Track your monthly discount savings and reach your target!</p>
+                <button class="btn" onclick="showGoalModal()"><span>Create Savings Goal</span></button>
+            </div>
+
+            <!-- Quick Stats Card -->
+            <div class="card">
+                <h2 class="card-title">Your Stats</h2>
+                <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(150px, 1fr)); gap: 20px;">
+                    <div>
+                        <div style="font-size: 0.85em; color: var(--text-tertiary); margin-bottom: 4px;">This Month</div>
+                        <div style="font-weight: 700; font-size: 1.5em; color: var(--primary);"><span id="receiptsThisMonth">0</span></div>
+                        <div style="font-size: 0.85em; color: var(--text-secondary);">receipts scanned</div>
+                    </div>
+                    <div>
+                        <div style="font-size: 0.85em; color: var(--text-tertiary); margin-bottom: 4px;">Total Saved</div>
+                        <div style="font-weight: 700; font-size: 1.5em; color: var(--income-green);"><span id="totalSavings">0</span> kr</div>
+                        <div style="font-size: 0.85em; color: var(--text-secondary);">from discounts</div>
+                    </div>
+                    <div>
+                        <div style="font-size: 0.85em; color: var(--text-tertiary); margin-bottom: 4px;">Biggest Receipt</div>
+                        <div style="font-weight: 700; font-size: 1.5em;"><span id="biggestReceipt">0</span> kr</div>
+                        <div style="font-size: 0.85em; color: var(--text-secondary);">personal record</div>
+                    </div>
+                    <div>
+                        <div style="font-size: 0.85em; color: var(--text-tertiary); margin-bottom: 4px;">Best Discount</div>
+                        <div style="font-weight: 700; font-size: 1.5em; color: var(--income-green);"><span id="biggestDiscount">0</span> kr</div>
+                        <div style="font-size: 0.85em; color: var(--text-secondary);">single receipt</div>
+                    </div>
                 </div>
             </div>
 
@@ -2124,8 +2279,10 @@
                     localStorage.setItem('spendy-receipts', JSON.stringify(allReceipts));
                 } else {
                     await loadLongTermData();
-                    const totalReceipts = allReceipts.length;
-                    showToast(`Receipt saved successfully! You now have ${totalReceipts} receipt${totalReceipts !== 1 ? 's' : ''} saved.`, 'success');
+
+                    // Show quick stats with gamification feedback
+                    await showQuickStats(currentReceipt);
+
                     document.getElementById('processingArea').style.display = 'none';
                     document.getElementById('fileInput').value = '';
                     currentReceipt = null;
@@ -2204,7 +2361,7 @@
             }
         }
 
-        function updateDashboard() {
+        async function updateDashboard() {
             if (allReceipts.length === 0) {
                 document.getElementById('totalSpent').textContent = '0 kr';
                 document.getElementById('receiptCount').textContent = '0';
@@ -2232,6 +2389,9 @@
             updateTrendChart();
             updatePriceComparison();
             updateTopItems();
+
+            // Load gamification data
+            await loadGamificationData();
         }
 
         function updateCategoryChart(categoryTotals) {
@@ -3291,6 +3451,284 @@
                 return currency + amount.toFixed(2);
             }
         }
+
+        // ============ GAMIFICATION FUNCTIONS ============
+
+        // Load gamification data from Supabase
+        async function loadGamificationData() {
+            try {
+                const { data: { user } } = await _supabase.auth.getUser();
+                if (!user) return;
+
+                // Get user progress
+                const { data: progressData, error: progressError } = await _supabase
+                    .rpc('get_user_progress', { p_user_id: user.id });
+
+                if (progressError) {
+                    console.error('Error loading progress:', progressError);
+                    return;
+                }
+
+                if (progressData && progressData.length > 0) {
+                    const progress = progressData[0];
+                    updateProgressUI(progress);
+                }
+
+                // Get active savings goal
+                const { data: goalData, error: goalError } = await _supabase
+                    .rpc('get_active_savings_goal', { p_user_id: user.id });
+
+                if (goalError) {
+                    console.error('Error loading goal:', goalError);
+                }
+
+                if (goalData && goalData.length > 0) {
+                    const goal = goalData[0];
+                    updateGoalUI(goal);
+                } else {
+                    showCreateGoalCard();
+                }
+
+            } catch (error) {
+                console.error('Error loading gamification data:', error);
+            }
+        }
+
+        // Update progress UI (Level, XP, Stats)
+        function updateProgressUI(progress) {
+            // Update level card
+            document.getElementById('userLevel').textContent = progress.current_level;
+            document.getElementById('levelName').textContent = progress.level_name;
+            document.getElementById('totalXP').textContent = progress.total_xp;
+            document.getElementById('xpToNext').textContent = progress.xp_for_next_level;
+            document.getElementById('xpProgressPercent').textContent = progress.xp_progress_percent;
+            document.getElementById('nextLevel').textContent = progress.current_level + 1;
+
+            // Update progress bar
+            const progressBar = document.getElementById('xpProgressBar');
+            progressBar.style.width = progress.xp_progress_percent + '%';
+
+            // Update stats card
+            document.getElementById('receiptsThisMonth').textContent = progress.receipts_this_month;
+            document.getElementById('totalSavings').textContent = progress.total_savings.toFixed(2);
+            document.getElementById('biggestReceipt').textContent = progress.biggest_receipt.toFixed(2);
+            document.getElementById('biggestDiscount').textContent = progress.biggest_discount.toFixed(2);
+        }
+
+        // Update goal UI
+        function updateGoalUI(goal) {
+            document.getElementById('savingsGoalCard').style.display = 'block';
+            document.getElementById('createGoalCard').style.display = 'none';
+
+            document.getElementById('goalCurrent').textContent = goal.current_amount.toFixed(0);
+            document.getElementById('goalTarget').textContent = goal.target_amount.toFixed(0);
+            document.getElementById('goalProgressPercent').textContent = goal.progress_percent;
+            document.getElementById('goalDaysRemaining').textContent = goal.days_remaining;
+
+            // Update progress bar
+            const progressBar = document.getElementById('goalProgressBar');
+            progressBar.style.width = Math.min(goal.progress_percent, 100) + '%';
+            if (goal.progress_percent > 0) {
+                progressBar.textContent = goal.progress_percent + '%';
+            }
+        }
+
+        // Show create goal card
+        function showCreateGoalCard() {
+            document.getElementById('savingsGoalCard').style.display = 'none';
+            document.getElementById('createGoalCard').style.display = 'block';
+        }
+
+        // Show goal modal
+        function showGoalModal() {
+            document.getElementById('goalModal').style.display = 'flex';
+        }
+
+        // Close goal modal
+        function closeGoalModal() {
+            document.getElementById('goalModal').style.display = 'none';
+        }
+
+        // Save savings goal
+        async function saveGoal() {
+            const target = parseFloat(document.getElementById('goalTargetInput').value);
+
+            if (!target || target <= 0) {
+                showToast('Please enter a valid savings target', 'error');
+                return;
+            }
+
+            try {
+                const { data: { user } } = await _supabase.auth.getUser();
+                if (!user) {
+                    showToast('You must be logged in to set goals', 'error');
+                    return;
+                }
+
+                // Deactivate any existing goals
+                await _supabase
+                    .from('savings_goals')
+                    .update({ is_active: false })
+                    .eq('user_id', user.id)
+                    .eq('is_active', true);
+
+                // Create new goal for current month
+                const startDate = new Date();
+                startDate.setDate(1); // First day of month
+                const endDate = new Date(startDate.getFullYear(), startDate.getMonth() + 1, 0); // Last day of month
+
+                const { error } = await _supabase
+                    .from('savings_goals')
+                    .insert([{
+                        user_id: user.id,
+                        target_amount: target,
+                        current_amount: 0,
+                        goal_type: 'monthly',
+                        start_date: startDate.toISOString().split('T')[0],
+                        end_date: endDate.toISOString().split('T')[0],
+                        is_active: true
+                    }]);
+
+                if (error) throw error;
+
+                showToast(`Goal set! Save ${target} kr in discounts this month`, 'success');
+                closeGoalModal();
+                await loadGamificationData();
+
+            } catch (error) {
+                console.error('Error saving goal:', error);
+                showToast('Error setting goal: ' + error.message, 'error');
+            }
+        }
+
+        // Show quick stats after receipt upload (Feature #10)
+        async function showQuickStats(receiptData) {
+            try {
+                const { data: { user } } = await _supabase.auth.getUser();
+                if (!user) return;
+
+                // Get updated stats
+                const { data: stats } = await _supabase
+                    .rpc('get_user_progress', { p_user_id: user.id });
+
+                if (stats && stats.length > 0) {
+                    const progress = stats[0];
+                    const savings = receiptData._financial?.total_discounts || 0;
+
+                    let message = `Receipt #${progress.receipts_this_month} this month!`;
+                    if (savings > 0) {
+                        message += ` You saved ${savings.toFixed(2)} kr on this receipt.`;
+                    }
+
+                    // Check for level up
+                    checkForLevelUp(progress.current_level);
+
+                    // Check for goal completion
+                    await checkGoalCompletion();
+
+                    showToast(message, 'success', 'Receipt Saved!');
+                    triggerConfetti();
+                }
+            } catch (error) {
+                console.error('Error showing quick stats:', error);
+            }
+        }
+
+        // Check if user leveled up
+        let lastKnownLevel = null;
+
+        function checkForLevelUp(currentLevel) {
+            if (lastKnownLevel !== null && currentLevel > lastKnownLevel) {
+                showLevelUpModal(currentLevel);
+            }
+            lastKnownLevel = currentLevel;
+        }
+
+        // Show level up modal
+        function showLevelUpModal(level) {
+            const levelNames = {
+                1: 'Bronze',
+                5: 'Silver',
+                10: 'Gold',
+                15: 'Diamond',
+                20: 'Platinum'
+            };
+
+            let levelName = 'Bronze';
+            for (let l in levelNames) {
+                if (level >= parseInt(l)) levelName = levelNames[l];
+            }
+
+            document.getElementById('newLevelNumber').textContent = level;
+            document.getElementById('newLevelName').textContent = levelName;
+            document.getElementById('levelUpModal').style.display = 'flex';
+            triggerConfetti();
+        }
+
+        // Close level up modal
+        function closeLevelUpModal() {
+            document.getElementById('levelUpModal').style.display = 'none';
+        }
+
+        // Check if savings goal was completed
+        async function checkGoalCompletion() {
+            try {
+                const { data: { user } } = await _supabase.auth.getUser();
+                if (!user) return;
+
+                const { data: goalData } = await _supabase
+                    .rpc('get_active_savings_goal', { p_user_id: user.id });
+
+                if (goalData && goalData.length > 0) {
+                    const goal = goalData[0];
+                    if (goal.is_completed && goal.progress_percent >= 100) {
+                        showGoalCompletedModal(goal.current_amount);
+                    }
+                }
+            } catch (error) {
+                console.error('Error checking goal completion:', error);
+            }
+        }
+
+        // Show goal completed modal
+        function showGoalCompletedModal(amount) {
+            document.getElementById('goalAmountSaved').textContent = amount.toFixed(0);
+            document.getElementById('goalCompletedModal').style.display = 'flex';
+            triggerConfetti();
+        }
+
+        // Close goal completed modal
+        function closeGoalCompletedModal() {
+            document.getElementById('goalCompletedModal').style.display = 'none';
+        }
+
+        // Trigger confetti animation
+        function triggerConfetti() {
+            const colors = ['#FF6B6B', '#4ECDC4', '#FFE66D', '#A78BFA', '#95E1D3', '#FF8E53'];
+            const confettiCount = 50;
+
+            for (let i = 0; i < confettiCount; i++) {
+                setTimeout(() => {
+                    const confetti = document.createElement('div');
+                    confetti.className = 'confetti';
+                    confetti.style.left = Math.random() * 100 + '%';
+                    confetti.style.background = colors[Math.floor(Math.random() * colors.length)];
+                    confetti.style.animationDelay = Math.random() * 0.5 + 's';
+                    confetti.style.animationDuration = (Math.random() * 2 + 2) + 's';
+                    document.body.appendChild(confetti);
+
+                    setTimeout(() => confetti.remove(), 5000);
+                }, i * 30);
+            }
+        }
+
+        // Initialize gamification when user logs in
+        document.addEventListener('DOMContentLoaded', async () => {
+            const { data: { user } } = await _supabase.auth.getUser();
+            if (user) {
+                await loadGamificationData();
+            }
+        });
     </script>
 </body>
 </html>
