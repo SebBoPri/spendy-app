@@ -2018,16 +2018,16 @@
             `;
 
             // Add financial details if available
-            if (financial.total_discounts > 0 || financial.loyalty_points_earned > 0) {
+            if ((financial.total_discounts && financial.total_discounts > 0) || (financial.loyalty_points_earned && financial.loyalty_points_earned > 0)) {
                 metadataHTML += `
                     <div style="margin-top: 16px; padding-top: 16px; border-top: 1px solid var(--border); display: flex; gap: 24px; flex-wrap: wrap;">
-                        ${financial.total_discounts > 0 ? `
+                        ${financial.total_discounts && financial.total_discounts > 0 ? `
                             <div>
                                 <div style="font-size: 0.85em; color: var(--text-tertiary);">Discounts</div>
                                 <div style="font-weight: 600; color: var(--income-green);">-${financial.total_discounts.toFixed(2)} kr</div>
                             </div>
                         ` : ''}
-                        ${financial.loyalty_points_earned > 0 ? `
+                        ${financial.loyalty_points_earned && financial.loyalty_points_earned > 0 ? `
                             <div>
                                 <div style="font-size: 0.85em; color: var(--text-tertiary);">Points Earned</div>
                                 <div style="font-weight: 600;">🎁 ${financial.loyalty_points_earned}</div>
@@ -2043,7 +2043,7 @@
             const itemsHTML = detailedItems.map((item, index) => {
                 const detailItem = data._items_detailed ? data._items_detailed[index] : null;
                 const tags = detailItem?.tags || [];
-                const hasDiscount = detailItem && detailItem.discount > 0;
+                const hasDiscount = detailItem && detailItem.discount && detailItem.discount > 0;
 
                 return `
                     <div class="item" style="border-left: 3px solid ${hasDiscount ? 'var(--income-green)' : 'transparent'};">
@@ -2066,9 +2066,9 @@
                             </div>
                         </div>
                         <div style="text-align: right;">
-                            <div class="item-price">${item.price.toFixed(2)} kr</div>
+                            <div class="item-price">${(item.price || 0).toFixed(2)} kr</div>
                             ${hasDiscount ? `
-                                <div style="font-size: 0.85em; color: var(--text-secondary); text-decoration: line-through;">${detailItem.original_price.toFixed(2)} kr</div>
+                                <div style="font-size: 0.85em; color: var(--text-secondary); text-decoration: line-through;">${(detailItem.original_price || 0).toFixed(2)} kr</div>
                                 <div style="font-size: 0.85em; color: var(--income-green); font-weight: 600;">-${detailItem.discount.toFixed(2)} kr</div>
                             ` : ''}
                         </div>
