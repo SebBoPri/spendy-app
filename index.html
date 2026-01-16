@@ -877,47 +877,188 @@
             box-shadow: var(--shadow-medium);
         }
 
-        /* User Status - Financial Hub Style */
-        #user-status .logout-btn {
-            background: var(--expense-red);
-            color: var(--white);
-            border: none;
-            padding: var(--spacing-sm) var(--spacing-md);
-            border-radius: var(--radius-small);
+        /* User Status - Enhanced Design */
+        #user-status {
+            position: relative;
+        }
+
+        #user-status .user-profile-card {
+            background: linear-gradient(135deg, var(--primary) 0%, #4a90e2 100%);
+            padding: 16px 20px;
+            border-radius: 16px;
+            display: inline-flex;
+            align-items: center;
+            gap: 12px;
+            box-shadow: 0 4px 16px rgba(91, 168, 159, 0.3);
+            transition: all 0.3s ease;
             cursor: pointer;
-            font-weight: 600;
-            font-size: 13px;
-            transition: all 0.2s ease;
+            position: relative;
         }
 
-        #user-status .logout-btn:hover {
-            background: #d32f2f;
+        #user-status .user-profile-card:hover {
             transform: translateY(-2px);
-            box-shadow: 0 4px 12px rgba(230, 57, 70, 0.4);
+            box-shadow: 0 6px 20px rgba(91, 168, 159, 0.4);
         }
 
-        #user-status .user-badge {
-            background: var(--white);
-            padding: var(--spacing-md) var(--spacing-lg);
-            border-radius: var(--radius-medium);
-            display: inline-block;
-            box-shadow: var(--shadow-low);
+        #user-status .user-avatar {
+            width: 40px;
+            height: 40px;
+            border-radius: 50%;
+            background: white;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 20px;
+            font-weight: 700;
+            color: var(--primary);
+            box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+        }
+
+        #user-status .user-info {
+            display: flex;
+            flex-direction: column;
+            gap: 2px;
+        }
+
+        #user-status .user-greeting {
+            font-size: 11px;
+            color: rgba(255,255,255,0.8);
+            font-weight: 500;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
         }
 
         #user-status .user-email-display {
-            color: var(--text-primary);
+            color: white;
             font-weight: 600;
-            margin-bottom: var(--spacing-sm);
             font-size: 14px;
+            display: flex;
+            align-items: center;
+            gap: 6px;
         }
 
         #user-status .status-indicator {
             display: inline-block;
             width: 8px;
             height: 8px;
-            background: var(--primary);
-            border-radius: var(--radius-round);
-            margin-right: var(--spacing-sm);
+            background: #10b981;
+            border-radius: 50%;
+            margin-right: 4px;
+            animation: pulse 2s infinite;
+        }
+
+        @keyframes pulse {
+            0%, 100% { opacity: 1; }
+            50% { opacity: 0.6; }
+        }
+
+        #user-status .user-menu-toggle {
+            color: white;
+            font-size: 16px;
+            transition: transform 0.2s ease;
+        }
+
+        #user-status .user-profile-card:hover .user-menu-toggle {
+            transform: rotate(90deg);
+        }
+
+        /* User Dropdown Menu */
+        #user-status .dropdown-menu {
+            position: absolute;
+            top: calc(100% + 8px);
+            right: 0;
+            background: white;
+            border-radius: 12px;
+            box-shadow: 0 8px 32px rgba(0,0,0,0.12);
+            min-width: 220px;
+            overflow: hidden;
+            opacity: 0;
+            visibility: hidden;
+            transform: translateY(-10px);
+            transition: all 0.3s ease;
+            z-index: 1000;
+        }
+
+        #user-status .dropdown-menu.show {
+            opacity: 1;
+            visibility: visible;
+            transform: translateY(0);
+        }
+
+        #user-status .dropdown-menu .menu-item {
+            padding: 14px 20px;
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            color: var(--text-primary);
+            font-weight: 500;
+            font-size: 14px;
+            cursor: pointer;
+            transition: all 0.2s ease;
+            border: none;
+            background: none;
+            width: 100%;
+            text-align: left;
+        }
+
+        #user-status .dropdown-menu .menu-item:hover {
+            background: var(--primary-light);
+            color: var(--primary);
+        }
+
+        #user-status .dropdown-menu .menu-item.danger {
+            color: var(--expense-red);
+        }
+
+        #user-status .dropdown-menu .menu-item.danger:hover {
+            background: rgba(230, 57, 70, 0.1);
+        }
+
+        #user-status .dropdown-menu .menu-divider {
+            height: 1px;
+            background: var(--border);
+            margin: 8px 0;
+        }
+
+        #user-status .dropdown-menu .menu-item-icon {
+            font-size: 18px;
+            width: 24px;
+            text-align: center;
+        }
+
+        /* Guest User Badge */
+        #guest-status {
+            background: rgba(255,255,255,0.1);
+            backdrop-filter: blur(10px);
+            padding: 12px 20px;
+            border-radius: 12px;
+            display: inline-flex;
+            align-items: center;
+            gap: 10px;
+            border: 1px solid rgba(255,255,255,0.2);
+        }
+
+        #guest-status .guest-icon {
+            font-size: 20px;
+        }
+
+        #guest-status .guest-text {
+            color: var(--text-secondary);
+            font-size: 13px;
+            font-weight: 500;
+        }
+
+        #guest-status .login-link {
+            color: var(--primary);
+            font-weight: 600;
+            text-decoration: none;
+            cursor: pointer;
+            transition: all 0.2s ease;
+            font-size: 13px;
+        }
+
+        #guest-status .login-link:hover {
+            text-decoration: underline;
         }
 
         /* Dark Mode - Financial Hub */
@@ -1307,16 +1448,41 @@
                     <p class="tagline">Your playful budget companion</p>
                 </div>
                 <div style="flex: 1; text-align: right;">
+                    <!-- Logged In User Status -->
                     <div id="user-status" style="display: none;">
-                        <div class="user-badge">
-                            <div class="user-email-display">
-                                <span class="status-indicator"></span>
-                                <span id="user-email"></span>
+                        <div class="user-profile-card" onclick="toggleUserMenu()">
+                            <div class="user-avatar" id="userAvatar">U</div>
+                            <div class="user-info">
+                                <div class="user-greeting">Logged In</div>
+                                <div class="user-email-display">
+                                    <span class="status-indicator"></span>
+                                    <span id="user-email"></span>
+                                </div>
                             </div>
-                            <button onclick="logout()" class="logout-btn">
-                                Logout
+                            <div class="user-menu-toggle">⋯</div>
+                        </div>
+                        <div class="dropdown-menu" id="userDropdown">
+                            <button class="menu-item" onclick="switchTab('account'); toggleUserMenu();">
+                                <span class="menu-item-icon">⚙️</span>
+                                Account Settings
+                            </button>
+                            <button class="menu-item" onclick="switchTab('dashboard'); toggleUserMenu();">
+                                <span class="menu-item-icon">📊</span>
+                                Dashboard
+                            </button>
+                            <div class="menu-divider"></div>
+                            <button class="menu-item danger" onclick="logout(); toggleUserMenu();">
+                                <span class="menu-item-icon">🚪</span>
+                                Sign Out
                             </button>
                         </div>
+                    </div>
+
+                    <!-- Guest Status (when not logged in) -->
+                    <div id="guest-status" style="display: none;">
+                        <span class="guest-icon">👤</span>
+                        <span class="guest-text">Guest Mode</span>
+                        <a class="login-link" onclick="showLoginModal()">Sign In</a>
                     </div>
                 </div>
             </div>
@@ -1541,70 +1707,114 @@
 
         <!-- Account Tab -->
         <div id="account" class="tab-content">
-            <div class="card">
-                <h2 class="card-title">👤 Profile Settings</h2>
-                <div style="margin-bottom: 20px;">
-                    <label style="display: block; font-weight: 600; margin-bottom: 8px;">Display Name</label>
-                    <input type="text" id="display-name-input" placeholder="Your name" style="width: 100%; padding: 12px; border-radius: 8px; border: 1px solid #ddd;">
-                </div>
-                <div style="margin-bottom: 20px;">
-                    <label style="display: block; font-weight: 600; margin-bottom: 8px;">Profile Picture URL (optional)</label>
-                    <input type="url" id="profile-pic-input" placeholder="https://example.com/avatar.jpg" style="width: 100%; padding: 12px; border-radius: 8px; border: 1px solid #ddd;">
-                    <div id="profile-pic-preview" style="margin-top: 10px; display: none;">
-                        <img id="profile-pic-img" style="width: 80px; height: 80px; border-radius: 50%; object-fit: cover; box-shadow: 0 4px 8px rgba(0,0,0,0.1);">
+            <!-- Account Overview Card -->
+            <div class="card" style="background: linear-gradient(135deg, var(--primary) 0%, #4a90e2 100%); color: white;">
+                <div style="display: flex; align-items: center; gap: 20px;">
+                    <div style="width: 80px; height: 80px; border-radius: 50%; background: white; display: flex; align-items: center; justify-content: center; font-size: 36px; font-weight: 700; color: var(--primary); box-shadow: 0 4px 16px rgba(0,0,0,0.2);" id="accountAvatar">U</div>
+                    <div style="flex: 1;">
+                        <div style="font-size: 11px; opacity: 0.9; text-transform: uppercase; letter-spacing: 1px; margin-bottom: 4px;">Your Account</div>
+                        <h2 style="color: white; margin: 0 0 8px 0; font-size: 24px;" id="accountEmail">user@example.com</h2>
+                        <div style="font-size: 14px; opacity: 0.9;" id="accountLevel">Level 1 - Bronze</div>
                     </div>
                 </div>
-                <button class="btn" onclick="updateProfile()"><span>Save Profile</span></button>
             </div>
 
+            <!-- Profile Settings -->
             <div class="card">
-                <h2 class="card-title">🔒 Change Password</h2>
-                <div style="margin-bottom: 20px;">
-                    <label style="display: block; font-weight: 600; margin-bottom: 8px;">New Password</label>
-                    <input type="password" id="account-new-password-input" placeholder="Minimum 6 characters" style="width: 100%; padding: 12px; border-radius: 8px; border: 1px solid #ddd;">
+                <div style="display: flex; align-items: center; gap: 12px; margin-bottom: 24px;">
+                    <div style="width: 48px; height: 48px; border-radius: 12px; background: rgba(91, 168, 159, 0.1); display: flex; align-items: center; justify-content: center; font-size: 24px;">👤</div>
+                    <div>
+                        <h2 class="card-title" style="margin: 0;">Profile Settings</h2>
+                        <p style="color: var(--text-secondary); font-size: 14px; margin: 4px 0 0 0;">Customize your profile information</p>
+                    </div>
                 </div>
                 <div style="margin-bottom: 20px;">
-                    <label style="display: block; font-weight: 600; margin-bottom: 8px;">Confirm New Password</label>
-                    <input type="password" id="account-confirm-password-input" placeholder="Re-enter password" style="width: 100%; padding: 12px; border-radius: 8px; border: 1px solid #ddd;">
+                    <label style="display: block; font-weight: 600; margin-bottom: 8px; font-size: 14px;">Display Name</label>
+                    <input type="text" id="display-name-input" placeholder="Your name" style="width: 100%; padding: 14px; border-radius: 10px; border: 2px solid var(--border); font-size: 15px; transition: border-color 0.2s;">
                 </div>
-                <button class="btn" onclick="changePassword()"><span>Update Password</span></button>
+                <div style="margin-bottom: 20px;">
+                    <label style="display: block; font-weight: 600; margin-bottom: 8px; font-size: 14px;">Profile Picture URL <span style="color: var(--text-tertiary); font-weight: 400;">(optional)</span></label>
+                    <input type="url" id="profile-pic-input" placeholder="https://example.com/avatar.jpg" style="width: 100%; padding: 14px; border-radius: 10px; border: 2px solid var(--border); font-size: 15px;">
+                    <div id="profile-pic-preview" style="margin-top: 16px; display: none;">
+                        <img id="profile-pic-img" style="width: 100px; height: 100px; border-radius: 50%; object-fit: cover; box-shadow: 0 4px 12px rgba(0,0,0,0.1); border: 4px solid white;">
+                    </div>
+                </div>
+                <button class="btn" onclick="updateProfile()"><span>💾 Save Profile</span></button>
             </div>
 
+            <!-- Security Settings -->
             <div class="card">
-                <h2 class="card-title">⚙️ Preferences</h2>
+                <div style="display: flex; align-items: center; gap: 12px; margin-bottom: 24px;">
+                    <div style="width: 48px; height: 48px; border-radius: 12px; background: rgba(74, 144, 226, 0.1); display: flex; align-items: center; justify-content: center; font-size: 24px;">🔒</div>
+                    <div>
+                        <h2 class="card-title" style="margin: 0;">Security</h2>
+                        <p style="color: var(--text-secondary); font-size: 14px; margin: 4px 0 0 0;">Update your password</p>
+                    </div>
+                </div>
                 <div style="margin-bottom: 20px;">
-                    <label style="display: block; font-weight: 600; margin-bottom: 8px;">Currency</label>
-                    <select id="currency-select" style="width: 100%; padding: 12px; border-radius: 8px; border: 1px solid #ddd;">
-                        <option value="kr">Swedish Krona (kr)</option>
-                        <option value="$">US Dollar ($)</option>
-                        <option value="€">Euro (€)</option>
-                        <option value="£">British Pound (£)</option>
-                        <option value="¥">Japanese Yen (¥)</option>
-                        <option value="₹">Indian Rupee (₹)</option>
+                    <label style="display: block; font-weight: 600; margin-bottom: 8px; font-size: 14px;">New Password</label>
+                    <input type="password" id="account-new-password-input" placeholder="Minimum 6 characters" style="width: 100%; padding: 14px; border-radius: 10px; border: 2px solid var(--border); font-size: 15px;">
+                </div>
+                <div style="margin-bottom: 20px;">
+                    <label style="display: block; font-weight: 600; margin-bottom: 8px; font-size: 14px;">Confirm New Password</label>
+                    <input type="password" id="account-confirm-password-input" placeholder="Re-enter password" style="width: 100%; padding: 14px; border-radius: 10px; border: 2px solid var(--border); font-size: 15px;">
+                </div>
+                <button class="btn" onclick="changePassword()"><span>🔐 Update Password</span></button>
+            </div>
+
+            <!-- Preferences -->
+            <div class="card">
+                <div style="display: flex; align-items: center; gap: 12px; margin-bottom: 24px;">
+                    <div style="width: 48px; height: 48px; border-radius: 12px; background: rgba(244, 162, 97, 0.1); display: flex; align-items: center; justify-content: center; font-size: 24px;">⚙️</div>
+                    <div>
+                        <h2 class="card-title" style="margin: 0;">Preferences</h2>
+                        <p style="color: var(--text-secondary); font-size: 14px; margin: 4px 0 0 0;">Customize your experience</p>
+                    </div>
+                </div>
+                <div style="margin-bottom: 24px;">
+                    <label style="display: block; font-weight: 600; margin-bottom: 8px; font-size: 14px;">Currency</label>
+                    <select id="currency-select" style="width: 100%; padding: 14px; border-radius: 10px; border: 2px solid var(--border); font-size: 15px; cursor: pointer;">
+                        <option value="kr">🇸🇪 Swedish Krona (kr)</option>
+                        <option value="$">🇺🇸 US Dollar ($)</option>
+                        <option value="€">🇪🇺 Euro (€)</option>
+                        <option value="£">🇬🇧 British Pound (£)</option>
+                        <option value="¥">🇯🇵 Japanese Yen (¥)</option>
+                        <option value="₹">🇮🇳 Indian Rupee (₹)</option>
                     </select>
                 </div>
-                <div style="margin-bottom: 20px;">
-                    <label style="display: block; font-weight: 600; margin-bottom: 8px;">Theme</label>
-                    <div style="display: flex; gap: 10px;">
-                        <button class="btn" onclick="toggleDarkMode()" style="flex: 1;"><span id="theme-toggle-text">🌙 Enable Dark Mode</span></button>
+                <div style="margin-bottom: 24px;">
+                    <label style="display: block; font-weight: 600; margin-bottom: 12px; font-size: 14px;">Theme</label>
+                    <button class="btn" onclick="toggleDarkMode()" style="width: 100%;"><span id="theme-toggle-text">🌙 Enable Dark Mode</span></button>
+                </div>
+                <button class="btn" onclick="savePreferences()"><span>💫 Save Preferences</span></button>
+            </div>
+
+            <!-- Data Export -->
+            <div class="card">
+                <div style="display: flex; align-items: center; gap: 12px; margin-bottom: 24px;">
+                    <div style="width: 48px; height: 48px; border-radius: 12px; background: rgba(16, 185, 129, 0.1); display: flex; align-items: center; justify-content: center; font-size: 24px;">📥</div>
+                    <div>
+                        <h2 class="card-title" style="margin: 0;">Export Data</h2>
+                        <p style="color: var(--text-secondary); font-size: 14px; margin: 4px 0 0 0;">Download all your receipts and transaction data</p>
                     </div>
                 </div>
-                <button class="btn" onclick="savePreferences()"><span>Save Preferences</span></button>
-            </div>
-
-            <div class="card">
-                <h2 class="card-title">📥 Export Data</h2>
-                <p style="color: #666; margin-bottom: 16px;">Download all your receipts and transaction data</p>
-                <div style="display: flex; gap: 10px;">
-                    <button class="btn" onclick="exportAllDataJSON()"><span>📄 Export as JSON</span></button>
-                    <button class="btn" onclick="exportToCSV()"><span>📊 Export as CSV</span></button>
+                <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 12px;">
+                    <button class="btn" onclick="exportAllDataJSON()"><span>📄 Export JSON</span></button>
+                    <button class="btn" onclick="exportToCSV()"><span>📊 Export CSV</span></button>
                 </div>
             </div>
 
-            <div class="card" style="border: 2px solid var(--primary);">
-                <h2 class="card-title" style="color: var(--primary);">⚠️ Danger Zone</h2>
-                <p style="color: #666; margin-bottom: 16px;">Permanently delete your account and all associated data. This action cannot be undone.</p>
-                <button class="btn" style="background: linear-gradient(135deg, #FF6B6B, #E63946);" onclick="deleteAccount()"><span>🗑️ Delete Account</span></button>
+            <!-- Danger Zone -->
+            <div class="card" style="border: 2px solid var(--expense-red); background: rgba(230, 57, 70, 0.02);">
+                <div style="display: flex; align-items: center; gap: 12px; margin-bottom: 16px;">
+                    <div style="width: 48px; height: 48px; border-radius: 12px; background: rgba(230, 57, 70, 0.1); display: flex; align-items: center; justify-content: center; font-size: 24px;">⚠️</div>
+                    <div>
+                        <h2 class="card-title" style="color: var(--expense-red); margin: 0;">Danger Zone</h2>
+                        <p style="color: var(--text-secondary); font-size: 14px; margin: 4px 0 0 0;">Irreversible actions</p>
+                    </div>
+                </div>
+                <p style="color: var(--text-secondary); margin-bottom: 16px; font-size: 14px;">Permanently delete your account and all associated data. This action cannot be undone.</p>
+                <button class="btn" style="background: linear-gradient(135deg, #FF6B6B, #E63946); width: 100%;" onclick="deleteAccount()"><span>🗑️ Delete Account</span></button>
             </div>
         </div>
     </div>
@@ -1748,6 +1958,33 @@
             if (tabName === 'dashboard') updateDashboard();
             else if (tabName === 'history') updateHistory();
             else if (tabName === 'data') updateDataTable();
+            else if (tabName === 'account') updateAccountPage();
+        }
+
+        // Update account page with user info
+        async function updateAccountPage() {
+            const { data: { user } } = await _supabase.auth.getUser();
+            if (!user) return;
+
+            // Update account overview
+            document.getElementById('accountEmail').textContent = user.email;
+            const firstLetter = user.email.charAt(0).toUpperCase();
+            document.getElementById('accountAvatar').textContent = firstLetter;
+
+            // Get user progress for level display
+            try {
+                const { data: progressData } = await _supabase
+                    .rpc('get_user_progress', { p_user_id: user.id });
+
+                if (progressData && progressData.length > 0) {
+                    const progress = progressData[0];
+                    document.getElementById('accountLevel').textContent =
+                        `Level ${progress.current_level} - ${progress.level_name}`;
+                }
+            } catch (error) {
+                console.error('Error loading user level:', error);
+                document.getElementById('accountLevel').textContent = 'Level 1 - Bronze';
+            }
         }
 
         document.getElementById('fileInput').addEventListener('change', async (e) => {
@@ -3099,19 +3336,58 @@
         // Continue as guest function
         function continueAsGuest() {
             document.getElementById('login-overlay').style.display = 'none';
+            updateUserStatus(null); // Show guest status
             loadData(); // Load local data only
             loadUserPreferences(); // Load preferences even as guest
         }
 
         // Update user status display
         function updateUserStatus(user) {
+            const userStatus = document.getElementById('user-status');
+            const guestStatus = document.getElementById('guest-status');
+            const accountTab = document.getElementById('account-tab');
+
             if (user) {
-                document.getElementById('user-status').style.display = 'block';
+                // Show logged-in user status
+                userStatus.style.display = 'block';
+                guestStatus.style.display = 'none';
+                accountTab.style.display = 'block';
+
+                // Set user email
                 document.getElementById('user-email').textContent = user.email;
+
+                // Set user avatar with first letter of email
+                const firstLetter = user.email.charAt(0).toUpperCase();
+                document.getElementById('userAvatar').textContent = firstLetter;
             } else {
-                document.getElementById('user-status').style.display = 'none';
+                // Show guest status
+                userStatus.style.display = 'none';
+                guestStatus.style.display = 'inline-flex';
+                accountTab.style.display = 'none';
+
                 document.getElementById('user-email').textContent = '';
             }
+        }
+
+        // Toggle user dropdown menu
+        function toggleUserMenu() {
+            const dropdown = document.getElementById('userDropdown');
+            dropdown.classList.toggle('show');
+        }
+
+        // Close dropdown when clicking outside
+        document.addEventListener('click', function(event) {
+            const userStatus = document.getElementById('user-status');
+            const dropdown = document.getElementById('userDropdown');
+
+            if (userStatus && !userStatus.contains(event.target)) {
+                dropdown?.classList.remove('show');
+            }
+        });
+
+        // Show login modal
+        function showLoginModal() {
+            document.getElementById('login-overlay').style.display = 'flex';
         }
 
         // Logout function
