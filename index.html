@@ -1979,20 +1979,104 @@
             document.getElementById('loadingState').style.display = 'none';
             document.getElementById('resultsArea').style.display = 'block';
 
-            document.getElementById('itemsList').innerHTML = `
-                <div style="background: var(--light); padding: 20px; border-radius: 16px; margin-bottom: 20px;">
-                    <strong style="font-size: 1.1em;">Store:</strong> ${data.store || 'Not visible'}<br>
-                    <strong style="font-size: 1.1em;">Date:</strong> ${data.date || 'Not visible'}<br>
-                    <strong style="font-size: 1.1em;">Total:</strong> ${data.total ? data.total.toFixed(2) + ' kr' : 'Not visible'}
-                </div>
-                ${data.items.map(item => `
-                    <div class="item">
-                        <div class="item-name">${item.name}</div>
-                        <div class="item-category">${item.category}${item.subcategory ? ' › ' + item.subcategory : ''}</div>
-                        <div class="item-price">${item.price.toFixed(2)} kr</div>
+            // Show validation warnings if any
+            let validationHTML = '';
+            if (data._validation && data._validation.warnings && data._validation.warnings.length > 0) {
+                validationHTML = `
+                    <div style="background: #FFF3CD; border-left: 4px solid var(--warning-yellow); padding: 16px; border-radius: 12px; margin-bottom: 16px;">
+                        <div style="font-weight: 600; margin-bottom: 8px; color: #856404;">⚠️ Validation Warnings</div>
+                        ${data._validation.warnings.map(w => `
+                            <div style="font-size: 13px; color: #856404; margin-bottom: 4px;">• ${w.message}</div>
+                        `).join('')}
                     </div>
-                `).join('')}
+                `;
+            }
+
+            // Enhanced metadata display
+            const metadata = data._metadata || {};
+            const financial = data._financial || {};
+            const detailedItems = data._items_detailed || data.items;
+
+            let metadataHTML = `
+                <div style="background: var(--primary-light); padding: 20px; border-radius: 16px; margin-bottom: 20px;">
+                    <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 12px;">
+                        <div>
+                            <div style="font-size: 0.85em; color: var(--text-tertiary); margin-bottom: 4px;">Store</div>
+                            <div style="font-weight: 600;">${data.store || 'Not visible'}</div>
+                            ${metadata.store_chain ? `<div style="font-size: 0.9em; color: var(--text-secondary);">${metadata.store_chain}</div>` : ''}
+                        </div>
+                        <div>
+                            <div style="font-size: 0.85em; color: var(--text-tertiary); margin-bottom: 4px;">Date & Time</div>
+                            <div style="font-weight: 600;">${data.date || 'Not visible'}</div>
+                            ${data.time ? `<div style="font-size: 0.9em; color: var(--text-secondary);">${data.time}</div>` : ''}
+                        </div>
+                        <div>
+                            <div style="font-size: 0.85em; color: var(--text-tertiary); margin-bottom: 4px;">Total</div>
+                            <div style="font-weight: 700; font-size: 1.3em; color: var(--primary);">${data.total ? data.total.toFixed(2) + ' kr' : 'Not visible'}</div>
+                        </div>
+                    </div>
             `;
+
+            // Add financial details if available
+            if (financial.total_discounts > 0 || financial.loyalty_points_earned > 0) {
+                metadataHTML += `
+                    <div style="margin-top: 16px; padding-top: 16px; border-top: 1px solid var(--border); display: flex; gap: 24px; flex-wrap: wrap;">
+                        ${financial.total_discounts > 0 ? `
+                            <div>
+                                <div style="font-size: 0.85em; color: var(--text-tertiary);">Discounts</div>
+                                <div style="font-weight: 600; color: var(--income-green);">-${financial.total_discounts.toFixed(2)} kr</div>
+                            </div>
+                        ` : ''}
+                        ${financial.loyalty_points_earned > 0 ? `
+                            <div>
+                                <div style="font-size: 0.85em; color: var(--text-tertiary);">Points Earned</div>
+                                <div style="font-weight: 600;">🎁 ${financial.loyalty_points_earned}</div>
+                            </div>
+                        ` : ''}
+                    </div>
+                `;
+            }
+
+            metadataHTML += `</div>`;
+
+            // Enhanced items display with detailed metadata
+            const itemsHTML = detailedItems.map((item, index) => {
+                const detailItem = data._items_detailed ? data._items_detailed[index] : null;
+                const tags = detailItem?.tags || [];
+                const hasDiscount = detailItem && detailItem.discount > 0;
+
+                return `
+                    <div class="item" style="border-left: 3px solid ${hasDiscount ? 'var(--income-green)' : 'transparent'};">
+                        <div style="flex: 1;">
+                            <div class="item-name">
+                                ${item.name}
+                                ${tags.length > 0 ? `
+                                    <div style="display: inline-flex; gap: 4px; margin-left: 8px;">
+                                        ${tags.map(tag => `
+                                            <span style="font-size: 10px; padding: 2px 6px; background: var(--primary-light); color: var(--primary); border-radius: 4px; font-weight: 500;">${tag}</span>
+                                        `).join('')}
+                                    </div>
+                                ` : ''}
+                            </div>
+                            <div style="display: flex; gap: 12px; margin-top: 4px; flex-wrap: wrap;">
+                                <div class="item-category">${item.category}${item.subcategory ? ' › ' + item.subcategory : ''}</div>
+                                ${detailItem?.brand ? `<div style="font-size: 0.85em; color: var(--text-secondary);">Brand: ${detailItem.brand}</div>` : ''}
+                                ${detailItem?.package_size ? `<div style="font-size: 0.85em; color: var(--text-secondary);">${detailItem.package_size}</div>` : ''}
+                                ${detailItem && detailItem.quantity > 1 ? `<div style="font-size: 0.85em; color: var(--text-secondary);">Qty: ${detailItem.quantity}</div>` : ''}
+                            </div>
+                        </div>
+                        <div style="text-align: right;">
+                            <div class="item-price">${item.price.toFixed(2)} kr</div>
+                            ${hasDiscount ? `
+                                <div style="font-size: 0.85em; color: var(--text-secondary); text-decoration: line-through;">${detailItem.original_price.toFixed(2)} kr</div>
+                                <div style="font-size: 0.85em; color: var(--income-green); font-weight: 600;">-${detailItem.discount.toFixed(2)} kr</div>
+                            ` : ''}
+                        </div>
+                    </div>
+                `;
+            }).join('');
+
+            document.getElementById('itemsList').innerHTML = validationHTML + metadataHTML + itemsHTML;
         }
 
         async function saveReceiptAuto() {
@@ -2002,13 +2086,30 @@
             const { data: { user } } = await _supabase.auth.getUser();
 
             if (user) {
-                // Save to Supabase if logged in
+                // Save to Supabase if logged in with rich metadata
+                const metadata = currentReceipt._metadata || {};
+                const financial = currentReceipt._financial || {};
+
                 const receiptToSave = {
                     user_id: user.id,
-                    store_name: currentReceipt.store || "Unknown Store",
-                    purchase_date: currentReceipt.date || new Date().toISOString(),
-                    total_amount: currentReceipt.total || 0,
-                    items: currentReceipt.items
+                    store_name: metadata.store_name || currentReceipt.store || "Unknown Store",
+                    store_chain: metadata.store_chain,
+                    store_address: metadata.store_location?.address,
+                    store_city: metadata.store_location?.city,
+                    store_postal_code: metadata.store_location?.postal_code,
+                    receipt_number: metadata.receipt_number,
+                    purchase_date: metadata.purchase_date || currentReceipt.date || new Date().toISOString(),
+                    purchase_time: metadata.purchase_time || currentReceipt.time,
+                    currency: metadata.currency || 'SEK',
+                    subtotal: financial.subtotal || 0,
+                    total_discounts: financial.total_discounts || 0,
+                    total_amount: financial.total || currentReceipt.total || 0,
+                    loyalty_points_earned: financial.loyalty_points_earned || 0,
+                    loyalty_points_used: financial.loyalty_points_used || 0,
+                    items: currentReceipt._items_detailed || currentReceipt.items,
+                    items_count: currentReceipt.items?.length || 0,
+                    time_of_day: currentReceipt._analytics?.time_of_day,
+                    day_of_week: currentReceipt._analytics?.day_of_week
                 };
 
                 const { error } = await _supabase
