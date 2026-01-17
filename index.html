@@ -2,8 +2,66 @@
 <html lang="en">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Spendy - Your Fun Budget Companion</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=5.0, user-scalable=yes, viewport-fit=cover">
+
+    <!-- Primary Meta Tags -->
+    <title>Spendy - Smart Receipt Tracker</title>
+    <meta name="title" content="Spendy - Smart Receipt Tracker">
+    <meta name="description" content="AI-powered receipt scanning and budgeting app. Track spending, scan receipts, and manage your finances with ease.">
+    <meta name="keywords" content="receipt scanner, budget tracker, expense tracker, finance app, receipt organizer, spending tracker">
+    <meta name="author" content="Spendy">
+
+    <!-- PWA Meta Tags -->
+    <meta name="theme-color" content="#5BA89F">
+    <meta name="mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+    <meta name="apple-mobile-web-app-title" content="Spendy">
+
+    <!-- Icons -->
+    <link rel="icon" type="image/png" sizes="32x32" href="/icons/icon-32x32.png">
+    <link rel="icon" type="image/png" sizes="16x16" href="/icons/icon-16x16.png">
+    <link rel="apple-touch-icon" sizes="180x180" href="/icons/icon-180x180.png">
+    <link rel="apple-touch-icon" sizes="152x152" href="/icons/icon-152x152.png">
+    <link rel="apple-touch-icon" sizes="144x144" href="/icons/icon-144x144.png">
+    <link rel="apple-touch-icon" sizes="120x120" href="/icons/icon-120x120.png">
+    <link rel="apple-touch-icon" sizes="114x114" href="/icons/icon-114x114.png">
+    <link rel="apple-touch-icon" sizes="76x76" href="/icons/icon-76x76.png">
+    <link rel="apple-touch-icon" sizes="72x72" href="/icons/icon-72x72.png">
+    <link rel="apple-touch-icon" sizes="60x60" href="/icons/icon-60x60.png">
+    <link rel="apple-touch-icon" sizes="57x57" href="/icons/icon-57x57.png">
+
+    <!-- Manifest -->
+    <link rel="manifest" href="/manifest.json">
+
+    <!-- Splash Screens for iOS -->
+    <link rel="apple-touch-startup-image" href="/splash/splash-2048x2732.png" media="(device-width: 1024px) and (device-height: 1366px) and (-webkit-device-pixel-ratio: 2)">
+    <link rel="apple-touch-startup-image" href="/splash/splash-1668x2388.png" media="(device-width: 834px) and (device-height: 1194px) and (-webkit-device-pixel-ratio: 2)">
+    <link rel="apple-touch-startup-image" href="/splash/splash-1536x2048.png" media="(device-width: 768px) and (device-height: 1024px) and (-webkit-device-pixel-ratio: 2)">
+    <link rel="apple-touch-startup-image" href="/splash/splash-1284x2778.png" media="(device-width: 428px) and (device-height: 926px) and (-webkit-device-pixel-ratio: 3)">
+    <link rel="apple-touch-startup-image" href="/splash/splash-1170x2532.png" media="(device-width: 390px) and (device-height: 844px) and (-webkit-device-pixel-ratio: 3)">
+    <link rel="apple-touch-startup-image" href="/splash/splash-1125x2436.png" media="(device-width: 375px) and (device-height: 812px) and (-webkit-device-pixel-ratio: 3)">
+    <link rel="apple-touch-startup-image" href="/splash/splash-1242x2688.png" media="(device-width: 414px) and (device-height: 896px) and (-webkit-device-pixel-ratio: 3)">
+    <link rel="apple-touch-startup-image" href="/splash/splash-828x1792.png" media="(device-width: 414px) and (device-height: 896px) and (-webkit-device-pixel-ratio: 2)">
+    <link rel="apple-touch-startup-image" href="/splash/splash-1242x2208.png" media="(device-width: 414px) and (device-height: 736px) and (-webkit-device-pixel-ratio: 3)">
+    <link rel="apple-touch-startup-image" href="/splash/splash-750x1334.png" media="(device-width: 375px) and (device-height: 667px) and (-webkit-device-pixel-ratio: 2)">
+    <link rel="apple-touch-startup-image" href="/splash/splash-640x1136.png" media="(device-width: 320px) and (device-height: 568px) and (-webkit-device-pixel-ratio: 2)">
+
+    <!-- Open Graph / Facebook -->
+    <meta property="og:type" content="website">
+    <meta property="og:url" content="https://spendy-app-sebastian-bs-projects-93a4e006.vercel.app/">
+    <meta property="og:title" content="Spendy - Smart Receipt Tracker">
+    <meta property="og:description" content="AI-powered receipt scanning and budgeting app. Track spending, scan receipts, and manage your finances with ease.">
+    <meta property="og:image" content="https://spendy-app-sebastian-bs-projects-93a4e006.vercel.app/icons/icon-512x512.png">
+
+    <!-- Twitter -->
+    <meta property="twitter:card" content="summary_large_image">
+    <meta property="twitter:url" content="https://spendy-app-sebastian-bs-projects-93a4e006.vercel.app/">
+    <meta property="twitter:title" content="Spendy - Smart Receipt Tracker">
+    <meta property="twitter:description" content="AI-powered receipt scanning and budgeting app. Track spending, scan receipts, and manage your finances with ease.">
+    <meta property="twitter:image" content="https://spendy-app-sebastian-bs-projects-93a4e006.vercel.app/icons/icon-512x512.png">
+
+    <!-- Fonts & Scripts -->
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
@@ -4697,6 +4755,99 @@
                 await loadBudgetData();
             }
         });
+
+        // Register Service Worker for PWA functionality
+        if ('serviceWorker' in navigator) {
+            window.addEventListener('load', () => {
+                navigator.serviceWorker.register('/service-worker.js')
+                    .then(registration => {
+                        console.log('✅ Service Worker registered successfully:', registration.scope);
+
+                        // Check for updates
+                        registration.addEventListener('updatefound', () => {
+                            const newWorker = registration.installing;
+                            newWorker.addEventListener('statechange', () => {
+                                if (newWorker.state === 'installed' && navigator.serviceWorker.controller) {
+                                    // New service worker available, show update notification
+                                    if (confirm('New version available! Reload to update?')) {
+                                        window.location.reload();
+                                    }
+                                }
+                            });
+                        });
+                    })
+                    .catch(error => {
+                        console.log('❌ Service Worker registration failed:', error);
+                    });
+            });
+        }
+
+        // PWA Install Prompt
+        let deferredPrompt;
+        const installButton = document.createElement('button');
+        installButton.id = 'installButton';
+        installButton.textContent = '📱 Install App';
+        installButton.style.cssText = `
+            position: fixed;
+            bottom: 80px;
+            right: 20px;
+            padding: 12px 24px;
+            background: linear-gradient(135deg, var(--primary) 0%, #4a90e2 100%);
+            color: white;
+            border: none;
+            border-radius: 25px;
+            font-weight: 600;
+            cursor: pointer;
+            box-shadow: 0 4px 12px rgba(91, 168, 159, 0.3);
+            z-index: 10000;
+            display: none;
+            font-size: 14px;
+            transition: transform 0.2s;
+        `;
+        installButton.onmouseover = () => { installButton.style.transform = 'scale(1.05)'; };
+        installButton.onmouseout = () => { installButton.style.transform = 'scale(1)'; };
+        document.body.appendChild(installButton);
+
+        window.addEventListener('beforeinstallprompt', (e) => {
+            // Prevent the mini-infobar from appearing
+            e.preventDefault();
+            // Store the event so it can be triggered later
+            deferredPrompt = e;
+            // Show the install button
+            installButton.style.display = 'block';
+
+            installButton.addEventListener('click', async () => {
+                // Hide the install button
+                installButton.style.display = 'none';
+                // Show the install prompt
+                deferredPrompt.prompt();
+                // Wait for the user's response
+                const { outcome } = await deferredPrompt.userChoice;
+                console.log(`User response to install prompt: ${outcome}`);
+                // Clear the deferred prompt
+                deferredPrompt = null;
+            });
+        });
+
+        // Hide install button when app is installed
+        window.addEventListener('appinstalled', () => {
+            installButton.style.display = 'none';
+            console.log('✅ PWA installed successfully');
+            // Optional: Show a toast notification
+            showToast('App installed! You can now use Spendy offline.', 'success');
+        });
+
+        // Detect if app is running as installed PWA
+        function isPWA() {
+            return window.matchMedia('(display-mode: standalone)').matches ||
+                   window.navigator.standalone === true;
+        }
+
+        if (isPWA()) {
+            console.log('✅ Running as installed PWA');
+            // Optional: Hide install button if already installed
+            installButton.style.display = 'none';
+        }
     </script>
 </body>
 </html>
