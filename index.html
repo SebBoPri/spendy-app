@@ -1584,43 +1584,73 @@
             </div>
 
             <!-- Progress & Level Card -->
-            <div class="card" id="levelCard" style="background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); color: white;">
-                <div style="display: flex; justify-content: space-between; align-items: start; margin-bottom: 20px;">
-                    <div>
-                        <h2 style="color: white; margin: 0 0 8px 0; font-size: 1.5em;">Level <span id="userLevel">1</span></h2>
-                        <div style="font-size: 1.1em; opacity: 0.9;" id="levelName">Bronze</div>
+            <div class="card" id="levelCard" style="background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); color: white; border: none; box-shadow: 0 10px 30px rgba(102, 126, 234, 0.3);">
+                <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 24px;">
+                    <div style="display: flex; align-items: center; gap: 16px;">
+                        <div style="width: 60px; height: 60px; background: rgba(255,255,255,0.2); border-radius: 50%; display: flex; align-items: center; justify-content: center; font-size: 2em; backdrop-filter: blur(10px);">
+                            🏆
+                        </div>
+                        <div>
+                            <div style="font-size: 0.9em; opacity: 0.9; margin-bottom: 4px;">Your Progress</div>
+                            <h2 style="color: white; margin: 0; font-size: 1.8em;">Level <span id="userLevel">1</span></h2>
+                            <div style="font-size: 1em; opacity: 0.95; font-weight: 600; margin-top: 4px;" id="levelName">Bronze</div>
+                        </div>
                     </div>
-                    <div style="text-align: right;">
-                        <div style="font-size: 2em; font-weight: 700; margin-bottom: 4px;"><span id="totalXP">0</span> XP</div>
-                        <div style="opacity: 0.8; font-size: 0.9em;"><span id="xpToNext">100</span> to next level</div>
+                    <div style="text-align: right; background: rgba(255,255,255,0.15); padding: 16px 20px; border-radius: 12px; backdrop-filter: blur(10px);">
+                        <div style="font-size: 0.85em; opacity: 0.9; margin-bottom: 4px;">Total XP</div>
+                        <div style="font-size: 2.2em; font-weight: 700; line-height: 1;"><span id="totalXP">0</span></div>
                     </div>
                 </div>
-                <div style="margin-bottom: 8px;">
-                    <div style="width: 100%; height: 12px; background: rgba(255,255,255,0.2); border-radius: 6px; overflow: hidden;">
-                        <div id="xpProgressBar" style="width: 0%; height: 100%; background: linear-gradient(90deg, #10b981, #059669); transition: width 0.5s ease;"></div>
+                <div style="background: rgba(255,255,255,0.15); padding: 16px; border-radius: 12px; backdrop-filter: blur(10px);">
+                    <div style="display: flex; justify-content: space-between; margin-bottom: 12px;">
+                        <span style="font-size: 0.9em; opacity: 0.9;">Progress to Level <span id="nextLevel">2</span></span>
+                        <span style="font-weight: 700;"><span id="xpProgressPercent">0</span>%</span>
                     </div>
+                    <div style="width: 100%; height: 14px; background: rgba(0,0,0,0.2); border-radius: 7px; overflow: hidden; box-shadow: inset 0 2px 4px rgba(0,0,0,0.2);">
+                        <div id="xpProgressBar" style="width: 0%; height: 100%; background: linear-gradient(90deg, #10b981, #059669); transition: width 0.5s ease; box-shadow: 0 0 10px rgba(16,185,129,0.5);"></div>
+                    </div>
+                    <div style="text-align: center; opacity: 0.85; font-size: 0.85em; margin-top: 8px;"><span id="xpToNext">100</span> XP to next level</div>
                 </div>
-                <div style="text-align: center; opacity: 0.9; font-size: 0.9em;"><span id="xpProgressPercent">0</span>% to Level <span id="nextLevel">2</span></div>
             </div>
 
             <!-- Savings Goal Card -->
-            <div class="card" id="savingsGoalCard" style="display: none;">
-                <div style="display: flex; justify-content: space-between; align-items: start; margin-bottom: 20px;">
-                    <h2 class="card-title" style="margin: 0;">Savings Goal</h2>
-                    <button class="btn" onclick="showGoalModal()" style="padding: 8px 16px; font-size: 0.9em;"><span>Edit Goal</span></button>
-                </div>
-                <div style="margin-bottom: 16px;">
-                    <div style="display: flex; justify-content: space-between; margin-bottom: 8px;">
-                        <span style="font-weight: 600; font-size: 1.2em; color: var(--income-green);"><span id="goalCurrent">0</span> kr</span>
-                        <span style="font-weight: 600; font-size: 1.2em;">of <span id="goalTarget">500</span> kr</span>
+            <div class="card" id="savingsGoalCard" style="display: none; background: linear-gradient(135deg, #10b98115 0%, #10b98105 100%); border-left: 4px solid #10b981;">
+                <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 24px;">
+                    <div style="display: flex; align-items: center; gap: 16px;">
+                        <div style="width: 60px; height: 60px; background: linear-gradient(135deg, #10b981, #059669); border-radius: 50%; display: flex; align-items: center; justify-content: center; font-size: 2em; box-shadow: 0 4px 12px rgba(16,185,129,0.3);">
+                            🎯
+                        </div>
+                        <div>
+                            <div style="font-size: 0.85em; color: var(--text-secondary); margin-bottom: 4px;">Monthly Goal</div>
+                            <h2 class="card-title" style="margin: 0;">Savings Target</h2>
+                        </div>
                     </div>
-                    <div style="width: 100%; height: 24px; background: var(--border); border-radius: 12px; overflow: hidden;">
-                        <div id="goalProgressBar" style="width: 0%; height: 100%; background: linear-gradient(90deg, var(--income-green), #059669); transition: width 0.5s ease; display: flex; align-items: center; justify-content: center; color: white; font-weight: 700; font-size: 0.85em;"></div>
+                    <button class="btn btn-secondary" onclick="showGoalModal()" style="padding: 8px 16px; font-size: 0.9em;"><span>Edit</span></button>
+                </div>
+                <div style="background: white; padding: 20px; border-radius: 12px; margin-bottom: 16px; box-shadow: 0 2px 8px rgba(0,0,0,0.05);">
+                    <div style="display: flex; justify-content: space-between; align-items: baseline; margin-bottom: 16px;">
+                        <div>
+                            <div style="font-size: 0.85em; color: var(--text-secondary); margin-bottom: 4px;">Current Savings</div>
+                            <div style="font-weight: 700; font-size: 2.2em; color: #10b981;"><span id="goalCurrent">0</span> kr</div>
+                        </div>
+                        <div style="text-align: right;">
+                            <div style="font-size: 0.85em; color: var(--text-secondary); margin-bottom: 4px;">Target</div>
+                            <div style="font-weight: 600; font-size: 1.5em; color: var(--text-primary);"><span id="goalTarget">500</span> kr</div>
+                        </div>
+                    </div>
+                    <div style="width: 100%; height: 16px; background: #f3f4f6; border-radius: 8px; overflow: hidden; box-shadow: inset 0 2px 4px rgba(0,0,0,0.05);">
+                        <div id="goalProgressBar" style="width: 0%; height: 100%; background: linear-gradient(90deg, #10b981, #059669); transition: width 0.5s ease; box-shadow: 0 0 10px rgba(16,185,129,0.3);"></div>
                     </div>
                 </div>
-                <div style="display: flex; justify-content: space-between; color: var(--text-secondary); font-size: 0.9em;">
-                    <span><span id="goalDaysRemaining">30</span> days remaining</span>
-                    <span><span id="goalProgressPercent">0</span>% complete</span>
+                <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 12px;">
+                    <div style="padding: 12px; background: white; border-radius: 8px; box-shadow: 0 2px 4px rgba(0,0,0,0.05);">
+                        <div style="font-size: 0.85em; color: var(--text-secondary); margin-bottom: 4px;">Progress</div>
+                        <div style="font-weight: 700; font-size: 1.5em; color: #10b981;"><span id="goalProgressPercent">0</span>%</div>
+                    </div>
+                    <div style="padding: 12px; background: white; border-radius: 8px; box-shadow: 0 2px 4px rgba(0,0,0,0.05);">
+                        <div style="font-size: 0.85em; color: var(--text-secondary); margin-bottom: 4px;">Days Left</div>
+                        <div style="font-weight: 700; font-size: 1.5em; color: var(--primary);"><span id="goalDaysRemaining">30</span></div>
+                    </div>
                 </div>
             </div>
 
@@ -1633,27 +1663,47 @@
 
             <!-- Quick Stats Card -->
             <div class="card">
-                <h2 class="card-title">Your Stats</h2>
-                <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(150px, 1fr)); gap: 20px;">
-                    <div>
-                        <div style="font-size: 0.85em; color: var(--text-tertiary); margin-bottom: 4px;">This Month</div>
-                        <div style="font-weight: 700; font-size: 1.5em; color: var(--primary);"><span id="receiptsThisMonth">0</span></div>
-                        <div style="font-size: 0.85em; color: var(--text-secondary);">receipts scanned</div>
+                <h2 class="card-title">Quick Stats</h2>
+                <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 16px;">
+                    <div style="padding: 20px; background: linear-gradient(135deg, #667eea15 0%, #667eea05 100%); border-radius: 12px; border-left: 4px solid #667eea;">
+                        <div style="display: flex; align-items: center; gap: 12px; margin-bottom: 12px;">
+                            <div style="width: 40px; height: 40px; background: #667eea; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-size: 1.3em;">
+                                📊
+                            </div>
+                            <div style="font-size: 0.85em; color: var(--text-secondary); font-weight: 600;">This Month</div>
+                        </div>
+                        <div style="font-weight: 700; font-size: 2.5em; color: #667eea; line-height: 1;"><span id="receiptsThisMonth">0</span></div>
+                        <div style="font-size: 0.9em; color: var(--text-secondary); margin-top: 4px;">receipts scanned</div>
                     </div>
-                    <div>
-                        <div style="font-size: 0.85em; color: var(--text-tertiary); margin-bottom: 4px;">Total Saved</div>
-                        <div style="font-weight: 700; font-size: 1.5em; color: var(--income-green);"><span id="totalSavings">0</span> kr</div>
-                        <div style="font-size: 0.85em; color: var(--text-secondary);">from discounts</div>
+                    <div style="padding: 20px; background: linear-gradient(135deg, #10b98115 0%, #10b98105 100%); border-radius: 12px; border-left: 4px solid #10b981;">
+                        <div style="display: flex; align-items: center; gap: 12px; margin-bottom: 12px;">
+                            <div style="width: 40px; height: 40px; background: #10b981; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-size: 1.3em;">
+                                💰
+                            </div>
+                            <div style="font-size: 0.85em; color: var(--text-secondary); font-weight: 600;">Total Saved</div>
+                        </div>
+                        <div style="font-weight: 700; font-size: 2.5em; color: #10b981; line-height: 1;"><span id="totalSavings">0</span> <span style="font-size: 0.5em;">kr</span></div>
+                        <div style="font-size: 0.9em; color: var(--text-secondary); margin-top: 4px;">from discounts</div>
                     </div>
-                    <div>
-                        <div style="font-size: 0.85em; color: var(--text-tertiary); margin-bottom: 4px;">Biggest Receipt</div>
-                        <div style="font-weight: 700; font-size: 1.5em;"><span id="biggestReceipt">0</span> kr</div>
-                        <div style="font-size: 0.85em; color: var(--text-secondary);">personal record</div>
+                    <div style="padding: 20px; background: linear-gradient(135deg, #f59e0b15 0%, #f59e0b05 100%); border-radius: 12px; border-left: 4px solid #f59e0b;">
+                        <div style="display: flex; align-items: center; gap: 12px; margin-bottom: 12px;">
+                            <div style="width: 40px; height: 40px; background: #f59e0b; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-size: 1.3em;">
+                                🧾
+                            </div>
+                            <div style="font-size: 0.85em; color: var(--text-secondary); font-weight: 600;">Biggest Receipt</div>
+                        </div>
+                        <div style="font-weight: 700; font-size: 2.5em; color: #f59e0b; line-height: 1;"><span id="biggestReceipt">0</span> <span style="font-size: 0.5em;">kr</span></div>
+                        <div style="font-size: 0.9em; color: var(--text-secondary); margin-top: 4px;">personal record</div>
                     </div>
-                    <div>
-                        <div style="font-size: 0.85em; color: var(--text-tertiary); margin-bottom: 4px;">Best Discount</div>
-                        <div style="font-weight: 700; font-size: 1.5em; color: var(--income-green);"><span id="biggestDiscount">0</span> kr</div>
-                        <div style="font-size: 0.85em; color: var(--text-secondary);">single receipt</div>
+                    <div style="padding: 20px; background: linear-gradient(135deg, #ec489915 0%, #ec489905 100%); border-radius: 12px; border-left: 4px solid #ec4899;">
+                        <div style="display: flex; align-items: center; gap: 12px; margin-bottom: 12px;">
+                            <div style="width: 40px; height: 40px; background: #ec4899; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-size: 1.3em;">
+                                🎁
+                            </div>
+                            <div style="font-size: 0.85em; color: var(--text-secondary); font-weight: 600;">Best Discount</div>
+                        </div>
+                        <div style="font-weight: 700; font-size: 2.5em; color: #ec4899; line-height: 1;"><span id="biggestDiscount">0</span> <span style="font-size: 0.5em;">kr</span></div>
+                        <div style="font-size: 0.9em; color: var(--text-secondary); margin-top: 4px;">single receipt</div>
                     </div>
                 </div>
             </div>
