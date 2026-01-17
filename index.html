@@ -1755,12 +1755,18 @@
             <!-- Enhanced Donut Chart -->
             <div class="card">
                 <h2 class="card-title">Spending Distribution</h2>
-                <p style="color: var(--text-secondary); margin-bottom: 16px;">Interactive view of your spending • Click segments to explore</p>
-                <div class="chart-container" style="position: relative;">
+                <p style="color: var(--text-secondary); margin-bottom: 20px;">Interactive view of your spending • Click segments to explore</p>
+
+                <!-- Insight Cards -->
+                <div id="distributionInsights" style="display: grid; grid-template-columns: repeat(auto-fit, minmax(160px, 1fr)); gap: 12px; margin-bottom: 24px;">
+                    <!-- Populated by JS -->
+                </div>
+
+                <div class="chart-container" style="position: relative; background: linear-gradient(135deg, #f8f9fa 0%, #ffffff 100%); border-radius: 12px; padding: 20px;">
                     <canvas id="categoryChart"></canvas>
                     <div id="chartCenterText" style="position: absolute; top: 50%; left: 50%; transform: translate(-50%, -50%); text-align: center; pointer-events: none;">
-                        <div style="font-size: 2em; font-weight: 700; color: var(--primary);" id="centerAmount">0 kr</div>
-                        <div style="font-size: 0.9em; color: var(--text-secondary);" id="centerLabel">Total Spending</div>
+                        <div style="font-size: 2.2em; font-weight: 700; color: var(--primary);" id="centerAmount">0 kr</div>
+                        <div style="font-size: 0.9em; color: var(--text-secondary); margin-top: 4px;" id="centerLabel">Total Spending</div>
                     </div>
                 </div>
             </div>
@@ -1768,18 +1774,15 @@
             <!-- Monthly Comparison Chart -->
             <div class="card">
                 <h2 class="card-title">Spending Trends</h2>
-                <p style="color: var(--text-secondary); margin-bottom: 16px;">Compare your spending across months</p>
-                <div class="chart-container">
-                    <canvas id="monthlyComparisonChart"></canvas>
-                </div>
-            </div>
+                <p style="color: var(--text-secondary); margin-bottom: 20px;">Compare your spending across months</p>
 
-            <!-- Original Trend Chart (Kept for compatibility) -->
-            <div class="card">
-                <h2 class="card-title">Daily Spending Pattern</h2>
-                <p style="color: var(--text-secondary); margin-bottom: 16px;">Your day-by-day spending activity</p>
-                <div class="chart-container">
-                    <canvas id="trendChart"></canvas>
+                <!-- Trend Insight Cards -->
+                <div id="trendInsights" style="display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 12px; margin-bottom: 24px;">
+                    <!-- Populated by JS -->
+                </div>
+
+                <div class="chart-container" style="background: linear-gradient(135deg, #f8f9fa 0%, #ffffff 100%); border-radius: 12px; padding: 20px;">
+                    <canvas id="monthlyComparisonChart"></canvas>
                 </div>
             </div>
 
@@ -1793,14 +1796,14 @@
 
             <div class="card">
                 <h2 class="card-title">Price Comparison</h2>
-                <p style="color: #666; margin-bottom: 16px;">Find the best deals across stores</p>
-                <div id="priceComparison"></div>
+                <p style="color: var(--text-secondary); margin-bottom: 20px;">Find the best deals across stores</p>
+                <div id="priceComparison" style="display: grid; grid-template-columns: repeat(auto-fit, minmax(320px, 1fr)); gap: 16px;"></div>
             </div>
 
             <div class="card">
                 <h2 class="card-title">Top Items Tracker</h2>
-                <p style="color: #666; margin-bottom: 24px;">Your most frequent and expensive purchases</p>
-                <div id="topItemsContainer" style="display: grid; grid-template-columns: repeat(auto-fit, minmax(300px, 1fr)); gap: 32px;">
+                <p style="color: var(--text-secondary); margin-bottom: 20px;">Your most frequent and expensive purchases</p>
+                <div id="topItemsContainer" style="display: grid; grid-template-columns: repeat(auto-fit, minmax(280px, 1fr)); gap: 16px;">
                 </div>
             </div>
         </div>
@@ -2774,7 +2777,6 @@
             updateCategoryChart(categoryTotals);
             updateCategoryCardsGrid(categoryTotals);
             updateMonthlyComparisonChart();
-            updateTrendChart();
             updatePriceComparison();
             updateTopItems();
 
@@ -2792,6 +2794,31 @@
 
             const total = Object.values(categoryTotals).reduce((sum, val) => sum + val, 0);
             document.getElementById('centerAmount').textContent = total.toFixed(0) + ' kr';
+
+            // Add insight cards
+            const categories = Object.entries(categoryTotals).sort((a, b) => b[1] - a[1]);
+            const topCategory = categories[0];
+            const categoryCount = categories.length;
+            const avgPerCategory = total / categoryCount;
+
+            const insightHTML = `
+                <div style="padding: 16px; background: linear-gradient(135deg, #667eea15 0%, #764ba205 100%); border-radius: 10px; border-left: 4px solid #667eea;">
+                    <div style="font-size: 0.85em; color: var(--text-secondary); margin-bottom: 4px;">Top Category</div>
+                    <div style="font-size: 1.3em; font-weight: 700; color: var(--text);">${topCategory ? topCategory[0] : 'N/A'}</div>
+                    <div style="font-size: 0.9em; color: var(--text-secondary); margin-top: 4px;">${topCategory ? topCategory[1].toFixed(0) : '0'} kr (${topCategory ? ((topCategory[1] / total) * 100).toFixed(0) : '0'}%)</div>
+                </div>
+                <div style="padding: 16px; background: linear-gradient(135deg, #f09433155 0%, #e6683c05 100%); border-radius: 10px; border-left: 4px solid #f09433;">
+                    <div style="font-size: 0.85em; color: var(--text-secondary); margin-bottom: 4px;">Categories</div>
+                    <div style="font-size: 1.3em; font-weight: 700; color: var(--text);">${categoryCount}</div>
+                    <div style="font-size: 0.9em; color: var(--text-secondary); margin-top: 4px;">Avg: ${avgPerCategory.toFixed(0)} kr</div>
+                </div>
+                <div style="padding: 16px; background: linear-gradient(135deg, #11998e15 0%, #38ef7d05 100%); border-radius: 10px; border-left: 4px solid #11998e;">
+                    <div style="font-size: 0.85em; color: var(--text-secondary); margin-bottom: 4px;">Total Spent</div>
+                    <div style="font-size: 1.3em; font-weight: 700; color: var(--text);">${total.toFixed(0)} kr</div>
+                    <div style="font-size: 0.9em; color: var(--text-secondary); margin-top: 4px;">Across all categories</div>
+                </div>
+            `;
+            document.getElementById('distributionInsights').innerHTML = insightHTML;
 
             window.categoryChartInstance = new Chart(ctx, {
                 type: 'doughnut',
@@ -3060,6 +3087,34 @@
                 borderWidth: 0
             }));
 
+            // Calculate trend insights
+            const monthlyTotals = months.map(m => Object.values(monthlyData[m.key]).reduce((sum, val) => sum + val, 0));
+            const currentMonth = monthlyTotals[monthlyTotals.length - 1];
+            const previousMonth = monthlyTotals[monthlyTotals.length - 2] || 0;
+            const avgMonthly = monthlyTotals.reduce((sum, val) => sum + val, 0) / monthlyTotals.filter(v => v > 0).length;
+            const trend = previousMonth > 0 ? ((currentMonth - previousMonth) / previousMonth * 100) : 0;
+            const trendIcon = trend > 0 ? '📈' : trend < 0 ? '📉' : '➡️';
+            const trendColor = trend > 0 ? '#ef4444' : trend < 0 ? '#10b981' : '#6b7280';
+
+            const trendInsightHTML = `
+                <div style="padding: 16px; background: linear-gradient(135deg, #667eea15 0%, #764ba205 100%); border-radius: 10px; border-left: 4px solid #667eea;">
+                    <div style="font-size: 0.85em; color: var(--text-secondary); margin-bottom: 4px;">This Month</div>
+                    <div style="font-size: 1.3em; font-weight: 700; color: var(--text);">${currentMonth.toFixed(0)} kr</div>
+                    <div style="font-size: 0.9em; color: ${trendColor}; margin-top: 4px;">${trendIcon} ${Math.abs(trend).toFixed(1)}% vs last month</div>
+                </div>
+                <div style="padding: 16px; background: linear-gradient(135deg, #f09433155 0%, #e6683c05 100%); border-radius: 10px; border-left: 4px solid #f09433;">
+                    <div style="font-size: 0.85em; color: var(--text-secondary); margin-bottom: 4px;">6-Month Average</div>
+                    <div style="font-size: 1.3em; font-weight: 700; color: var(--text);">${avgMonthly.toFixed(0)} kr</div>
+                    <div style="font-size: 0.9em; color: var(--text-secondary); margin-top: 4px;">Per month</div>
+                </div>
+                <div style="padding: 16px; background: linear-gradient(135deg, #11998e15 0%, #38ef7d05 100%); border-radius: 10px; border-left: 4px solid #11998e;">
+                    <div style="font-size: 0.85em; color: var(--text-secondary); margin-bottom: 4px;">Trend</div>
+                    <div style="font-size: 1.3em; font-weight: 700; color: var(--text);">${trend > 5 ? 'Rising' : trend < -5 ? 'Falling' : 'Stable'}</div>
+                    <div style="font-size: 0.9em; color: var(--text-secondary); margin-top: 4px;">${currentMonth > avgMonthly ? 'Above' : 'Below'} average</div>
+                </div>
+            `;
+            document.getElementById('trendInsights').innerHTML = trendInsightHTML;
+
             window.monthlyComparisonChartInstance = new Chart(ctx, {
                 type: 'bar',
                 data: {
@@ -3238,24 +3293,44 @@
 
             const html = Object.entries(prices)
                 .filter(([_, p]) => p.length > 1)
-                .slice(0, 5)
+                .slice(0, 6)
                 .map(([name, p]) => {
                     p.sort((a, b) => a.price - b.price);
+                    const bestPrice = p[0].price;
+                    const worstPrice = p[p.length - 1].price;
+                    const savings = worstPrice - bestPrice;
+
                     return `
-                        <div style="margin-bottom: 20px; padding: 16px; background: var(--light); border-radius: 12px;">
-                            <h3 style="text-transform: capitalize; margin-bottom: 12px; font-family: 'Fraunces', serif;">${name}</h3>
-                            ${p.map((item, i) => `
-                                <div style="display: flex; justify-content: space-between; padding: 10px 0; border-bottom: 1px solid #fff;">
-                                    <strong>${item.store}</strong>
-                                    <span style="font-weight: 600; ${i === 0 ? 'color: var(--success);' : ''}">${item.price.toFixed(2)} kr ${i === 0 ? '✓' : ''}</span>
+                        <div style="padding: 20px; background: linear-gradient(135deg, #f8f9fa 0%, #ffffff 100%); border-radius: 12px; border: 1px solid #e5e7eb;">
+                            <div style="display: flex; align-items: center; gap: 12px; margin-bottom: 16px;">
+                                <div style="width: 40px; height: 40px; background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); border-radius: 50%; display: flex; align-items: center; justify-content: center; font-size: 1.2em;">
+                                    🏷️
                                 </div>
-                            `).join('')}
+                                <div style="flex: 1;">
+                                    <h3 style="text-transform: capitalize; margin: 0; font-size: 1.1em; color: var(--text);">${name}</h3>
+                                    <div style="font-size: 0.85em; color: var(--success); margin-top: 4px;">Save up to ${savings.toFixed(2)} kr</div>
+                                </div>
+                            </div>
+                            <div style="display: flex; flex-direction: column; gap: 10px;">
+                                ${p.map((item, i) => {
+                                    const isBest = i === 0;
+                                    return `
+                                        <div style="display: flex; justify-content: space-between; align-items: center; padding: 12px; background: ${isBest ? 'linear-gradient(135deg, #10b98115 0%, #10b98105 100%)' : '#fff'}; border-radius: 8px; border-left: 3px solid ${isBest ? '#10b981' : '#e5e7eb'};">
+                                            <div style="display: flex; align-items: center; gap: 8px;">
+                                                ${isBest ? '<span style="font-size: 1.2em;">✓</span>' : ''}
+                                                <strong style="color: var(--text);">${item.store}</strong>
+                                            </div>
+                                            <span style="font-weight: 700; font-size: 1.1em; color: ${isBest ? '#10b981' : 'var(--text)'};">${item.price.toFixed(2)} kr</span>
+                                        </div>
+                                    `;
+                                }).join('')}
+                            </div>
                         </div>
                     `;
                 }).join('');
 
-            document.getElementById('priceComparison').innerHTML = html || 
-                '<div class="empty-state"><p>Price comparisons appear when you have items from different stores</p></div>';
+            document.getElementById('priceComparison').innerHTML = html ||
+                '<div class="empty-state"><div class="empty-icon">📭</div><p>Price comparisons appear when you have items from different stores</p></div>';
         }
         function updateTopItems() {
             const itemStats = {};
@@ -3282,30 +3357,46 @@
 
             const container = document.getElementById('topItemsContainer');
             container.innerHTML = `
-                <div>
-                    <h3 style="margin-bottom: 16px; font-family: 'Fraunces', serif;">Most Frequent 🔄</h3>
-                    ${mostFrequent.map(item => `
-                        <div style="margin-bottom: 15px;">
-                            <div style="display: flex; justify-content: space-between; margin-bottom: 5px; font-size: 0.95em;">
-                                <span><strong>${item.displayName}</strong></span>
-                                <span>${item.frequency} times</span>
+                <div style="padding: 20px; background: linear-gradient(135deg, #f093331515 0%, #e6683c05 100%); border-radius: 12px; border-left: 4px solid #f09433;">
+                    <div style="display: flex; align-items: center; gap: 12px; margin-bottom: 20px;">
+                        <div style="width: 40px; height: 40px; background: linear-gradient(135deg, #f09433 0%, #e6683c 100%); border-radius: 50%; display: flex; align-items: center; justify-content: center; font-size: 1.3em;">
+                            🔄
+                        </div>
+                        <h3 style="margin: 0; font-size: 1.2em; color: var(--text);">Most Frequent</h3>
+                    </div>
+                    ${mostFrequent.slice(0, 5).map((item, index) => `
+                        <div style="margin-bottom: 16px; padding: 14px; background: #fff; border-radius: 10px; border: 1px solid #f0f0f0;">
+                            <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 8px;">
+                                <div style="display: flex; align-items: center; gap: 10px;">
+                                    <span style="font-size: 1.4em; font-weight: 700; color: #f09433; width: 24px;">#${index + 1}</span>
+                                    <strong style="color: var(--text);">${item.displayName}</strong>
+                                </div>
+                                <span style="padding: 4px 12px; background: linear-gradient(135deg, #f0943315 0%, #e6683c05 100%); border-radius: 20px; font-weight: 600; font-size: 0.9em; color: #f09433;">${item.frequency}x</span>
                             </div>
-                            <div style="height: 8px; background: #eee; border-radius: 4px; overflow: hidden;">
-                                <div style="height: 100%; width: ${(item.frequency / maxFreq) * 100}%; background: var(--secondary);"></div>
+                            <div style="height: 6px; background: #f0f0f0; border-radius: 3px; overflow: hidden;">
+                                <div style="height: 100%; width: ${(item.frequency / maxFreq) * 100}%; background: linear-gradient(90deg, #f09433 0%, #e6683c 100%); transition: width 0.3s ease;"></div>
                             </div>
                         </div>
                     `).join('')}
                 </div>
-                <div>
-                    <h3 style="margin-bottom: 16px; font-family: 'Fraunces', serif;">Highest Total Cost 💰</h3>
-                    ${mostExpensive.map(item => `
-                        <div style="margin-bottom: 15px;">
-                            <div style="display: flex; justify-content: space-between; margin-bottom: 5px; font-size: 0.95em;">
-                                <span><strong>${item.displayName}</strong></span>
-                                <span>${item.totalCost.toFixed(2)} kr</span>
+                <div style="padding: 20px; background: linear-gradient(135deg, #667eea15 0%, #764ba205 100%); border-radius: 12px; border-left: 4px solid #667eea;">
+                    <div style="display: flex; align-items: center; gap: 12px; margin-bottom: 20px;">
+                        <div style="width: 40px; height: 40px; background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); border-radius: 50%; display: flex; align-items: center; justify-content: center; font-size: 1.3em;">
+                            💰
+                        </div>
+                        <h3 style="margin: 0; font-size: 1.2em; color: var(--text);">Highest Total Cost</h3>
+                    </div>
+                    ${mostExpensive.slice(0, 5).map((item, index) => `
+                        <div style="margin-bottom: 16px; padding: 14px; background: #fff; border-radius: 10px; border: 1px solid #f0f0f0;">
+                            <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 8px;">
+                                <div style="display: flex; align-items: center; gap: 10px;">
+                                    <span style="font-size: 1.4em; font-weight: 700; color: #667eea; width: 24px;">#${index + 1}</span>
+                                    <strong style="color: var(--text);">${item.displayName}</strong>
+                                </div>
+                                <span style="padding: 4px 12px; background: linear-gradient(135deg, #667eea15 0%, #764ba205 100%); border-radius: 20px; font-weight: 600; font-size: 0.9em; color: #667eea;">${item.totalCost.toFixed(0)} kr</span>
                             </div>
-                            <div style="height: 8px; background: #eee; border-radius: 4px; overflow: hidden;">
-                                <div style="height: 100%; width: ${(item.totalCost / maxCost) * 100}%; background: var(--primary);"></div>
+                            <div style="height: 6px; background: #f0f0f0; border-radius: 3px; overflow: hidden;">
+                                <div style="height: 100%; width: ${(item.totalCost / maxCost) * 100}%; background: linear-gradient(90deg, #667eea 0%, #764ba2 100%); transition: width 0.3s ease;"></div>
                             </div>
                         </div>
                     `).join('')}
