@@ -1396,6 +1396,40 @@
         </div>
     </div>
 
+    <!-- Budget Modal -->
+    <div id="budgetModal" style="display: none; position: fixed; inset: 0; background: rgba(0,0,0,0.5); z-index: 2000; align-items: center; justify-content: center; padding: 20px;">
+        <div class="card" style="max-width: 500px; width: 100%; margin: 0;">
+            <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 24px;">
+                <h2 class="card-title" style="margin: 0;">Set Category Budget</h2>
+                <button onclick="closeBudgetModal()" style="background: none; border: none; font-size: 24px; cursor: pointer; color: var(--text-secondary);">×</button>
+            </div>
+            <div style="margin-bottom: 20px;">
+                <label style="display: block; font-weight: 600; margin-bottom: 8px;">Category</label>
+                <select id="budgetCategoryInput" style="width: 100%; padding: 12px; border-radius: 8px; border: 1px solid var(--border); font-size: 16px;">
+                    <option value="">Select a category...</option>
+                    <option value="Groceries">Groceries</option>
+                    <option value="Dining">Dining</option>
+                    <option value="Transport">Transport</option>
+                    <option value="Entertainment">Entertainment</option>
+                    <option value="Shopping">Shopping</option>
+                    <option value="Healthcare">Healthcare</option>
+                    <option value="Household">Household</option>
+                    <option value="Personal Care">Personal Care</option>
+                    <option value="Other">Other</option>
+                </select>
+            </div>
+            <div style="margin-bottom: 20px;">
+                <label style="display: block; font-weight: 600; margin-bottom: 8px;">Monthly Limit (kr)</label>
+                <input type="number" id="budgetLimitInput" placeholder="1500" min="1" style="width: 100%; padding: 12px; border-radius: 8px; border: 1px solid var(--border); font-size: 16px;">
+                <p style="color: var(--text-secondary); font-size: 0.85em; margin-top: 4px;">Maximum amount to spend in this category each month</p>
+            </div>
+            <div style="display: flex; gap: 10px;">
+                <button class="btn" onclick="saveBudget()" style="flex: 1;"><span>Set Budget</span></button>
+                <button class="btn btn-secondary" onclick="closeBudgetModal()" style="flex: 1;"><span>Cancel</span></button>
+            </div>
+        </div>
+    </div>
+
     <!-- Level Up Celebration Modal -->
     <div id="levelUpModal" style="display: none; position: fixed; inset: 0; background: rgba(0,0,0,0.7); z-index: 3000; align-items: center; justify-content: center; padding: 20px;">
         <div class="card" style="max-width: 400px; width: 100%; text-align: center; background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); color: white; position: relative; overflow: hidden;">
@@ -1624,17 +1658,76 @@
                 </div>
             </div>
 
+            <!-- Budget Overview Card -->
+            <div class="card" id="budgetOverviewCard" style="display: none;">
+                <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px;">
+                    <h2 class="card-title" style="margin: 0;">Budget Overview</h2>
+                    <button class="btn" onclick="showBudgetModal()" style="padding: 8px 16px; font-size: 0.9em;"><span>+ Add Budget</span></button>
+                </div>
+
+                <div id="budgetSummary" style="background: linear-gradient(135deg, #4f46e5 0%, #7c3aed 100%); padding: 20px; border-radius: 12px; color: white; margin-bottom: 24px;">
+                    <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 16px;">
+                        <div>
+                            <div style="font-size: 0.9em; opacity: 0.9;">Total Budget</div>
+                            <div style="font-size: 2em; font-weight: 700;"><span id="totalBudget">0</span> kr</div>
+                        </div>
+                        <div style="text-align: right;">
+                            <div style="font-size: 0.9em; opacity: 0.9;">Spent</div>
+                            <div style="font-size: 2em; font-weight: 700;"><span id="totalSpent">0</span> kr</div>
+                        </div>
+                    </div>
+                    <div style="width: 100%; height: 12px; background: rgba(255,255,255,0.2); border-radius: 6px; overflow: hidden; margin-bottom: 12px;">
+                        <div id="totalBudgetProgressBar" style="width: 0%; height: 100%; background: linear-gradient(90deg, #10b981, #059669); transition: width 0.5s ease;"></div>
+                    </div>
+                    <div style="display: flex; justify-content: space-between; font-size: 0.9em;">
+                        <span><span id="totalRemaining">0</span> kr remaining</span>
+                        <span><span id="budgetDaysLeft">30</span> days left</span>
+                    </div>
+                </div>
+
+                <div id="categoryBudgets"></div>
+            </div>
+
+            <!-- Create Budget Card (shown when no budgets exist) -->
+            <div class="card" id="createBudgetCard">
+                <h2 class="card-title">Budget Your Spending</h2>
+                <p style="color: var(--text-secondary); margin-bottom: 20px;">Set monthly spending limits for different categories and track your progress in real-time!</p>
+                <button class="btn" onclick="showBudgetModal()"><span>Create Your First Budget</span></button>
+            </div>
+
+            <!-- Category Spending Cards Grid -->
             <div class="card">
-                <h2 class="card-title">Spending Overview</h2>
-                <p style="color: #666; margin-bottom: 16px;">Click any slice to explore details</p>
-                <div class="chart-container">
+                <h2 class="card-title">Category Breakdown</h2>
+                <p style="color: var(--text-secondary); margin-bottom: 24px;">Your spending by category this month</p>
+                <div id="categoryCardsGrid" style="display: grid; grid-template-columns: repeat(auto-fit, minmax(280px, 1fr)); gap: 16px;"></div>
+            </div>
+
+            <!-- Enhanced Donut Chart -->
+            <div class="card">
+                <h2 class="card-title">Spending Distribution</h2>
+                <p style="color: var(--text-secondary); margin-bottom: 16px;">Interactive view of your spending • Click segments to explore</p>
+                <div class="chart-container" style="position: relative;">
                     <canvas id="categoryChart"></canvas>
+                    <div id="chartCenterText" style="position: absolute; top: 50%; left: 50%; transform: translate(-50%, -50%); text-align: center; pointer-events: none;">
+                        <div style="font-size: 2em; font-weight: 700; color: var(--primary);" id="centerAmount">0 kr</div>
+                        <div style="font-size: 0.9em; color: var(--text-secondary);" id="centerLabel">Total Spending</div>
+                    </div>
                 </div>
             </div>
 
+            <!-- Monthly Comparison Chart -->
             <div class="card">
-                <h2 class="card-title">Spending Trend</h2>
-                <p style="color: #666; margin-bottom: 16px;">Your spending over time</p>
+                <h2 class="card-title">Spending Trends</h2>
+                <p style="color: var(--text-secondary); margin-bottom: 16px;">Compare your spending across months</p>
+                <div class="chart-container">
+                    <canvas id="monthlyComparisonChart"></canvas>
+                </div>
+            </div>
+
+            <!-- Original Trend Chart (Kept for compatibility) -->
+            <div class="card">
+                <h2 class="card-title">Daily Spending Pattern</h2>
+                <p style="color: var(--text-secondary); margin-bottom: 16px;">Your day-by-day spending activity</p>
                 <div class="chart-container">
                     <canvas id="trendChart"></canvas>
                 </div>
@@ -2504,9 +2597,10 @@
                     day_of_week: currentReceipt._analytics?.day_of_week
                 };
 
-                const { error } = await _supabase
+                const { data: insertedReceipt, error } = await _supabase
                     .from('receipts')
-                    .insert([receiptToSave]);
+                    .insert([receiptToSave])
+                    .select();
 
                 if (error) {
                     console.error("Error saving to cloud:", error);
@@ -2516,6 +2610,11 @@
                     localStorage.setItem('spendy-receipts', JSON.stringify(allReceipts));
                 } else {
                     await loadLongTermData();
+
+                    // Check for budget alerts
+                    if (insertedReceipt && insertedReceipt.length > 0) {
+                        await checkBudgetAlerts(insertedReceipt[0].id);
+                    }
 
                     // Show quick stats with gamification feedback
                     await showQuickStats(currentReceipt);
@@ -2623,12 +2722,15 @@
             });
 
             updateCategoryChart(categoryTotals);
+            updateCategoryCardsGrid(categoryTotals);
+            updateMonthlyComparisonChart();
             updateTrendChart();
             updatePriceComparison();
             updateTopItems();
 
-            // Load gamification data
+            // Load gamification data and budgets
             await loadGamificationData();
+            await loadBudgetData();
         }
 
         function updateCategoryChart(categoryTotals) {
@@ -2637,6 +2739,9 @@
             if (window.categoryChartInstance) {
                 window.categoryChartInstance.destroy();
             }
+
+            const total = Object.values(categoryTotals).reduce((sum, val) => sum + val, 0);
+            document.getElementById('centerAmount').textContent = total.toFixed(0) + ' kr';
 
             window.categoryChartInstance = new Chart(ctx, {
                 type: 'doughnut',
@@ -2648,18 +2753,33 @@
                             '#FF6B6B', '#4ECDC4', '#FFE66D', '#A78BFA',
                             '#95E1D3', '#FF8E53', '#44A3FF', '#FFBE0B'
                         ],
-                        borderWidth: 0
+                        borderWidth: 3,
+                        borderColor: '#fff',
+                        hoverOffset: 15
                     }]
                 },
                 options: {
                     responsive: true,
                     maintainAspectRatio: false,
+                    cutout: '70%',
                     plugins: {
                         legend: {
                             position: 'bottom',
                             labels: {
                                 padding: 20,
-                                font: { size: 13, weight: '600' }
+                                font: { size: 13, weight: '600' },
+                                usePointStyle: true,
+                                pointStyle: 'circle'
+                            }
+                        },
+                        tooltip: {
+                            callbacks: {
+                                label: function(context) {
+                                    const label = context.label || '';
+                                    const value = context.parsed;
+                                    const percentage = ((value / total) * 100).toFixed(1);
+                                    return label + ': ' + value.toFixed(0) + ' kr (' + percentage + '%)';
+                                }
                             }
                         }
                     },
@@ -2668,6 +2788,19 @@
                             const index = activeElements[0].index;
                             const category = Object.keys(categoryTotals)[index];
                             showCategoryDeepDive(category);
+                        }
+                    },
+                    onHover: (event, activeElements) => {
+                        if (activeElements.length > 0) {
+                            const index = activeElements[0].index;
+                            const category = Object.keys(categoryTotals)[index];
+                            const value = Object.values(categoryTotals)[index];
+                            const percentage = ((value / total) * 100).toFixed(1);
+                            document.getElementById('centerAmount').textContent = value.toFixed(0) + ' kr';
+                            document.getElementById('centerLabel').textContent = category + ' (' + percentage + '%)';
+                        } else {
+                            document.getElementById('centerAmount').textContent = total.toFixed(0) + ' kr';
+                            document.getElementById('centerLabel').textContent = 'Total Spending';
                         }
                     }
                 }
@@ -2738,6 +2871,189 @@
                             ticks: {
                                 callback: function(value) {
                                     return value + ' kr';
+                                }
+                            }
+                        }
+                    }
+                }
+            });
+        }
+
+        // Category Cards Grid with Trends
+        function updateCategoryCardsGrid(categoryTotals) {
+            const container = document.getElementById('categoryCardsGrid');
+            if (!container) return;
+
+            const total = Object.values(categoryTotals).reduce((sum, val) => sum + val, 0);
+            const colors = {
+                'Groceries': '#10b981',
+                'Dining': '#f59e0b',
+                'Transport': '#3b82f6',
+                'Entertainment': '#a78bfa',
+                'Shopping': '#ec4899',
+                'Healthcare': '#ef4444',
+                'Household': '#06b6d4',
+                'Personal Care': '#8b5cf6',
+                'Other': '#6b7280'
+            };
+
+            // Calculate previous month totals for comparison
+            const lastMonthStart = new Date();
+            lastMonthStart.setMonth(lastMonthStart.getMonth() - 1);
+            lastMonthStart.setDate(1);
+            const lastMonthEnd = new Date(lastMonthStart);
+            lastMonthEnd.setMonth(lastMonthEnd.getMonth() + 1);
+            lastMonthEnd.setDate(0);
+
+            const lastMonthTotals = {};
+            allReceipts.forEach(receipt => {
+                const receiptDate = new Date(receipt.date);
+                if (receiptDate >= lastMonthStart && receiptDate <= lastMonthEnd) {
+                    receipt.items.forEach(item => {
+                        const cat = item.category || 'Other';
+                        lastMonthTotals[cat] = (lastMonthTotals[cat] || 0) + item.price;
+                    });
+                }
+            });
+
+            container.innerHTML = '';
+
+            Object.entries(categoryTotals).sort((a, b) => b[1] - a[1]).forEach(([category, amount]) => {
+                const percentage = ((amount / total) * 100).toFixed(1);
+                const lastMonthAmount = lastMonthTotals[category] || 0;
+                const change = lastMonthAmount > 0 ? ((amount - lastMonthAmount) / lastMonthAmount * 100).toFixed(1) : 0;
+                const trendIcon = change > 5 ? '↑' : change < -5 ? '↓' : '→';
+                const trendColor = change > 5 ? '#ef4444' : change < -5 ? '#10b981' : '#6b7280';
+                const categoryColor = colors[category] || colors['Other'];
+
+                const card = document.createElement('div');
+                card.style.cssText = `
+                    padding: 20px;
+                    border-radius: 12px;
+                    background: linear-gradient(135deg, ${categoryColor}15 0%, ${categoryColor}05 100%);
+                    border-left: 4px solid ${categoryColor};
+                    cursor: pointer;
+                    transition: all 0.3s ease;
+                `;
+                card.onmouseenter = () => card.style.transform = 'translateY(-4px)';
+                card.onmouseleave = () => card.style.transform = 'translateY(0)';
+                card.onclick = () => showCategoryDeepDive(category);
+
+                card.innerHTML = `
+                    <div style="display: flex; justify-content: space-between; align-items: start; margin-bottom: 12px;">
+                        <div>
+                            <div style="font-size: 0.85em; color: var(--text-secondary); margin-bottom: 4px;">${category}</div>
+                            <div style="font-size: 1.8em; font-weight: 700; color: ${categoryColor};">${amount.toFixed(0)} kr</div>
+                        </div>
+                        <div style="text-align: right;">
+                            <div style="font-size: 2em; color: ${trendColor};">${trendIcon}</div>
+                            <div style="font-size: 0.85em; color: ${trendColor};">${change > 0 ? '+' : ''}${change}%</div>
+                        </div>
+                    </div>
+                    <div style="display: flex; justify-content: space-between; align-items: center;">
+                        <div style="font-size: 0.9em; color: var(--text-secondary);">${percentage}% of total</div>
+                        <div style="font-size: 0.85em; color: var(--text-tertiary);">vs last month</div>
+                    </div>
+                `;
+
+                container.appendChild(card);
+            });
+        }
+
+        // Monthly Comparison Chart
+        function updateMonthlyComparisonChart() {
+            const ctx = document.getElementById('monthlyComparisonChart');
+            if (!ctx) return;
+
+            if (window.monthlyComparisonChartInstance) {
+                window.monthlyComparisonChartInstance.destroy();
+            }
+
+            // Get last 6 months
+            const months = [];
+            const now = new Date();
+            for (let i = 5; i >= 0; i--) {
+                const date = new Date(now.getFullYear(), now.getMonth() - i, 1);
+                months.push({
+                    key: `${date.getFullYear()}-${String(date.getMonth() + 1).padStart(2, '0')}`,
+                    label: date.toLocaleDateString('en-US', { month: 'short', year: '2-digit' })
+                });
+            }
+
+            // Group spending by month and category
+            const monthlyData = {};
+            months.forEach(m => monthlyData[m.key] = {});
+
+            allReceipts.forEach(receipt => {
+                const receiptDate = new Date(receipt.date);
+                const monthKey = `${receiptDate.getFullYear()}-${String(receiptDate.getMonth() + 1).padStart(2, '0')}`;
+
+                if (monthlyData[monthKey]) {
+                    receipt.items.forEach(item => {
+                        const cat = item.category || 'Other';
+                        monthlyData[monthKey][cat] = (monthlyData[monthKey][cat] || 0) + item.price;
+                    });
+                }
+            });
+
+            // Get all categories
+            const allCategories = new Set();
+            Object.values(monthlyData).forEach(monthCats => {
+                Object.keys(monthCats).forEach(cat => allCategories.add(cat));
+            });
+
+            const colors = ['#FF6B6B', '#4ECDC4', '#FFE66D', '#A78BFA', '#95E1D3', '#FF8E53', '#44A3FF', '#FFBE0B'];
+            const datasets = Array.from(allCategories).map((category, index) => ({
+                label: category,
+                data: months.map(m => monthlyData[m.key][category] || 0),
+                backgroundColor: colors[index % colors.length],
+                borderWidth: 0
+            }));
+
+            window.monthlyComparisonChartInstance = new Chart(ctx, {
+                type: 'bar',
+                data: {
+                    labels: months.map(m => m.label),
+                    datasets: datasets
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    scales: {
+                        x: {
+                            stacked: true,
+                            grid: {
+                                display: false
+                            }
+                        },
+                        y: {
+                            stacked: true,
+                            beginAtZero: true,
+                            ticks: {
+                                callback: function(value) {
+                                    return value + ' kr';
+                                }
+                            }
+                        }
+                    },
+                    plugins: {
+                        legend: {
+                            position: 'bottom',
+                            labels: {
+                                padding: 15,
+                                font: { size: 12, weight: '600' },
+                                usePointStyle: true,
+                                pointStyle: 'circle'
+                            }
+                        },
+                        tooltip: {
+                            callbacks: {
+                                label: function(context) {
+                                    return context.dataset.label + ': ' + context.parsed.y.toFixed(0) + ' kr';
+                                },
+                                footer: function(tooltipItems) {
+                                    const total = tooltipItems.reduce((sum, item) => sum + item.parsed.y, 0);
+                                    return 'Total: ' + total.toFixed(0) + ' kr';
                                 }
                             }
                         }
@@ -3998,11 +4314,246 @@
             }
         }
 
+        // ===== BUDGETING FUNCTIONS =====
+
+        // Load and display budget data
+        async function loadBudgetData() {
+            const { data: { user } } = await _supabase.auth.getUser();
+            if (!user) return;
+
+            try {
+                // Get budget overview
+                const { data: overviewData, error: overviewError } = await _supabase
+                    .rpc('get_budget_overview', { p_user_id: user.id });
+
+                // Get budget status for all categories
+                const { data: budgetsData, error: budgetsError } = await _supabase
+                    .rpc('get_budget_status', { p_user_id: user.id });
+
+                if (overviewError) {
+                    console.error('Error loading budget overview:', overviewError);
+                    return;
+                }
+
+                if (budgetsError) {
+                    console.error('Error loading budgets:', budgetsError);
+                    return;
+                }
+
+                // Show/hide cards based on whether budgets exist
+                const hasBudgets = budgetsData && budgetsData.length > 0;
+                document.getElementById('budgetOverviewCard').style.display = hasBudgets ? 'block' : 'none';
+                document.getElementById('createBudgetCard').style.display = hasBudgets ? 'none' : 'block';
+
+                if (hasBudgets && overviewData && overviewData.length > 0) {
+                    updateBudgetOverviewUI(overviewData[0]);
+                    updateCategoryBudgetsUI(budgetsData);
+                }
+            } catch (err) {
+                console.error('Error loading budgets:', err);
+            }
+        }
+
+        // Update budget overview UI
+        function updateBudgetOverviewUI(overview) {
+            document.getElementById('totalBudget').textContent = overview.total_budget.toFixed(0);
+            document.getElementById('totalSpent').textContent = overview.total_spent.toFixed(0);
+            document.getElementById('totalRemaining').textContent = overview.total_remaining.toFixed(0);
+            document.getElementById('budgetDaysLeft').textContent = overview.days_left;
+
+            const percentUsed = overview.percent_used || 0;
+            const progressBar = document.getElementById('totalBudgetProgressBar');
+            progressBar.style.width = Math.min(percentUsed, 100) + '%';
+
+            // Change color based on usage
+            if (percentUsed > 100) {
+                progressBar.style.background = 'linear-gradient(90deg, #ef4444, #dc2626)';
+            } else if (percentUsed > 80) {
+                progressBar.style.background = 'linear-gradient(90deg, #f59e0b, #d97706)';
+            } else {
+                progressBar.style.background = 'linear-gradient(90deg, #10b981, #059669)';
+            }
+        }
+
+        // Update category budgets UI
+        function updateCategoryBudgetsUI(budgets) {
+            const container = document.getElementById('categoryBudgets');
+            container.innerHTML = '';
+
+            budgets.forEach(budget => {
+                const percentUsed = budget.percent_used || 0;
+                const statusColor = budget.status === 'exceeded' ? '#ef4444' :
+                                   budget.status === 'warning' ? '#f59e0b' : '#10b981';
+                const statusIcon = budget.status === 'exceeded' ? '🔴' :
+                                  budget.status === 'warning' ? '⚠️' : '✓';
+
+                const categoryCard = document.createElement('div');
+                categoryCard.style.cssText = 'padding: 16px; border: 1px solid var(--border); border-radius: 12px; margin-bottom: 16px;';
+                categoryCard.innerHTML = `
+                    <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 12px;">
+                        <div>
+                            <div style="font-weight: 600; font-size: 1.1em; margin-bottom: 4px;">${budget.category}</div>
+                            <div style="font-size: 0.9em; color: var(--text-secondary);">
+                                <span style="font-weight: 600; color: ${statusColor};">${budget.spent.toFixed(0)} kr</span>
+                                of ${budget.budget_limit.toFixed(0)} kr
+                            </div>
+                        </div>
+                        <div style="text-align: right;">
+                            <div style="font-size: 1.8em;">${statusIcon}</div>
+                            <div style="font-size: 0.85em; color: var(--text-secondary);">${percentUsed.toFixed(0)}%</div>
+                        </div>
+                    </div>
+                    <div style="width: 100%; height: 8px; background: var(--border); border-radius: 4px; overflow: hidden;">
+                        <div style="width: ${Math.min(percentUsed, 100)}%; height: 100%; background: ${statusColor}; transition: width 0.5s ease;"></div>
+                    </div>
+                    <div style="display: flex; justify-content: space-between; margin-top: 8px; font-size: 0.85em; color: var(--text-secondary);">
+                        <span>${budget.remaining.toFixed(0)} kr remaining</span>
+                        <button onclick="editBudget('${budget.budget_id}', '${budget.category}', ${budget.budget_limit})"
+                                style="background: none; border: none; color: var(--primary); cursor: pointer; text-decoration: underline;">
+                            Edit
+                        </button>
+                    </div>
+                `;
+
+                container.appendChild(categoryCard);
+            });
+        }
+
+        // Show budget modal
+        function showBudgetModal() {
+            document.getElementById('budgetModal').style.display = 'flex';
+            document.getElementById('budgetCategoryInput').value = '';
+            document.getElementById('budgetLimitInput').value = '';
+        }
+
+        // Close budget modal
+        function closeBudgetModal() {
+            document.getElementById('budgetModal').style.display = 'none';
+        }
+
+        // Save budget
+        async function saveBudget() {
+            const category = document.getElementById('budgetCategoryInput').value;
+            const limit = parseFloat(document.getElementById('budgetLimitInput').value);
+
+            if (!category) {
+                showToast('Please select a category', 'error');
+                return;
+            }
+
+            if (!limit || limit <= 0) {
+                showToast('Please enter a valid budget amount', 'error');
+                return;
+            }
+
+            const { data: { user } } = await _supabase.auth.getUser();
+            if (!user) {
+                showToast('Please sign in to set budgets', 'error');
+                return;
+            }
+
+            try {
+                // Insert or update budget
+                const { error } = await _supabase
+                    .from('category_budgets')
+                    .upsert({
+                        user_id: user.id,
+                        category: category,
+                        monthly_limit: limit,
+                        start_date: new Date().toISOString().split('T')[0].substring(0, 7) + '-01',
+                        is_active: true
+                    }, {
+                        onConflict: 'user_id,category,start_date'
+                    });
+
+                if (error) {
+                    console.error('Error saving budget:', error);
+                    showToast('Error saving budget: ' + error.message, 'error');
+                    return;
+                }
+
+                showToast(`Budget set for ${category}: ${limit.toFixed(0)} kr/month`, 'success');
+                closeBudgetModal();
+                await loadBudgetData();
+
+            } catch (err) {
+                console.error('Error:', err);
+                showToast('Error saving budget', 'error');
+            }
+        }
+
+        // Edit budget
+        async function editBudget(budgetId, category, currentLimit) {
+            document.getElementById('budgetCategoryInput').value = category;
+            document.getElementById('budgetLimitInput').value = currentLimit;
+            showBudgetModal();
+        }
+
+        // Delete budget
+        async function deleteBudget(budgetId) {
+            if (!confirm('Are you sure you want to delete this budget?')) {
+                return;
+            }
+
+            try {
+                const { error } = await _supabase
+                    .from('category_budgets')
+                    .delete()
+                    .eq('id', budgetId);
+
+                if (error) {
+                    console.error('Error deleting budget:', error);
+                    showToast('Error deleting budget', 'error');
+                    return;
+                }
+
+                showToast('Budget deleted', 'success');
+                await loadBudgetData();
+            } catch (err) {
+                console.error('Error:', err);
+                showToast('Error deleting budget', 'error');
+            }
+        }
+
+        // Check for budget alerts after receipt is saved
+        async function checkBudgetAlerts(receiptId) {
+            const { data: { user } } = await _supabase.auth.getUser();
+            if (!user) return;
+
+            try {
+                const { data: alerts, error } = await _supabase
+                    .rpc('check_budget_alerts', {
+                        p_user_id: user.id,
+                        p_receipt_id: receiptId
+                    });
+
+                if (error) {
+                    console.error('Error checking budget alerts:', error);
+                    return;
+                }
+
+                // Show alerts
+                if (alerts && alerts.length > 0) {
+                    alerts.forEach(alert => {
+                        const alertType = alert.alert_type === 'exceeded' ? 'error' : 'warning';
+                        const icon = alert.alert_type === 'exceeded' ? '🚨' : '⚠️';
+                        showToast(alert.message, alertType, icon + ' Budget Alert');
+                    });
+                }
+
+                // Reload budget data to show updated progress
+                await loadBudgetData();
+            } catch (err) {
+                console.error('Error checking alerts:', err);
+            }
+        }
+
         // Initialize gamification when user logs in
         document.addEventListener('DOMContentLoaded', async () => {
             const { data: { user } } = await _supabase.auth.getUser();
             if (user) {
                 await loadGamificationData();
+                await loadBudgetData();
             }
         });
     </script>
