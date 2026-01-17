@@ -343,22 +343,53 @@ Extract now:`
     }
 
     const data = await response.json();
-    
+
     // Extract text from response
     const textContent = data.content.find(c => c.type === 'text')?.text || '';
-    
+
+    if (!textContent) {
+      console.error('No text content in AI response:', data);
+      return res.status(500).json({
+        error: 'AI returned no content',
+        details: 'The AI response was empty'
+      });
+    }
+
     // Clean up JSON (removes markdown formatting if AI adds it)
-    let cleanedText = textContent.trim()
-      .replace(/```json\n?/g, '')
-      .replace(/```/g, '');
-    
+    let cleanedText = textContent.trim();
+
+    // Remove markdown code blocks
+    cleanedText = cleanedText
+      .replace(/```json\n?/gi, '')
+      .replace(/```\n?/g, '')
+      .replace(/^json\n?/gi, '');
+
+    // Try to extract JSON object
     const jsonMatch = cleanedText.match(/\{[\s\S]*\}/);
     if (jsonMatch) {
       cleanedText = jsonMatch[0];
+    } else {
+      console.error('No JSON object found in response:', cleanedText.substring(0, 500));
+      return res.status(500).json({
+        error: 'Analysis failed',
+        message: 'Could not extract receipt data from AI response. The receipt image may be unclear or not a valid receipt.',
+        debug: cleanedText.substring(0, 200)
+      });
     }
-    
+
     // Parse the data
-    const receiptData = JSON.parse(cleanedText);
+    let receiptData;
+    try {
+      receiptData = JSON.parse(cleanedText);
+    } catch (parseError) {
+      console.error('JSON parse error:', parseError);
+      console.error('Failed to parse:', cleanedText.substring(0, 500));
+      return res.status(500).json({
+        error: 'Analysis failed',
+        message: 'The AI response could not be parsed. Please try again with a clearer receipt image.',
+        debug: parseError.message
+      });
+    }
 
     // Transform new structure to backwards-compatible format for existing code
     // while also keeping the rich metadata
@@ -374,9 +405,21 @@ Extract now:`
 
   } catch (error) {
     console.error('Error processing receipt:', error);
-    return res.status(500).json({ 
-      error: 'Failed to process receipt',
-      message: error.message 
+
+    // Provide more helpful error messages
+    let userMessage = 'Failed to process receipt';
+    if (error.message.includes('fetch')) {
+      userMessage = 'Could not connect to AI service. Please check your internet connection.';
+    } else if (error.message.includes('timeout')) {
+      userMessage = 'Request timed out. Please try again.';
+    } else if (error.message.includes('JSON')) {
+      userMessage = 'Could not understand the receipt. Please try a clearer image.';
+    }
+
+    return res.status(500).json({
+      error: userMessage,
+      message: error.message,
+      type: error.name
     });
   }
 }
