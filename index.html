@@ -4768,10 +4768,8 @@
                             const newWorker = registration.installing;
                             newWorker.addEventListener('statechange', () => {
                                 if (newWorker.state === 'installed' && navigator.serviceWorker.controller) {
-                                    // New service worker available, show update notification
-                                    if (confirm('New version available! Reload to update?')) {
-                                        window.location.reload();
-                                    }
+                                    // New service worker available, show elegant update banner
+                                    showUpdateBanner();
                                 }
                             });
                         });
@@ -4780,6 +4778,101 @@
                         console.log('❌ Service Worker registration failed:', error);
                     });
             });
+        }
+
+        // Show elegant update banner when new version is available
+        function showUpdateBanner() {
+            // Check if banner already exists
+            if (document.getElementById('updateBanner')) return;
+
+            const banner = document.createElement('div');
+            banner.id = 'updateBanner';
+            banner.style.cssText = `
+                position: fixed;
+                top: 20px;
+                left: 50%;
+                transform: translateX(-50%);
+                background: linear-gradient(135deg, #10b981 0%, #059669 100%);
+                color: white;
+                padding: 16px 24px;
+                border-radius: 12px;
+                box-shadow: 0 8px 24px rgba(16, 185, 129, 0.3);
+                z-index: 100000;
+                display: flex;
+                align-items: center;
+                gap: 16px;
+                font-weight: 500;
+                animation: slideDown 0.3s ease-out;
+                max-width: 90%;
+            `;
+
+            banner.innerHTML = `
+                <span style="font-size: 24px;">🎉</span>
+                <div style="flex: 1;">
+                    <div style="font-weight: 600; margin-bottom: 4px;">New Version Available!</div>
+                    <div style="font-size: 13px; opacity: 0.9;">Update now to get the latest features</div>
+                </div>
+                <button id="updateNowBtn" style="
+                    background: white;
+                    color: #059669;
+                    border: none;
+                    padding: 8px 16px;
+                    border-radius: 8px;
+                    font-weight: 600;
+                    cursor: pointer;
+                    font-size: 14px;
+                ">Update Now</button>
+                <button id="updateLaterBtn" style="
+                    background: transparent;
+                    color: white;
+                    border: 1px solid rgba(255, 255, 255, 0.5);
+                    padding: 8px 16px;
+                    border-radius: 8px;
+                    font-weight: 600;
+                    cursor: pointer;
+                    font-size: 14px;
+                ">Later</button>
+            `;
+
+            // Add animation keyframes
+            if (!document.getElementById('updateBannerStyle')) {
+                const style = document.createElement('style');
+                style.id = 'updateBannerStyle';
+                style.textContent = `
+                    @keyframes slideDown {
+                        from {
+                            transform: translateX(-50%) translateY(-100%);
+                            opacity: 0;
+                        }
+                        to {
+                            transform: translateX(-50%) translateY(0);
+                            opacity: 1;
+                        }
+                    }
+                `;
+                document.head.appendChild(style);
+            }
+
+            document.body.appendChild(banner);
+
+            // Update now button
+            document.getElementById('updateNowBtn').addEventListener('click', () => {
+                window.location.reload();
+            });
+
+            // Later button - hide banner
+            document.getElementById('updateLaterBtn').addEventListener('click', () => {
+                banner.style.animation = 'slideDown 0.3s ease-out reverse';
+                setTimeout(() => banner.remove(), 300);
+            });
+
+            // Auto-hide after 10 seconds if no action
+            setTimeout(() => {
+                if (document.getElementById('updateBanner')) {
+                    banner.style.animation = 'slideDown 0.3s ease-out reverse';
+                    setTimeout(() => banner.remove(), 300);
+                }
+            }, 10000);
         }
 
         // PWA Install Prompt
