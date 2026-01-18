@@ -493,9 +493,27 @@ Return ONLY the JSON object, nothing else:`
       }
     }
 
+    // Log what Claude extracted for debugging
+    console.log('Extracted items count:', receiptData.items?.length || 0);
+    if (receiptData.items && receiptData.items.length > 0) {
+      console.log('First item sample:', JSON.stringify(receiptData.items[0], null, 2));
+      console.log('Sample total_price values:', receiptData.items.slice(0, 3).map(item => item.total_price));
+    }
+    console.log('Store name extracted:', receiptData.receipt_metadata?.store_name);
+    console.log('Receipt total:', receiptData.financial?.total);
+
     // Transform new structure to backwards-compatible format for existing code
     // while also keeping the rich metadata
     const transformedData = transformReceiptData(receiptData);
+
+    // Log transformed data for debugging
+    console.log('Transformed items count:', transformedData.items?.length || 0);
+    if (transformedData.items && transformedData.items.length > 0) {
+      console.log('First transformed item:', JSON.stringify(transformedData.items[0], null, 2));
+      console.log('Sample price values:', transformedData.items.slice(0, 3).map(item => item.price));
+    }
+    console.log('Transformed store:', transformedData.store);
+    console.log('Transformed total:', transformedData.total);
 
     // Validate the transformed data
     const validation = validateReceipt(transformedData);
