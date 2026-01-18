@@ -3477,12 +3477,13 @@
                             <div style="font-weight: 600; font-size: 1.1em;">${receipt.store || 'Unknown'}</div>
                             <div style="color: #666; font-size: 0.9em;">${receipt.date || 'N/A'}</div>
                         </div>
-                        <div style="text-align: right; display: flex; align-items: center; gap: 15px;">
+                        <div style="text-align: right; display: flex; align-items: center; gap: 10px;">
                             <div>
                                 <div style="font-size: 1.2em; font-weight: 700;">${receipt.total ? receipt.total.toFixed(2) + ' kr' : 'N/A'}</div>
                                 <div style="color: #666; font-size: 0.9em;">${receipt.items.length} items</div>
                             </div>
-                            <button onclick="event.stopPropagation(); deleteReceipt(${index})" style="background: none; border: 1px solid #ff6b6b; color: #ff6b6b; padding: 5px 10px; border-radius: 8px; cursor: pointer; font-weight: bold;">🗑️</button>
+                            ${receipt.image_url ? `<button onclick="event.stopPropagation(); viewReceiptImage('${receipt.image_url}')" style="background: none; border: 1px solid var(--primary); color: var(--primary); padding: 5px 10px; border-radius: 8px; cursor: pointer; font-weight: bold;" title="View receipt image">👁️</button>` : ''}
+                            <button onclick="event.stopPropagation(); deleteReceipt(${index})" style="background: none; border: 1px solid #ff6b6b; color: #ff6b6b; padding: 5px 10px; border-radius: 8px; cursor: pointer; font-weight: bold;" title="Delete receipt">🗑️</button>
                         </div>
                     </div>
                     <div class="expandable-content" id="hist-${index}-content">
@@ -3658,19 +3659,35 @@
             alert(`✅ Exported ${allReceipts.length} receipts (${totalItems} items) to ${filename}\n\nYou can now:\n• Open it in Excel/Google Sheets\n• Email it as an attachment\n• Import it into other tools`);
         }
         // Function to delete a receipt
-        function deleteReceipt(index) {
+        async function deleteReceipt(index) {
             if (confirm('Are you sure you want to delete this receipt?')) {
-                // 1. Remove the receipt from the array
+                const receipt = allReceipts[index];
+
+                // If receipt has a database ID, delete from Supabase
+                if (receipt.id) {
+                    const { error } = await _supabase
+                        .from('receipts')
+                        .delete()
+                        .eq('id', receipt.id);
+
+                    if (error) {
+                        console.error('Error deleting from database:', error);
+                        alert('Failed to delete receipt from database. Please try again.');
+                        return;
+                    }
+                }
+
+                // Remove the receipt from the local array
                 allReceipts.splice(index, 1);
 
-                // 2. Save the updated list back to storage
+                // Save the updated list back to local storage (for offline support)
                 if (typeof window.storage !== 'undefined' && window.storage) {
                     window.storage.set('receipts', JSON.stringify(allReceipts));
                 } else {
                     localStorage.setItem('spendy-receipts', JSON.stringify(allReceipts));
                 }
 
-                // 3. Refresh the UI
+                // Refresh the UI
                 updateDashboard();
                 updateHistory();
                 updateDataTable();
@@ -3678,6 +3695,116 @@
                 alert('Receipt deleted!');
             }
         }
+
+        // View receipt image in modal
+        function viewReceiptImage(imageUrl) {
+            // Create modal overlay
+            const modal = document.createElement('div');
+            modal.id = 'receiptImageModal';
+            modal.style.cssText = `
+                position: fixed;
+                top: 0;
+                left: 0;
+                width: 100%;
+                height: 100%;
+                background: rgba(0, 0, 0, 0.9);
+                z-index: 100000;
+                display: flex;
+                flex-direction: column;
+                align-items: center;
+                justify-content: center;
+                padding: 20px;
+                box-sizing: border-box;
+            `;
+
+            // Create close button
+            const closeBtn = document.createElement('button');
+            closeBtn.innerHTML = '✕';
+            closeBtn.style.cssText = `
+                position: absolute;
+                top: 20px;
+                right: 20px;
+                background: rgba(255, 255, 255, 0.2);
+                border: 2px solid white;
+                color: white;
+                font-size: 24px;
+                font-weight: bold;
+                width: 50px;
+                height: 50px;
+                border-radius: 50%;
+                cursor: pointer;
+                z-index: 100001;
+                transition: all 0.3s ease;
+            `;
+            closeBtn.onmouseover = () => {
+                closeBtn.style.background = 'rgba(255, 255, 255, 0.3)';
+                closeBtn.style.transform = 'scale(1.1)';
+            };
+            closeBtn.onmouseout = () => {
+                closeBtn.style.background = 'rgba(255, 255, 255, 0.2)';
+                closeBtn.style.transform = 'scale(1)';
+            };
+            closeBtn.onclick = () => modal.remove();
+
+            // Create image
+            const img = document.createElement('img');
+            img.src = imageUrl;
+            img.alt = 'Receipt Image';
+            img.style.cssText = `
+                max-width: 100%;
+                max-height: 90vh;
+                object-fit: contain;
+                border-radius: 12px;
+                box-shadow: 0 8px 32px rgba(0, 0, 0, 0.5);
+            `;
+
+            // Create download button
+            const downloadBtn = document.createElement('a');
+            downloadBtn.href = imageUrl;
+            downloadBtn.download = 'receipt-' + new Date().getTime() + '.jpg';
+            downloadBtn.innerHTML = '⬇️ Download';
+            downloadBtn.style.cssText = `
+                margin-top: 20px;
+                background: var(--primary);
+                color: white;
+                padding: 12px 24px;
+                border-radius: 8px;
+                text-decoration: none;
+                font-weight: bold;
+                cursor: pointer;
+                transition: all 0.3s ease;
+            `;
+            downloadBtn.onmouseover = () => {
+                downloadBtn.style.transform = 'scale(1.05)';
+            };
+            downloadBtn.onmouseout = () => {
+                downloadBtn.style.transform = 'scale(1)';
+            };
+
+            // Assemble modal
+            modal.appendChild(closeBtn);
+            modal.appendChild(img);
+            modal.appendChild(downloadBtn);
+
+            // Close on background click
+            modal.addEventListener('click', (e) => {
+                if (e.target === modal) {
+                    modal.remove();
+                }
+            });
+
+            // Close on ESC key
+            document.addEventListener('keydown', function escHandler(e) {
+                if (e.key === 'Escape') {
+                    modal.remove();
+                    document.removeEventListener('keydown', escHandler);
+                }
+            });
+
+            // Add to page
+            document.body.appendChild(modal);
+        }
+
         // Initialize Supabase
         const { createClient } = supabase;
         const _supabase = createClient('https://ztdvxcekvkonipdddraj.supabase.co', 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Inp0ZHZ4Y2VrdmtvbmlwZGRkcmFqIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NjgyNzU0NDYsImV4cCI6MjA4Mzg1MTQ0Nn0.FYMo-w6HomXjaclhqdOWArIcLMqA2ZakBwYfTsgS7xI');
@@ -3964,10 +4091,12 @@
 
             // Map database fields back to app's internal format
             allReceipts = data.map(r => ({
+                id: r.id,  // Include database ID for deletion
                 store: r.store_name,
                 date: r.purchase_date,
                 total: parseFloat(r.total_amount),
-                items: r.items
+                items: r.items,
+                image_url: r.image_url  // Include image URL for viewing
             }));
 
             updateDashboard();
