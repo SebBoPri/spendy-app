@@ -1,6 +1,38 @@
 // Vercel Serverless Function to handle receipt analysis
 // This keeps your API key secure on the server side
 
+// Attempt to repair common JSON syntax errors
+function repairJSON(jsonString) {
+  let repaired = jsonString;
+
+  // Remove trailing commas before closing braces/brackets
+  repaired = repaired.replace(/,(\s*[}\]])/g, '$1');
+
+  // Fix unescaped quotes in strings (basic attempt)
+  // This is tricky and may not catch all cases
+
+  // Try to find and complete incomplete JSON
+  // Count opening and closing braces
+  const openBraces = (repaired.match(/\{/g) || []).length;
+  const closeBraces = (repaired.match(/\}/g) || []).length;
+  const openBrackets = (repaired.match(/\[/g) || []).length;
+  const closeBrackets = (repaired.match(/\]/g) || []).length;
+
+  // Add missing closing braces
+  if (openBraces > closeBraces) {
+    const missing = openBraces - closeBraces;
+    repaired += '\n' + '}'.repeat(missing);
+  }
+
+  // Add missing closing brackets
+  if (openBrackets > closeBrackets) {
+    const missing = openBrackets - closeBrackets;
+    repaired += '\n' + ']'.repeat(missing);
+  }
+
+  return repaired;
+}
+
 // Transform new enhanced structure to format that works with existing code
 function transformReceiptData(receiptData) {
   // Handle both new and old format
@@ -388,17 +420,27 @@ Extract now:`
     try {
       receiptData = JSON.parse(cleanedText);
     } catch (parseError) {
-      console.error('JSON parse error:', parseError.message);
+      console.error('JSON parse error (first attempt):', parseError.message);
       console.error('Parse error at position:', parseError.message.match(/position (\d+)/)?.[1]);
-      console.error('Failed to parse (first 500 chars):', cleanedText.substring(0, 500));
-      console.error('Failed to parse (last 200 chars):', cleanedText.substring(Math.max(0, cleanedText.length - 200)));
 
-      return res.status(500).json({
-        error: 'Receipt data format error',
-        message: 'The receipt was analyzed but the data format is invalid. This is usually temporary - please try scanning again.',
-        details: parseError.message,
-        hint: 'If this persists, try taking a clearer photo with better lighting'
-      });
+      // Try to repair the JSON and parse again
+      console.log('Attempting to repair JSON...');
+      try {
+        const repairedText = repairJSON(cleanedText);
+        receiptData = JSON.parse(repairedText);
+        console.log('✅ JSON successfully repaired and parsed!');
+      } catch (repairError) {
+        console.error('JSON repair failed:', repairError.message);
+        console.error('Failed to parse (first 500 chars):', cleanedText.substring(0, 500));
+        console.error('Failed to parse (last 200 chars):', cleanedText.substring(Math.max(0, cleanedText.length - 200)));
+
+        return res.status(500).json({
+          error: 'Receipt data format error',
+          message: 'The receipt was analyzed but the data format is invalid. This is usually temporary - please try scanning again.',
+          details: parseError.message,
+          hint: 'If this persists, try taking a clearer photo with better lighting'
+        });
+      }
     }
 
     // Transform new structure to backwards-compatible format for existing code
