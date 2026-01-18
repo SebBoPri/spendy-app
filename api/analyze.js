@@ -502,6 +502,14 @@ Return ONLY the JSON object, nothing else:`
     console.log('Store name extracted:', receiptData.receipt_metadata?.store_name);
     console.log('Receipt total:', receiptData.financial?.total);
 
+    // Calculate total from items if financial.total is missing
+    if (!receiptData.financial?.total && receiptData.items?.length > 0) {
+      const calculatedTotal = receiptData.items.reduce((sum, item) => sum + (item.total_price || 0), 0);
+      console.log('Financial total was missing, calculated from items:', calculatedTotal);
+      if (!receiptData.financial) receiptData.financial = {};
+      receiptData.financial.total = calculatedTotal;
+    }
+
     // Transform new structure to backwards-compatible format for existing code
     // while also keeping the rich metadata
     const transformedData = transformReceiptData(receiptData);
