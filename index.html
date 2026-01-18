@@ -190,24 +190,111 @@
             padding-bottom: 100px; /* Space for floating bottom nav */
         }
 
-        /* Financial Hub Header */
+        /* HomeHeader Component (Spendy Design) */
         header {
-            margin-bottom: var(--spacing-xl);
-            padding: var(--spacing-md) 0;
+            margin-bottom: var(--spacing-lg);
+            padding: var(--spacing-lg) 0;
         }
 
-        h1 {
+        .home-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        /* Spendy Logo */
+        .spendy-logo {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .spendy-logo-icon {
             font-size: 28px;
-            font-weight: 700;
+            line-height: 1;
+        }
+
+        .spendy-logo-text {
+            font-size: var(--font-size-2xl);
+            font-weight: var(--font-weight-bold);
             color: var(--text-primary);
             letter-spacing: -0.5px;
-            margin-bottom: var(--spacing-sm);
         }
 
-        .tagline {
+        /* Profile Chip */
+        .profile-chip {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            background: var(--primary-alpha-10);
+            padding: 8px 16px 8px 8px;
+            border-radius: var(--radius-medium);
+            cursor: pointer;
+            transition: all var(--transition-base);
+            position: relative;
+        }
+
+        .profile-chip:hover {
+            background: var(--primary-alpha-20);
+            transform: translateY(-1px);
+        }
+
+        .profile-initial-circle {
+            width: 36px;
+            height: 36px;
+            border-radius: 50%;
+            background: var(--primary);
+            color: var(--text-on-primary);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-weight: var(--font-weight-bold);
+            font-size: var(--font-size-base);
+        }
+
+        .profile-email-text {
+            font-size: var(--font-size-sm);
+            font-weight: var(--font-weight-semibold);
+            color: var(--text-primary);
+            max-width: 150px;
+            white-space: nowrap;
+            overflow: hidden;
+            text-overflow: ellipsis;
+        }
+
+        /* Guest Chip (when not logged in) */
+        .guest-chip {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            padding: 8px 16px;
+            border-radius: var(--radius-medium);
+            background: var(--divider);
+            font-size: var(--font-size-sm);
             color: var(--text-tertiary);
-            font-size: 14px;
-            font-weight: 400;
+        }
+
+        .guest-chip .login-link {
+            color: var(--primary);
+            font-weight: var(--font-weight-semibold);
+            text-decoration: none;
+            margin-left: 4px;
+            cursor: pointer;
+        }
+
+        .guest-chip .login-link:hover {
+            text-decoration: underline;
+        }
+
+        /* Responsive adjustments */
+        @media (max-width: 768px) {
+            .profile-email-text {
+                max-width: 120px;
+            }
+
+            .spendy-logo-text {
+                font-size: var(--font-size-xl);
+            }
         }
 
         /* Floating Pill Bottom Navigation (Spendy Design) */
@@ -1189,106 +1276,25 @@
             box-shadow: var(--shadow-medium);
         }
 
-        /* User Status - Enhanced Design */
+        /* User Status & Dropdown Menu */
         #user-status {
             position: relative;
         }
 
-        #user-status .user-profile-card {
-            background: linear-gradient(135deg, var(--primary) 0%, #4a90e2 100%);
-            padding: 16px 20px;
-            border-radius: 16px;
-            display: inline-flex;
-            align-items: center;
-            gap: 12px;
-            box-shadow: 0 4px 16px rgba(91, 168, 159, 0.3);
-            transition: all 0.3s ease;
-            cursor: pointer;
-            position: relative;
-        }
-
-        #user-status .user-profile-card:hover {
-            transform: translateY(-2px);
-            box-shadow: 0 6px 20px rgba(91, 168, 159, 0.4);
-        }
-
-        #user-status .user-avatar {
-            width: 40px;
-            height: 40px;
-            border-radius: 50%;
-            background: white;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            font-size: 20px;
-            font-weight: 700;
-            color: var(--primary);
-            box-shadow: 0 2px 8px rgba(0,0,0,0.1);
-        }
-
-        #user-status .user-info {
-            display: flex;
-            flex-direction: column;
-            gap: 2px;
-        }
-
-        #user-status .user-greeting {
-            font-size: 11px;
-            color: rgba(255,255,255,0.8);
-            font-weight: 500;
-            text-transform: uppercase;
-            letter-spacing: 0.5px;
-        }
-
-        #user-status .user-email-display {
-            color: white;
-            font-weight: 600;
-            font-size: 14px;
-            display: flex;
-            align-items: center;
-            gap: 6px;
-        }
-
-        #user-status .status-indicator {
-            display: inline-block;
-            width: 8px;
-            height: 8px;
-            background: #10b981;
-            border-radius: 50%;
-            margin-right: 4px;
-            animation: pulse 2s infinite;
-        }
-
-        @keyframes pulse {
-            0%, 100% { opacity: 1; }
-            50% { opacity: 0.6; }
-        }
-
-        #user-status .user-menu-toggle {
-            color: white;
-            font-size: 16px;
-            transition: transform 0.2s ease;
-        }
-
-        #user-status .user-profile-card:hover .user-menu-toggle {
-            transform: rotate(90deg);
-        }
-
-        /* User Dropdown Menu */
         #user-status .dropdown-menu {
             position: absolute;
             top: calc(100% + 8px);
             right: 0;
-            background: white;
-            border-radius: 12px;
-            box-shadow: 0 8px 32px rgba(0,0,0,0.12);
+            background: var(--card);
+            border-radius: var(--radius-medium);
+            box-shadow: var(--shadow-high);
             min-width: 220px;
             overflow: hidden;
             opacity: 0;
             visibility: hidden;
             transform: translateY(-10px);
-            transition: all 0.3s ease;
-            z-index: 1000;
+            transition: all var(--transition-base);
+            z-index: var(--z-dropdown);
         }
 
         #user-status .dropdown-menu.show {
@@ -1297,80 +1303,45 @@
             transform: translateY(0);
         }
 
-        #user-status .dropdown-menu .menu-item {
+        .dropdown-menu .menu-item {
             padding: 14px 20px;
             display: flex;
             align-items: center;
             gap: 12px;
             color: var(--text-primary);
-            font-weight: 500;
-            font-size: 14px;
+            font-weight: var(--font-weight-medium);
+            font-size: var(--font-size-sm);
             cursor: pointer;
-            transition: all 0.2s ease;
+            transition: all var(--transition-fast);
             border: none;
             background: none;
             width: 100%;
             text-align: left;
         }
 
-        #user-status .dropdown-menu .menu-item:hover {
+        .dropdown-menu .menu-item:hover {
             background: var(--primary-light);
             color: var(--primary);
         }
 
-        #user-status .dropdown-menu .menu-item.danger {
+        .dropdown-menu .menu-item.danger {
             color: var(--expense-red);
         }
 
-        #user-status .dropdown-menu .menu-item.danger:hover {
+        .dropdown-menu .menu-item.danger:hover {
             background: rgba(230, 57, 70, 0.1);
         }
 
-        #user-status .dropdown-menu .menu-divider {
+        .dropdown-menu .menu-divider {
             height: 1px;
             background: var(--border);
             margin: 8px 0;
         }
 
-        #user-status .dropdown-menu .menu-item-icon {
+        .dropdown-menu .menu-item-icon {
             font-size: 18px;
             width: 24px;
             text-align: center;
-        }
-
-        /* Guest User Badge */
-        #guest-status {
-            background: rgba(255,255,255,0.1);
-            backdrop-filter: blur(10px);
-            padding: 12px 20px;
-            border-radius: 12px;
-            display: inline-flex;
-            align-items: center;
-            gap: 10px;
-            border: 1px solid rgba(255,255,255,0.2);
-        }
-
-        #guest-status .guest-icon {
-            font-size: 20px;
-        }
-
-        #guest-status .guest-text {
-            color: var(--text-secondary);
-            font-size: 13px;
-            font-weight: 500;
-        }
-
-        #guest-status .login-link {
-            color: var(--primary);
-            font-weight: 600;
-            text-decoration: none;
-            cursor: pointer;
-            transition: all 0.2s ease;
-            font-size: 13px;
-        }
-
-        #guest-status .login-link:hover {
-            text-decoration: underline;
         }
 
         /* Dark Mode - Financial Hub */
@@ -1840,52 +1811,43 @@
 
     <div class="container">
         <header>
-            <div style="display: flex; justify-content: space-between; align-items: flex-start; margin-bottom: 20px;">
-                <div style="flex: 1;"></div>
-                <div style="flex: 1; text-align: center;">
-                    <div class="logo">
-                        <div class="logo-icon">💰</div>
-                    </div>
-                    <h1>Spendy</h1>
-                    <p class="tagline">Your playful budget companion</p>
+            <div class="home-header">
+                <!-- Spendy Logo (Left) -->
+                <div class="spendy-logo">
+                    <span class="spendy-logo-icon">💰</span>
+                    <span class="spendy-logo-text">Spendy</span>
                 </div>
-                <div style="flex: 1; text-align: right;">
-                    <!-- Logged In User Status -->
-                    <div id="user-status" style="display: none;">
-                        <div class="user-profile-card" onclick="toggleUserMenu()">
-                            <div class="user-avatar" id="userAvatar">U</div>
-                            <div class="user-info">
-                                <div class="user-greeting">Logged In</div>
-                                <div class="user-email-display">
-                                    <span class="status-indicator"></span>
-                                    <span id="user-email"></span>
-                                </div>
-                            </div>
-                            <div class="user-menu-toggle">⋯</div>
-                        </div>
-                        <div class="dropdown-menu" id="userDropdown">
-                            <button class="menu-item" onclick="switchTab('account'); toggleUserMenu();">
-                                <span class="menu-item-icon">⚙️</span>
-                                Account Settings
-                            </button>
-                            <button class="menu-item" onclick="switchTab('dashboard'); toggleUserMenu();">
-                                <span class="menu-item-icon">📊</span>
-                                Dashboard
-                            </button>
-                            <div class="menu-divider"></div>
-                            <button class="menu-item danger" onclick="logout(); toggleUserMenu();">
-                                <span class="menu-item-icon">🚪</span>
-                                Sign Out
-                            </button>
-                        </div>
+
+                <!-- Profile Chip (Right) - Logged In -->
+                <div id="user-status" style="display: none;">
+                    <div class="profile-chip" onclick="toggleUserMenu()">
+                        <div class="profile-initial-circle" id="userAvatar">U</div>
+                        <div class="profile-email-text" id="user-email">user@example.com</div>
                     </div>
 
-                    <!-- Guest Status (when not logged in) -->
-                    <div id="guest-status" style="display: none;">
-                        <span class="guest-icon">👤</span>
-                        <span class="guest-text">Guest Mode</span>
-                        <a class="login-link" onclick="showLoginModal()">Sign In</a>
+                    <!-- Dropdown Menu -->
+                    <div class="dropdown-menu" id="userDropdown">
+                        <button class="menu-item" onclick="switchTab('account'); toggleUserMenu();">
+                            <span class="menu-item-icon">⚙️</span>
+                            Account Settings
+                        </button>
+                        <button class="menu-item" onclick="switchTab('dashboard'); toggleUserMenu();">
+                            <span class="menu-item-icon">📊</span>
+                            Dashboard
+                        </button>
+                        <div class="menu-divider"></div>
+                        <button class="menu-item danger" onclick="logout(); toggleUserMenu();">
+                            <span class="menu-item-icon">🚪</span>
+                            Sign Out
+                        </button>
                     </div>
+                </div>
+
+                <!-- Guest Chip (Right) - Not Logged In -->
+                <div id="guest-status" style="display: none;" class="guest-chip">
+                    <span>👤</span>
+                    <span>Guest Mode</span>
+                    <a class="login-link" onclick="showLoginModal()">Sign In</a>
                 </div>
             </div>
         </header>
