@@ -3208,17 +3208,53 @@
                 return;
             }
 
-            recentList.innerHTML = recentReceipts.map((receipt, index) => `
-                <div style="display: flex; justify-content: space-between; align-items: center; padding: 20px; border-bottom: 1px solid var(--divider); transition: background var(--transition-fast);" onmouseover="this.style.background='var(--background)'" onmouseout="this.style.background='transparent'">
-                    <div style="flex: 1;">
-                        <div style="font-weight: var(--font-weight-semibold); color: var(--text-primary); margin-bottom: 4px; font-size: var(--font-size-base);">${receipt.store || 'Unknown Store'}</div>
-                        <div style="font-size: var(--font-size-sm); color: var(--text-tertiary);">${receipt.date || 'N/A'} • ${receipt.items.length} items</div>
+            recentList.innerHTML = recentReceipts.map((receipt, index) => {
+                const total = receipt.total || 0;
+                const isNegative = total < 0;
+                const amountColor = isNegative ? 'var(--error-red)' : 'var(--text-primary)';
+                const isLastItem = index === recentReceipts.length - 1;
+
+                // Get store initial for icon
+                const storeInitial = (receipt.store || 'U')[0].toUpperCase();
+
+                return `
+                <div style="display: flex; align-items: center; gap: 16px; padding: 16px 20px; ${!isLastItem ? 'border-bottom: 1px solid var(--divider);' : ''} transition: background var(--transition-fast);" onmouseover="this.style.background='var(--background)'" onmouseout="this.style.background='transparent'">
+                    <!-- Circular Icon -->
+                    <div style="
+                        width: 40px;
+                        height: 40px;
+                        border-radius: 50%;
+                        background: var(--primary-alpha-10);
+                        color: var(--primary);
+                        display: flex;
+                        align-items: center;
+                        justify-content: center;
+                        font-weight: var(--font-weight-bold);
+                        font-size: var(--font-size-base);
+                        flex-shrink: 0;
+                    ">
+                        ${storeInitial}
                     </div>
-                    <div style="text-align: right;">
-                        <div style="font-weight: var(--font-weight-bold); font-size: var(--font-size-lg); color: var(--text-primary);">${receipt.total ? receipt.total.toFixed(2) + ' kr' : 'N/A'}</div>
+
+                    <!-- Store Info -->
+                    <div style="flex: 1; min-width: 0;">
+                        <div style="font-weight: var(--font-weight-semibold); color: var(--text-primary); margin-bottom: 4px; font-size: var(--font-size-base); white-space: nowrap; overflow: hidden; text-overflow: ellipsis;">
+                            ${receipt.store || 'Unknown Store'}
+                        </div>
+                        <div style="font-size: var(--font-size-sm); color: var(--text-tertiary);">
+                            ${receipt.date || 'N/A'} • ${receipt.items.length} items
+                        </div>
+                    </div>
+
+                    <!-- Amount (Right-aligned) -->
+                    <div style="text-align: right; flex-shrink: 0;">
+                        <div style="font-weight: var(--font-weight-bold); font-size: var(--font-size-lg); color: ${amountColor};">
+                            ${total.toFixed(2)} kr
+                        </div>
                     </div>
                 </div>
-            `).join('');
+                `;
+            }).join('');
         }
 
         function updateCategoryChart(categoryTotals) {
