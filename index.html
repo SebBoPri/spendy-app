@@ -3270,8 +3270,8 @@
             // Add insight cards
             const categories = Object.entries(categoryTotals).sort((a, b) => b[1] - a[1]);
             const topCategory = categories[0];
-            const categoryCount = categories.length;
-            const avgPerCategory = total / categoryCount;
+            const numCategories = categories.length;
+            const avgPerCategory = total / numCategories;
 
             const insightHTML = `
                 <div style="padding: 16px; background: linear-gradient(135deg, #667eea15 0%, #764ba205 100%); border-radius: 10px; border-left: 4px solid #667eea;">
@@ -3281,7 +3281,7 @@
                 </div>
                 <div style="padding: 16px; background: linear-gradient(135deg, #f09433155 0%, #e6683c05 100%); border-radius: 10px; border-left: 4px solid #f09433;">
                     <div style="font-size: 0.85em; color: var(--text-secondary); margin-bottom: 4px;">Categories</div>
-                    <div style="font-size: 1.3em; font-weight: 700; color: var(--text);">${categoryCount}</div>
+                    <div style="font-size: 1.3em; font-weight: 700; color: var(--text);">${numCategories}</div>
                     <div style="font-size: 0.9em; color: var(--text-secondary); margin-top: 4px;">Avg: ${avgPerCategory.toFixed(0)} kr</div>
                 </div>
                 <div style="padding: 16px; background: linear-gradient(135deg, #11998e15 0%, #38ef7d05 100%); border-radius: 10px; border-left: 4px solid #11998e;">
@@ -3292,36 +3292,53 @@
             `;
             document.getElementById('distributionInsights').innerHTML = insightHTML;
 
+            // Generate teal color palette based on primary color
+            const generateTealPalette = (count) => {
+                const colors = [];
+                const baseHue = 198; // Teal hue from #2D9CDB
+                const baseSat = 65;
+                const baseLightStart = 45;
+                const baseLightEnd = 70;
+
+                for (let i = 0; i < count; i++) {
+                    const lightness = baseLightStart + (baseLightEnd - baseLightStart) * (i / Math.max(count - 1, 1));
+                    const saturation = baseSat - (i * 5); // Slightly reduce saturation for variety
+                    colors.push(`hsl(${baseHue}, ${saturation}%, ${lightness}%)`);
+                }
+                return colors;
+            };
+
+            const tealPalette = generateTealPalette(numCategories);
+
             window.categoryChartInstance = new Chart(ctx, {
                 type: 'doughnut',
                 data: {
                     labels: Object.keys(categoryTotals),
                     datasets: [{
                         data: Object.values(categoryTotals),
-                        backgroundColor: [
-                            '#FF6B6B', '#4ECDC4', '#FFE66D', '#A78BFA',
-                            '#95E1D3', '#FF8E53', '#44A3FF', '#FFBE0B'
-                        ],
-                        borderWidth: 3,
+                        backgroundColor: tealPalette,
+                        borderWidth: 4,
                         borderColor: '#fff',
-                        hoverOffset: 15
+                        hoverOffset: 8,
+                        hoverBorderWidth: 6
                     }]
                 },
                 options: {
                     responsive: true,
                     maintainAspectRatio: false,
-                    cutout: '70%',
+                    cutout: '75%',
                     plugins: {
                         legend: {
-                            position: 'bottom',
-                            labels: {
-                                padding: 20,
-                                font: { size: 13, weight: '600' },
-                                usePointStyle: true,
-                                pointStyle: 'circle'
-                            }
+                            display: false
                         },
                         tooltip: {
+                            backgroundColor: 'rgba(51, 51, 51, 0.95)',
+                            titleColor: '#fff',
+                            bodyColor: '#fff',
+                            borderColor: 'var(--primary)',
+                            borderWidth: 1,
+                            padding: 12,
+                            cornerRadius: 8,
                             callbacks: {
                                 label: function(context) {
                                     const label = context.label || '';
