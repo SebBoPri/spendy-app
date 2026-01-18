@@ -74,54 +74,111 @@
         }
 
         :root {
-            /* Financial Hub Design System */
-            --primary: #5BA89F;
-            --primary-dark: #478A82;
-            --primary-light: #E8F5F3;
+            /* ====================================
+               MODERN MINIMALIST BUDGETING THEME
+               Updated: 2026-01-18
+               Design Philosophy: Clean, spacious, functional
+               ==================================== */
 
-            --expense-red: #E63946;
-            --income-green: #5BA89F;
-            --warning-yellow: #F4A261;
-            --info-blue: #4A90E2;
+            /* PRIMARY COLORS */
+            --primary: #2D9CDB;                    /* Teal - Main brand color */
+            --primary-dark: #1F7BAD;               /* Darker teal for hover states */
+            --primary-light: #E3F2FD;              /* Light teal for backgrounds */
+            --primary-alpha-10: rgba(45, 156, 219, 0.1);
+            --primary-alpha-20: rgba(45, 156, 219, 0.2);
 
-            --text-primary: #1A1A1A;
-            --text-secondary: #4A4A4A;
-            --text-tertiary: #8A8A8A;
+            /* SEMANTIC COLORS */
+            --expense-red: #E63946;                /* Red for expenses */
+            --income-green: #27AE60;               /* Green for income */
+            --warning-yellow: #F4A261;             /* Yellow for warnings */
+            --info-blue: #2D9CDB;                  /* Blue for info (same as primary) */
+            --success-green: #27AE60;              /* Success states */
+            --error-red: #E63946;                  /* Error states */
 
-            --border: #E5E5E5;
-            --background: #F8F9FA;
-            --white: #FFFFFF;
+            /* NEUTRAL COLORS */
+            --background: #F8F9FA;                 /* Off-white background */
+            --card: #FFFFFF;                       /* Pure white for cards */
+            --white: #FFFFFF;                      /* Pure white */
+            --border: #E5E7EB;                     /* Light grey borders */
+            --divider: #F3F4F6;                    /* Subtle dividers */
 
+            /* TEXT COLORS */
+            --text-primary: #333333;               /* Dark grey - Main text */
+            --text-secondary: #6B7280;             /* Medium grey - Secondary text */
+            --text-tertiary: #9CA3AF;              /* Light grey - Tertiary text */
+            --text-disabled: #D1D5DB;              /* Very light grey - Disabled */
+            --text-on-primary: #FFFFFF;            /* White text on primary color */
+
+            /* SPACING SYSTEM */
             --spacing-xs: 4px;
             --spacing-sm: 8px;
             --spacing-md: 16px;
             --spacing-lg: 24px;
             --spacing-xl: 32px;
+            --spacing-2xl: 48px;
+            --spacing-3xl: 64px;
 
-            --radius-small: 8px;
-            --radius-medium: 12px;
-            --radius-large: 16px;
-            --radius-xlarge: 20px;
+            /* BORDER RADIUS - Standardized */
+            --radius-small: 8px;                   /* Small elements */
+            --radius-medium: 12px;                 /* Buttons */
+            --radius-large: 16px;                  /* Cards, containers */
+            --radius-xlarge: 20px;                 /* Large containers */
+            --radius-round: 50%;                   /* Circular elements */
 
-            --shadow-low: 0 2px 8px rgba(0, 0, 0, 0.08);
-            --shadow-medium: 0 4px 16px rgba(0, 0, 0, 0.12);
-            --shadow-high: 0 8px 24px rgba(0, 0, 0, 0.16);
+            /* SHADOWS - Soft & Minimal */
+            --shadow-soft: 0px 4px 20px rgba(0, 0, 0, 0.05);    /* Main soft shadow */
+            --shadow-low: 0 1px 3px rgba(0, 0, 0, 0.06);        /* Very subtle */
+            --shadow-medium: 0 4px 12px rgba(0, 0, 0, 0.08);    /* Standard elevation */
+            --shadow-high: 0 8px 24px rgba(0, 0, 0, 0.12);      /* High elevation */
+            --shadow-primary: 0 4px 20px rgba(45, 156, 219, 0.2); /* Primary color shadow */
 
-            /* Legacy */
-            --secondary: #4A90E2;
-            --accent: #F4A261;
-            --dark: #1A1A1A;
-            --success: #5BA89F;
+            /* TRANSITIONS */
+            --transition-fast: 0.15s ease;
+            --transition-base: 0.2s ease;
+            --transition-slow: 0.3s ease;
+            --transition-bounce: 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+
+            /* TYPOGRAPHY */
+            --font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', 'Roboto', 'Helvetica Neue', sans-serif;
+            --font-size-xs: 12px;
+            --font-size-sm: 14px;
+            --font-size-base: 16px;
+            --font-size-lg: 18px;
+            --font-size-xl: 20px;
+            --font-size-2xl: 24px;
+            --font-size-3xl: 32px;
+            --font-weight-normal: 400;
+            --font-weight-medium: 500;
+            --font-weight-semibold: 600;
+            --font-weight-bold: 700;
+
+            /* Z-INDEX SCALE */
+            --z-base: 1;
+            --z-dropdown: 100;
+            --z-sticky: 200;
+            --z-overlay: 500;
+            --z-modal: 1000;
+            --z-toast: 2000;
+            --z-tooltip: 3000;
+
+            /* LEGACY COMPATIBILITY (mapped to new theme) */
+            --secondary: #2D9CDB;                  /* Maps to primary */
+            --accent: #F4A261;                     /* Warning yellow */
+            --dark: #333333;                       /* Text primary */
+            --success: #27AE60;                    /* Success green */
+            --light: #F8F9FA;                      /* Background */
         }
 
         body {
-            font-family: 'Inter', -apple-system, 'SF Pro Display', 'Roboto', sans-serif;
+            font-family: var(--font-family);
             background: var(--background);
             min-height: 100vh;
             padding: 0;
             color: var(--text-primary);
-            font-size: 14px;
+            font-size: var(--font-size-sm);
             line-height: 1.5;
+            -webkit-font-smoothing: antialiased;
+            -moz-osx-font-smoothing: grayscale;
         }
 
         /* Clean background - no blobs for professional look */
