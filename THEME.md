@@ -1,8 +1,8 @@
 # Spendy App - Theme Configuration
 
-**Version:** 1.0.0
+**Version:** 2.0.0 - "Spendy Design System"
 **Last Updated:** 2026-01-18
-**Design Philosophy:** Modern, Minimalist Budgeting Interface
+**Design Philosophy:** Vibrant, Modern, Floating Interface
 
 ---
 
@@ -16,15 +16,15 @@ This theme provides a clean, spacious, and functional design system for the Spen
 
 ### Primary Colors
 ```css
---primary: #2D9CDB              /* Teal - Main brand color */
---primary-dark: #1F7BAD         /* Darker teal for hover states */
---primary-light: #E3F2FD        /* Light teal for backgrounds */
+--primary: #2D9CDB              /* Vibrant Blue - Main brand color */
+--primary-dark: #1F7BAD         /* Darker blue for hover states */
+--primary-light: #E3F2FD        /* Light blue for backgrounds */
 --primary-alpha-10: rgba(45, 156, 219, 0.1)
 --primary-alpha-20: rgba(45, 156, 219, 0.2)
 ```
 
 **Usage:**
-- `--primary`: Buttons, links, interactive elements, branding
+- `--primary`: Buttons, links, interactive elements, branding (#2D9CDB Vibrant Blue)
 - `--primary-dark`: Hover states for buttons
 - `--primary-light`: Subtle backgrounds, selected states
 - `--primary-alpha-*`: Overlays, subtle accents
@@ -114,52 +114,58 @@ Based on an 8px grid for consistency:
 
 ## Border Radius
 
-Standardized rounded corners for consistency:
+**SPENDY STANDARD** - Updated for modern, floating aesthetic:
 
 ```css
 --radius-small: 8px             /* Small elements (tags, badges) */
---radius-medium: 12px           /* Buttons, inputs */
---radius-large: 16px            /* Cards, containers */
---radius-xlarge: 20px           /* Large containers, modals */
+--radius-medium: 12px           /* Buttons & small elements */
+--radius-large: 24px            /* Large cards (UPDATED: 24px) */
+--radius-xlarge: 24px           /* Large containers (UPDATED: 24px) */
 --radius-round: 50%             /* Circular elements (avatars, icons) */
 ```
 
 **Standard Applications:**
-- **Buttons:** `--radius-medium` (12px)
-- **Cards:** `--radius-large` (16px)
-- **Containers:** `--radius-large` (16px)
+- **Buttons:** `--radius-medium` (12px) - Clean, modern
+- **Large Cards:** `--radius-large` (24px) - Soft, floating appearance
+- **Large Containers:** `--radius-xlarge` (24px) - Consistent with cards
 - **Input fields:** `--radius-medium` (12px)
 - **Badges/Tags:** `--radius-small` (8px)
+
+**Key Change:** Large cards now use 24px radius for a more modern, spacious feel
 
 ---
 
 ## Shadows
 
-Soft, minimal shadows for depth without harshness:
+**SOFT FLOATING SHADOWS** - Enhanced depth and modern elevation:
 
 ```css
---shadow-soft: 0px 4px 20px rgba(0, 0, 0, 0.05)      /* Main soft shadow */
---shadow-low: 0 1px 3px rgba(0, 0, 0, 0.06)          /* Very subtle */
---shadow-medium: 0 4px 12px rgba(0, 0, 0, 0.08)      /* Standard elevation */
---shadow-high: 0 8px 24px rgba(0, 0, 0, 0.12)        /* High elevation */
---shadow-primary: 0 4px 20px rgba(45, 156, 219, 0.2) /* Primary glow */
+--shadow-soft: 0px 10px 30px rgba(0, 0, 0, 0.05)     /* Soft Floating Shadow (UPDATED) */
+--shadow-low: 0 2px 8px rgba(0, 0, 0, 0.04)          /* Very subtle */
+--shadow-medium: 0 6px 20px rgba(0, 0, 0, 0.06)      /* Standard elevation */
+--shadow-high: 0 12px 40px rgba(0, 0, 0, 0.08)       /* High elevation */
+--shadow-primary: 0 8px 25px rgba(45, 156, 219, 0.15) /* Primary glow */
 ```
 
 **Usage:**
-- `--shadow-soft`: **Primary shadow** - Use for all cards and containers
+- `--shadow-soft`: **Primary "Soft Floating Shadow"** (0px 10px 30px) - Use for all cards and containers
 - `--shadow-low`: Subtle hover states, input focus
 - `--shadow-medium`: Dropdowns, tooltips
 - `--shadow-high`: Modals, popovers, floating elements
-- `--shadow-primary`: Primary buttons, accent elements
+- `--shadow-primary`: Primary buttons, accent elements with blue glow
+
+**Key Change:** Main shadow now has enhanced depth (10px 30px) for floating appearance
 
 **Example:**
 ```css
 .card {
-    box-shadow: var(--shadow-soft);
+    box-shadow: var(--shadow-soft);  /* 0px 10px 30px rgba(0, 0, 0, 0.05) */
+    border-radius: var(--radius-large);  /* 24px */
 }
 
 .card:hover {
     box-shadow: var(--shadow-medium);
+    transform: translateY(-2px);
 }
 ```
 
@@ -167,7 +173,7 @@ Soft, minimal shadows for depth without harshness:
 
 ## Typography
 
-Using **Inter** font family with fallbacks:
+**CLEAN SANS-SERIF STACK** - Using **Inter** with system fallbacks:
 
 ```css
 --font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', 'Roboto', 'Helvetica Neue', sans-serif;
@@ -184,20 +190,25 @@ Using **Inter** font family with fallbacks:
 --font-size-3xl: 32px           /* Hero headings */
 ```
 
-### Font Weights
+### Font Weights (SPENDY Standard)
 ```css
 --font-weight-normal: 400       /* Regular text */
 --font-weight-medium: 500       /* Slightly emphasized */
---font-weight-semibold: 600     /* Subheadings, important labels */
---font-weight-bold: 700         /* Headings, primary emphasis */
+--font-weight-semibold: 600     /* Subheaders (STANDARD) */
+--font-weight-bold: 700         /* Headings (STANDARD) */
 ```
 
-**Typography Hierarchy:**
-- **H1 (Page Title):** `--font-size-2xl` + `--font-weight-bold`
-- **H2 (Section):** `--font-size-xl` + `--font-weight-semibold`
-- **H3 (Subsection):** `--font-size-lg` + `--font-weight-semibold`
+**Typography Hierarchy (Spendy):**
+- **H1 (Page Title/Headings):** `--font-size-2xl` + `--font-weight-bold` (700)
+- **H2 (Section/Subheaders):** `--font-size-xl` + `--font-weight-semibold` (600)
+- **H3 (Subsection):** `--font-size-lg` + `--font-weight-semibold` (600)
 - **Body:** `--font-size-sm` + `--font-weight-normal`
 - **Small text:** `--font-size-xs` + `--font-weight-normal`
+
+**Spendy Guidelines:**
+- **All Headings:** Use `font-weight-bold` (700)
+- **All Subheaders:** Use `font-weight-semibold` (600)
+- Clean, readable hierarchy with clear distinction
 
 ---
 
@@ -349,14 +360,17 @@ For dark mode support, override these variables:
 
 ## Quick Reference
 
-**Most Common Usage:**
-- Primary color: `var(--primary)` → #2D9CDB
-- Card background: `var(--card)` → #FFFFFF
-- Border radius for cards: `var(--radius-large)` → 16px
+**Most Common Usage (SPENDY Design System v2.0):**
+- Primary color: `var(--primary)` → #2D9CDB (Vibrant Blue)
+- Card background: `var(--card)` → #FFFFFF (White)
+- Background: `var(--background)` → #F8F9FA (Off-White)
+- Border radius for large cards: `var(--radius-large)` → **24px** ⭐ NEW
 - Border radius for buttons: `var(--radius-medium)` → 12px
-- Standard shadow: `var(--shadow-soft)` → 0px 4px 20px rgba(0, 0, 0, 0.05)
+- Soft Floating Shadow: `var(--shadow-soft)` → **0px 10px 30px rgba(0, 0, 0, 0.05)** ⭐ NEW
 - Standard spacing: `var(--spacing-lg)` → 24px
 - Text color: `var(--text-primary)` → #333333
+- Heading weight: `var(--font-weight-bold)` → 700
+- Subheader weight: `var(--font-weight-semibold)` → 600
 
 ---
 
