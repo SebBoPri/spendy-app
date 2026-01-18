@@ -3249,18 +3249,29 @@
             recentList.innerHTML = recentReceipts.map((receipt, index) => {
                 const total = receipt.total || 0;
                 const isNegative = total < 0;
-                const amountColor = isNegative ? 'var(--error-red)' : 'var(--text-primary)';
-                const isLastItem = index === recentReceipts.length - 1;
+                // Coral Red for expenses, Emerald Green for income/savings
+                const amountColor = isNegative ? '#10b981' : '#f87171';  // Emerald green for refunds, Coral red for expenses
 
                 // Get store initial for icon
                 const storeInitial = (receipt.store || 'U')[0].toUpperCase();
 
                 return `
-                <div style="display: flex; align-items: center; gap: 16px; padding: 16px 20px; ${!isLastItem ? 'border-bottom: 1px solid var(--divider);' : ''} transition: background var(--transition-fast);" onmouseover="this.style.background='var(--background)'" onmouseout="this.style.background='transparent'">
+                <div style="
+                    background: var(--card);
+                    border: 1px solid #f3f4f6;
+                    border-radius: var(--radius-medium);
+                    padding: 16px;
+                    margin-bottom: 12px;
+                    display: flex;
+                    align-items: center;
+                    gap: 16px;
+                    transition: all var(--transition-fast);
+                    cursor: pointer;
+                " onmouseover="this.style.boxShadow='var(--shadow-low)'; this.style.transform='translateY(-1px)'" onmouseout="this.style.boxShadow='none'; this.style.transform='translateY(0)'">
                     <!-- Circular Icon -->
                     <div style="
-                        width: 40px;
-                        height: 40px;
+                        width: 44px;
+                        height: 44px;
                         border-radius: 50%;
                         background: var(--primary-alpha-10);
                         color: var(--primary);
@@ -3268,7 +3279,7 @@
                         align-items: center;
                         justify-content: center;
                         font-weight: var(--font-weight-bold);
-                        font-size: var(--font-size-base);
+                        font-size: var(--font-size-lg);
                         flex-shrink: 0;
                     ">
                         ${storeInitial}
@@ -3286,7 +3297,7 @@
 
                     <!-- Amount (Right-aligned) -->
                     <div style="text-align: right; flex-shrink: 0;">
-                        <div style="font-weight: var(--font-weight-bold); font-size: var(--font-size-lg); color: ${amountColor};">
+                        <div style="font-weight: var(--font-weight-bold); font-size: var(--font-size-xl); color: ${amountColor};">
                             ${total.toFixed(2)} kr
                         </div>
                     </div>
@@ -3954,35 +3965,87 @@
                 return;
             }
 
-            const historyHTML = allReceipts.map((receipt, index) => `
-                <div class="expandable" style="margin-bottom: 16px;">
-                    <div class="expandable-header" onclick="toggleExpand('hist-${index}')" style="gap: 16px;">
-                        <div style="flex: 1; min-width: 0;">
-                            <div style="font-weight: 700; font-size: 1.05em; color: var(--text-primary); margin-bottom: 4px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis;">${receipt.store || 'Unknown'}</div>
-                            <div style="color: var(--text-tertiary); font-size: 0.85em;">${receipt.date || 'N/A'}</div>
+            const historyHTML = allReceipts.map((receipt, index) => {
+                const total = receipt.total || 0;
+                const storeInitial = (receipt.store || 'U')[0].toUpperCase();
+                // Coral red for expenses
+                const amountColor = '#f87171';
+
+                return `
+                <div style="
+                    background: var(--card);
+                    border: 1px solid #f3f4f6;
+                    border-radius: var(--radius-medium);
+                    padding: 16px;
+                    margin-bottom: 12px;
+                    transition: all var(--transition-fast);
+                " onmouseover="this.style.boxShadow='var(--shadow-low)'; this.style.transform='translateY(-1px)'" onmouseout="this.style.boxShadow='none'; this.style.transform='translateY(0)'">
+                    <!-- Header (clickable to expand) -->
+                    <div onclick="toggleExpand('hist-${index}')" style="display: flex; align-items: center; gap: 16px; cursor: pointer;">
+                        <!-- Circular Icon -->
+                        <div style="
+                            width: 44px;
+                            height: 44px;
+                            border-radius: 50%;
+                            background: var(--primary-alpha-10);
+                            color: var(--primary);
+                            display: flex;
+                            align-items: center;
+                            justify-content: center;
+                            font-weight: var(--font-weight-bold);
+                            font-size: var(--font-size-lg);
+                            flex-shrink: 0;
+                        ">
+                            ${storeInitial}
                         </div>
-                        <div style="display: flex; align-items: center; gap: 12px;">
-                            <div style="text-align: right;">
-                                <div style="font-size: 1.15em; font-weight: 700; color: var(--text-primary); white-space: nowrap;">${receipt.total ? receipt.total.toFixed(2) + ' kr' : 'N/A'}</div>
-                                <div style="color: var(--text-tertiary); font-size: 0.8em;">${receipt.items.length} items</div>
+
+                        <!-- Store Info -->
+                        <div style="flex: 1; min-width: 0;">
+                            <div style="font-weight: var(--font-weight-semibold); font-size: var(--font-size-base); color: var(--text-primary); margin-bottom: 4px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis;">
+                                ${receipt.store || 'Unknown'}
                             </div>
-                            <button onclick="event.stopPropagation(); viewReceiptImage(${index})" style="background: var(--primary-light); border: none; color: var(--primary); padding: 8px 12px; border-radius: 10px; cursor: pointer; font-weight: 600; min-width: 44px; min-height: 44px; display: flex; align-items: center; justify-content: center; transition: all 0.2s;" title="View receipt details">👁️</button>
-                            <button onclick="event.stopPropagation(); deleteReceipt(${index})" style="background: rgba(239,68,68,0.1); border: none; color: #ef4444; padding: 8px 12px; border-radius: 10px; cursor: pointer; font-weight: 600; min-width: 44px; min-height: 44px; display: flex; align-items: center; justify-content: center; transition: all 0.2s;" title="Delete receipt">🗑️</button>
+                            <div style="color: var(--text-tertiary); font-size: var(--font-size-sm);">
+                                ${receipt.date || 'N/A'} • ${receipt.items.length} items
+                            </div>
+                        </div>
+
+                        <!-- Amount -->
+                        <div style="text-align: right; flex-shrink: 0;">
+                            <div style="font-size: var(--font-size-xl); font-weight: var(--font-weight-bold); color: ${amountColor};">
+                                ${total.toFixed(2)} kr
+                            </div>
                         </div>
                     </div>
+
+                    <!-- Action Buttons -->
+                    <div style="display: flex; gap: 8px; margin-top: 12px;">
+                        <button onclick="event.stopPropagation(); viewReceiptImage(${index})" style="flex: 1; background: var(--primary-light); border: none; color: var(--primary); padding: 10px; border-radius: var(--radius-medium); cursor: pointer; font-weight: var(--font-weight-semibold); font-size: var(--font-size-sm); transition: all var(--transition-fast);" onmouseover="this.style.opacity='0.8'" onmouseout="this.style.opacity='1'">
+                            👁️ View Details
+                        </button>
+                        <button onclick="event.stopPropagation(); deleteReceipt(${index})" style="flex: 1; background: rgba(248, 113, 113, 0.1); border: none; color: #f87171; padding: 10px; border-radius: var(--radius-medium); cursor: pointer; font-weight: var(--font-weight-semibold); font-size: var(--font-size-sm); transition: all var(--transition-fast);" onmouseover="this.style.opacity='0.8'" onmouseout="this.style.opacity='1'">
+                            🗑️ Delete
+                        </button>
+                    </div>
+
+                    <!-- Expandable Items -->
                     <div class="expandable-content" id="hist-${index}-content">
-                        <div class="expandable-body">
+                        <div class="expandable-body" style="margin-top: 12px; padding-top: 12px; border-top: 1px solid var(--divider);">
                             ${receipt.items.map(item => `
-                                <div class="item">
-                                    <div class="item-name">${item.name}</div>
-                                    <div class="item-category">${item.category}</div>
-                                    <div class="item-price">${(item.price || 0).toFixed(2)} kr</div>
+                                <div style="display: flex; justify-content: space-between; align-items: center; padding: 8px 0; border-bottom: 1px solid var(--divider);">
+                                    <div style="flex: 1;">
+                                        <div style="font-weight: var(--font-weight-semibold); color: var(--text-primary); margin-bottom: 2px;">${item.name}</div>
+                                        <div style="font-size: var(--font-size-xs); color: var(--text-tertiary);">${item.category}</div>
+                                    </div>
+                                    <div style="font-weight: var(--font-weight-bold); color: #f87171; font-size: var(--font-size-base);">
+                                        ${(item.price || 0).toFixed(2)} kr
+                                    </div>
                                 </div>
                             `).join('')}
                         </div>
                     </div>
                 </div>
-            `).reverse().join('');
+                `;
+            }).reverse().join('');
 
             list.innerHTML = historyHTML;
         }
@@ -5474,60 +5537,89 @@
 
             container.innerHTML = budgets.map(budget => {
                 const percentUsed = budget.percent_used || 0;
-                const statusColor = budget.status === 'exceeded' ? 'var(--error-red)' :
+                // Coral Red for expenses (over budget), Emerald Green for good standing
+                const statusColor = budget.status === 'exceeded' ? '#f87171' :  // Coral red
                                    budget.status === 'warning' ? 'var(--warning-yellow)' :
-                                   'var(--success-green)';
+                                   '#10b981';  // Emerald green
+
+                // Category icon (first letter)
+                const categoryIcon = (budget.category || 'B')[0].toUpperCase();
 
                 return `
-                    <div class="card" style="margin-bottom: 16px;">
-                        <!-- Category Header -->
-                        <div style="display: flex; justify-content: space-between; align-items: flex-start; margin-bottom: 16px;">
-                            <div>
-                                <div style="font-size: var(--font-size-lg); font-weight: var(--font-weight-bold); color: var(--text-primary); margin-bottom: 4px;">
-                                    ${budget.category}
+                    <div style="
+                        background: var(--card);
+                        border: 1px solid #f3f4f6;
+                        border-radius: var(--radius-medium);
+                        padding: 20px;
+                        margin-bottom: 12px;
+                        transition: all var(--transition-fast);
+                    " onmouseover="this.style.boxShadow='var(--shadow-low)'; this.style.transform='translateY(-1px)'" onmouseout="this.style.boxShadow='none'; this.style.transform='translateY(0)'">
+                        <!-- Header with Icon and Edit -->
+                        <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 16px;">
+                            <div style="display: flex; align-items: center; gap: 12px;">
+                                <!-- Circular Category Icon -->
+                                <div style="
+                                    width: 44px;
+                                    height: 44px;
+                                    border-radius: 50%;
+                                    background: var(--primary-alpha-10);
+                                    color: var(--primary);
+                                    display: flex;
+                                    align-items: center;
+                                    justify-content: center;
+                                    font-weight: var(--font-weight-bold);
+                                    font-size: var(--font-size-lg);
+                                    flex-shrink: 0;
+                                ">
+                                    ${categoryIcon}
                                 </div>
-                                <div style="font-size: var(--font-size-sm); color: var(--text-secondary);">
-                                    Monthly Budget
+                                <div>
+                                    <div style="font-size: var(--font-size-lg); font-weight: var(--font-weight-bold); color: var(--text-primary);">
+                                        ${budget.category}
+                                    </div>
+                                    <div style="font-size: var(--font-size-sm); color: var(--text-tertiary);">
+                                        Monthly Budget
+                                    </div>
                                 </div>
                             </div>
                             <button onclick="editBudget('${budget.budget_id}', '${budget.category}', ${budget.budget_limit})"
-                                    style="background: none; border: none; color: var(--primary); cursor: pointer; font-size: var(--font-size-base); padding: 4px 8px;">
-                                ✏️ Edit
+                                    style="background: none; border: none; color: var(--primary); cursor: pointer; font-size: var(--font-size-lg); padding: 8px;">
+                                ✏️
                             </button>
                         </div>
 
-                        <!-- Progress Ring -->
-                        <div style="display: flex; align-items: center; gap: 20px; margin-bottom: 16px;">
-                            <div style="position: relative; width: 80px; height: 80px;">
-                                <svg width="80" height="80" style="transform: rotate(-90deg);">
-                                    <circle cx="40" cy="40" r="32" fill="none" stroke="var(--divider)" stroke-width="8"/>
-                                    <circle cx="40" cy="40" r="32" fill="none" stroke="${statusColor}" stroke-width="8"
-                                            stroke-dasharray="${2 * Math.PI * 32}"
-                                            stroke-dashoffset="${2 * Math.PI * 32 * (1 - Math.min(percentUsed / 100, 1))}"
-                                            stroke-linecap="round"
-                                            style="transition: stroke-dashoffset 0.5s ease;"/>
-                                </svg>
-                                <div style="position: absolute; top: 50%; left: 50%; transform: translate(-50%, -50%); text-align: center;">
-                                    <div style="font-size: 16px; font-weight: 700; color: ${statusColor};">${Math.min(percentUsed, 100).toFixed(0)}%</div>
+                        <!-- Spent vs Budget (flex justify-between) -->
+                        <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 12px;">
+                            <div>
+                                <div style="font-size: var(--font-size-xs); color: var(--text-tertiary); margin-bottom: 4px; text-transform: uppercase; letter-spacing: 0.5px;">
+                                    Spent
                                 </div>
-                            </div>
-                            <div style="flex: 1;">
-                                <div style="font-size: var(--font-size-2xl); font-weight: var(--font-weight-bold); color: ${statusColor}; margin-bottom: 4px;">
+                                <div style="font-size: var(--font-size-2xl); font-weight: var(--font-weight-bold); color: #f87171;">
                                     ${budget.spent.toFixed(0)} kr
                                 </div>
-                                <div style="font-size: var(--font-size-sm); color: var(--text-secondary);">
-                                    of ${budget.budget_limit.toFixed(0)} kr
+                            </div>
+                            <div style="text-align: right;">
+                                <div style="font-size: var(--font-size-xs); color: var(--text-tertiary); margin-bottom: 4px; text-transform: uppercase; letter-spacing: 0.5px;">
+                                    ${budget.remaining >= 0 ? 'Remaining' : 'Over'}
+                                </div>
+                                <div style="font-size: var(--font-size-2xl); font-weight: var(--font-weight-bold); color: ${budget.remaining >= 0 ? '#10b981' : '#f87171'};">
+                                    ${Math.abs(budget.remaining).toFixed(0)} kr
                                 </div>
                             </div>
                         </div>
 
-                        <!-- Remaining Amount -->
-                        <div style="padding: 12px; background: var(--background); border-radius: var(--radius-medium); text-align: center;">
-                            <div style="font-size: var(--font-size-xs); color: var(--text-secondary); margin-bottom: 4px; text-transform: uppercase; letter-spacing: 0.5px;">
-                                ${budget.remaining >= 0 ? 'Remaining' : 'Over Budget'}
+                        <!-- Progress Bar -->
+                        <div style="width: 100%; height: 8px; background: var(--divider); border-radius: 4px; overflow: hidden; margin-bottom: 8px;">
+                            <div style="width: ${Math.min(percentUsed, 100)}%; height: 100%; background: ${statusColor}; transition: width 0.5s ease;"></div>
+                        </div>
+
+                        <!-- Budget Limit Info -->
+                        <div style="display: flex; justify-content: space-between; align-items: center;">
+                            <div style="font-size: var(--font-size-sm); color: var(--text-secondary);">
+                                Budget: ${budget.budget_limit.toFixed(0)} kr
                             </div>
-                            <div style="font-size: var(--font-size-xl); font-weight: var(--font-weight-bold); color: ${budget.remaining >= 0 ? 'var(--success-green)' : 'var(--error-red)'};">
-                                ${Math.abs(budget.remaining).toFixed(0)} kr
+                            <div style="font-size: var(--font-size-sm); font-weight: var(--font-weight-semibold); color: ${statusColor};">
+                                ${Math.min(percentUsed, 100).toFixed(0)}% used
                             </div>
                         </div>
                     </div>
