@@ -260,10 +260,10 @@ CRITICAL RULES:
 REQUIRED DATA STRUCTURE:
 {
   "receipt_metadata": {
-    "store_name": "exact store name from receipt",
-    "store_chain": "parent company (e.g., 'ICA' from 'ICA Maxi')",
+    "store_name": "BRAND NAME ONLY - e.g., 'Willys', 'ICA Maxi', 'Coop' (NOT address or location)",
+    "store_chain": "parent company (e.g., 'ICA' from 'ICA Maxi', 'Axfood' from 'Willys')",
     "store_location": {
-      "address": "street address if visible",
+      "address": "street address if visible (e.g., 'Fridhemsgatan 12')",
       "city": "city name",
       "postal_code": "postal code if visible"
     },
@@ -282,7 +282,7 @@ REQUIRED DATA STRUCTURE:
       "product_type": "general product type (e.g., Milk, Bread, Shampoo)",
       "quantity": 1.0,
       "unit_price": 0.00,
-      "total_price": 0.00,
+      "total_price": 0.00,  // CRITICAL: This is the price shown on the receipt line (e.g., 109.00, NOT 0.00)
       "discount": 0.00,
       "original_price": 0.00,
       "category": "primary category",
@@ -320,6 +320,17 @@ REQUIRED DATA STRUCTURE:
     "day_of_week": "Monday/Tuesday/etc"
   }
 }
+
+EXAMPLE (Willys receipt):
+For a line showing "VITT TOALETTPAPPER        109,00":
+{
+  "line_number": 1,
+  "raw_text": "VITT TOALETTPAPPER        109,00",
+  "name": "Vitt Toalettpapper",
+  "total_price": 109.00  // ← Extract this number from the receipt!
+}
+
+For store name "Fridhemsgatan" at top, extract "Willys" as store_name (NOT "Fridhemsgatan").
 
 CATEGORIZATION GUIDE:
 - Groceries: Food, beverages, produce, meat, dairy, bakery, snacks
