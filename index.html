@@ -1584,7 +1584,7 @@
             <button class="nav-tab active" onclick="switchTab('scan')"><span>Scan</span></button>
             <button class="nav-tab" onclick="switchTab('dashboard')"><span>Dashboard</span></button>
             <button class="nav-tab" onclick="switchTab('data')"><span>Data</span></button>
-            <button class="nav-tab" onclick="switchTab('history')"><span>History</span></button>
+            <button class="nav-tab" onclick="switchTab('history')"><span>Receipts</span></button>
             <button class="nav-tab" id="account-tab" onclick="switchTab('account')" style="display: none;"><span>⚙️ Account</span></button>
         </nav>
 
@@ -1904,7 +1904,7 @@
         <!-- History Tab -->
         <div id="history" class="tab-content">
             <div class="card">
-                <h2 class="card-title">Receipt History</h2>
+                <h2 class="card-title">My Receipts</h2>
                 <div id="historyList"></div>
             </div>
         </div>
@@ -4095,7 +4095,10 @@
                 store: r.store_name,
                 date: r.purchase_date,
                 total: parseFloat(r.total_amount),
-                items: r.items,
+                items: r.items.map(item => ({
+                    ...item,
+                    price: item.price || item.total_price || 0  // Ensure price field exists
+                })),
                 image_url: r.image_url  // Include image URL for viewing
             }));
 
