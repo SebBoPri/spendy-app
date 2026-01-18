@@ -8,8 +8,16 @@ function repairJSON(jsonString) {
   // Remove trailing commas before closing braces/brackets
   repaired = repaired.replace(/,(\s*[}\]])/g, '$1');
 
-  // Fix unescaped quotes in strings (basic attempt)
-  // This is tricky and may not catch all cases
+  // Remove any trailing text after the last closing brace
+  const lastBrace = repaired.lastIndexOf('}');
+  if (lastBrace !== -1 && lastBrace < repaired.length - 1) {
+    // Check if there's any non-whitespace after the last brace
+    const afterBrace = repaired.substring(lastBrace + 1).trim();
+    if (afterBrace && !afterBrace.startsWith('}') && !afterBrace.startsWith(']')) {
+      console.log('Removing trailing text after JSON:', afterBrace.substring(0, 50));
+      repaired = repaired.substring(0, lastBrace + 1);
+    }
+  }
 
   // Try to find and complete incomplete JSON
   // Count opening and closing braces
@@ -18,16 +26,20 @@ function repairJSON(jsonString) {
   const openBrackets = (repaired.match(/\[/g) || []).length;
   const closeBrackets = (repaired.match(/\]/g) || []).length;
 
+  console.log(`JSON structure: {${openBraces}/${closeBraces}, [${openBrackets}/${closeBrackets}]`);
+
+  // Add missing closing brackets first (they come before braces in nested structures)
+  if (openBrackets > closeBrackets) {
+    const missing = openBrackets - closeBrackets;
+    console.log(`Adding ${missing} missing closing bracket(s)`);
+    repaired += '\n' + ']'.repeat(missing);
+  }
+
   // Add missing closing braces
   if (openBraces > closeBraces) {
     const missing = openBraces - closeBraces;
+    console.log(`Adding ${missing} missing closing brace(s)`);
     repaired += '\n' + '}'.repeat(missing);
-  }
-
-  // Add missing closing brackets
-  if (openBrackets > closeBrackets) {
-    const missing = openBrackets - closeBrackets;
-    repaired += '\n' + ']'.repeat(missing);
   }
 
   return repaired;
@@ -236,12 +248,14 @@ export default async function handler(req, res) {
               text: `You are an expert receipt analysis AI. Extract ALL possible information from this receipt with maximum detail.
 
 CRITICAL RULES:
-1. Return ONLY valid JSON, no markdown, no explanations
+1. Return ONLY valid JSON, no markdown, no explanations, no trailing text
 2. Extract EVERY line item visible on receipt
 3. Use null for missing data, never guess
 4. All prices in SEK (Swedish Krona)
-5. Preserve exact product names as written
+5. Preserve exact product names as written - escape any quotes or special characters properly
 6. Calculate totals precisely
+7. MUST be valid, parseable JSON - no syntax errors, no trailing commas
+8. Escape special characters: use \\" for quotes inside strings, avoid control characters
 
 REQUIRED DATA STRUCTURE:
 {
@@ -358,7 +372,14 @@ TIME OF DAY:
 - evening: 17:00-20:59
 - night: 21:00-04:59
 
-Extract now:`
+FINAL VALIDATION BEFORE RESPONDING:
+1. Verify your JSON is complete and well-formed
+2. Check all braces and brackets are properly closed
+3. Remove any trailing commas
+4. Ensure all strings are properly quoted and escaped
+5. Verify the JSON can be parsed without errors
+
+Return ONLY the JSON object, nothing else:`
             }
           ]
         }]
