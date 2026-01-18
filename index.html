@@ -1884,6 +1884,7 @@
         <nav class="nav-tabs">
             <button class="nav-tab active" onclick="switchTab('scan')"><span>Scan</span></button>
             <button class="nav-tab" onclick="switchTab('dashboard')"><span>Dashboard</span></button>
+            <button class="nav-tab" onclick="switchTab('budgets')"><span>💰 Budgets</span></button>
             <button class="nav-tab" onclick="switchTab('data')"><span>Data</span></button>
             <button class="nav-tab" onclick="switchTab('history')"><span>Receipts</span></button>
             <button class="nav-tab" id="account-tab" onclick="switchTab('account')" style="display: none;"><span>⚙️ Account</span></button>
@@ -2195,6 +2196,53 @@
             </div>
         </div>
 
+        <!-- Budget Goals Tab -->
+        <div id="budgets" class="tab-content">
+            <!-- Budget Overview Hero Card -->
+            <div class="card" style="background: linear-gradient(135deg, var(--primary) 0%, var(--primary-dark) 100%); color: var(--text-on-primary); border: none; box-shadow: var(--shadow-high); padding: 32px; margin-bottom: 24px;">
+                <div style="font-size: var(--font-size-sm); font-weight: var(--font-weight-semibold); opacity: 0.9; margin-bottom: 8px; letter-spacing: 0.5px; text-transform: uppercase;">Budget Health</div>
+                <div style="font-size: 48px; font-weight: var(--font-weight-bold); line-height: 1; margin-bottom: 4px;" id="budgetHealthScore">-</div>
+                <div style="font-size: var(--font-size-sm); opacity: 0.85;" id="budgetHealthMessage">Set budgets to track your spending</div>
+            </div>
+
+            <!-- Quick Actions -->
+            <div style="display: flex; gap: 12px; margin-bottom: 24px;">
+                <button class="btn" onclick="showSmartRecommendations()" style="flex: 1;">
+                    <span>💡 Smart Recommendations</span>
+                </button>
+                <button class="btn btn-secondary" onclick="openBudgetModal('new')" style="flex: 1;">
+                    <span>+ New Budget</span>
+                </button>
+            </div>
+
+            <!-- Active Budgets Section -->
+            <div style="margin-bottom: 24px;">
+                <h3 style="font-size: var(--font-size-base); font-weight: var(--font-weight-semibold); color: var(--text-secondary); margin-bottom: 16px;">Active Budgets</h3>
+                <div id="activeBudgetsGrid">
+                    <!-- Budget cards will be inserted here -->
+                    <div style="text-align: center; padding: 60px 20px; color: var(--text-tertiary);">
+                        <div style="font-size: 4em; margin-bottom: 16px; opacity: 0.3;">💰</div>
+                        <h3 style="font-size: 1.3em; color: var(--text-primary); margin-bottom: 8px; font-weight: 600;">No budgets yet</h3>
+                        <p style="font-size: 0.95em; margin-bottom: 24px;">Start by creating your first budget or use smart recommendations</p>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Budget Alerts -->
+            <div id="budgetAlertsSection" style="display: none; margin-bottom: 24px;">
+                <h3 style="font-size: var(--font-size-base); font-weight: var(--font-weight-semibold); color: var(--text-secondary); margin-bottom: 16px;">⚠️ Budget Alerts</h3>
+                <div id="budgetAlertsList"></div>
+            </div>
+
+            <!-- Monthly Spending Summary -->
+            <div class="card">
+                <h3 class="card-title">This Month's Spending</h3>
+                <div id="monthlySpendingSummary">
+                    <p style="color: var(--text-secondary); text-align: center; padding: 20px;">No data for this month yet</p>
+                </div>
+            </div>
+        </div>
+
         <!-- Data Tab -->
         <div id="data" class="tab-content">
             <div class="card">
@@ -2489,6 +2537,7 @@
             document.getElementById(tabName).classList.add('active');
 
             if (tabName === 'dashboard') updateDashboard();
+            else if (tabName === 'budgets') updateBudgetGoalsUI();
             else if (tabName === 'history') updateHistory();
             else if (tabName === 'data') updateDataTable();
             else if (tabName === 'account') updateAccountPage();
@@ -5323,6 +5372,357 @@
             } catch (err) {
                 console.error('Error checking alerts:', err);
             }
+        }
+
+        // ===== ENHANCED BUDGET GOALS FUNCTIONS =====
+
+        // Update Budget Goals Tab UI
+        async function updateBudgetGoalsUI() {
+            const { data: { user } } = await _supabase.auth.getUser();
+            if (!user) return;
+
+            try {
+                // Get current month's spending by category
+                const currentMonthStart = new Date();
+                currentMonthStart.setDate(1);
+                currentMonthStart.setHours(0, 0, 0, 0);
+
+                const categorySpending = {};
+                allReceipts.forEach(receipt => {
+                    const receiptDate = new Date(receipt.date);
+                    if (receiptDate >= currentMonthStart) {
+                        receipt.items.forEach(item => {
+                            const cat = item.category || 'Other';
+                            categorySpending[cat] = (categorySpending[cat] || 0) + (item.price || 0);
+                        });
+                    }
+                });
+
+                // Get budgets from Supabase
+                const { data: budgetsData, error } = await _supabase
+                    .rpc('get_budget_status', { p_user_id: user.id });
+
+                if (error) {
+                    console.error('Error loading budget status:', error);
+                    return;
+                }
+
+                // Calculate budget health score
+                let healthScore = 100;
+                let totalBudget = 0;
+                let totalSpent = 0;
+                const alerts = [];
+
+                if (budgetsData && budgetsData.length > 0) {
+                    budgetsData.forEach(budget => {
+                        totalBudget += budget.budget_limit;
+                        totalSpent += budget.spent;
+
+                        if (budget.status === 'exceeded') {
+                            healthScore -= 30;
+                            alerts.push({
+                                category: budget.category,
+                                message: `${budget.category} budget exceeded by ${(budget.spent - budget.budget_limit).toFixed(0)} kr`,
+                                type: 'danger'
+                            });
+                        } else if (budget.status === 'warning') {
+                            healthScore -= 10;
+                            alerts.push({
+                                category: budget.category,
+                                message: `${budget.category} at ${budget.percent_used.toFixed(0)}% of budget`,
+                                type: 'warning'
+                            });
+                        }
+                    });
+
+                    healthScore = Math.max(0, healthScore);
+
+                    // Update health score
+                    document.getElementById('budgetHealthScore').textContent = healthScore + '/100';
+                    const healthMessage = healthScore >= 80 ? 'Excellent budget management! 🎉' :
+                                        healthScore >= 60 ? 'Good progress, watch a few categories' :
+                                        healthScore >= 40 ? 'Some budgets need attention' :
+                                        'Multiple budgets exceeded - time to review';
+                    document.getElementById('budgetHealthMessage').textContent = healthMessage;
+
+                    // Render budget cards
+                    renderActiveBudgets(budgetsData);
+
+                    // Show/hide alerts
+                    if (alerts.length > 0) {
+                        renderBudgetAlerts(alerts);
+                        document.getElementById('budgetAlertsSection').style.display = 'block';
+                    } else {
+                        document.getElementById('budgetAlertsSection').style.display = 'none';
+                    }
+                } else {
+                    document.getElementById('budgetHealthScore').textContent = '-';
+                    document.getElementById('budgetHealthMessage').textContent = 'Set budgets to track your spending';
+                }
+
+                // Update monthly spending summary
+                renderMonthlySpendingSummary(categorySpending);
+
+            } catch (err) {
+                console.error('Error updating budget goals UI:', err);
+            }
+        }
+
+        // Render active budget cards
+        function renderActiveBudgets(budgets) {
+            const container = document.getElementById('activeBudgetsGrid');
+
+            if (!budgets || budgets.length === 0) {
+                container.innerHTML = `
+                    <div style="text-align: center; padding: 60px 20px; color: var(--text-tertiary);">
+                        <div style="font-size: 4em; margin-bottom: 16px; opacity: 0.3;">💰</div>
+                        <h3 style="font-size: 1.3em; color: var(--text-primary); margin-bottom: 8px; font-weight: 600;">No budgets yet</h3>
+                        <p style="font-size: 0.95em; margin-bottom: 24px;">Start by creating your first budget or use smart recommendations</p>
+                    </div>
+                `;
+                return;
+            }
+
+            container.innerHTML = budgets.map(budget => {
+                const percentUsed = budget.percent_used || 0;
+                const statusColor = budget.status === 'exceeded' ? 'var(--error-red)' :
+                                   budget.status === 'warning' ? 'var(--warning-yellow)' :
+                                   'var(--success-green)';
+
+                return `
+                    <div class="card" style="margin-bottom: 16px;">
+                        <!-- Category Header -->
+                        <div style="display: flex; justify-content: space-between; align-items: flex-start; margin-bottom: 16px;">
+                            <div>
+                                <div style="font-size: var(--font-size-lg); font-weight: var(--font-weight-bold); color: var(--text-primary); margin-bottom: 4px;">
+                                    ${budget.category}
+                                </div>
+                                <div style="font-size: var(--font-size-sm); color: var(--text-secondary);">
+                                    Monthly Budget
+                                </div>
+                            </div>
+                            <button onclick="editBudget('${budget.budget_id}', '${budget.category}', ${budget.budget_limit})"
+                                    style="background: none; border: none; color: var(--primary); cursor: pointer; font-size: var(--font-size-base); padding: 4px 8px;">
+                                ✏️ Edit
+                            </button>
+                        </div>
+
+                        <!-- Progress Ring -->
+                        <div style="display: flex; align-items: center; gap: 20px; margin-bottom: 16px;">
+                            <div style="position: relative; width: 80px; height: 80px;">
+                                <svg width="80" height="80" style="transform: rotate(-90deg);">
+                                    <circle cx="40" cy="40" r="32" fill="none" stroke="var(--divider)" stroke-width="8"/>
+                                    <circle cx="40" cy="40" r="32" fill="none" stroke="${statusColor}" stroke-width="8"
+                                            stroke-dasharray="${2 * Math.PI * 32}"
+                                            stroke-dashoffset="${2 * Math.PI * 32 * (1 - Math.min(percentUsed / 100, 1))}"
+                                            stroke-linecap="round"
+                                            style="transition: stroke-dashoffset 0.5s ease;"/>
+                                </svg>
+                                <div style="position: absolute; top: 50%; left: 50%; transform: translate(-50%, -50%); text-align: center;">
+                                    <div style="font-size: 16px; font-weight: 700; color: ${statusColor};">${Math.min(percentUsed, 100).toFixed(0)}%</div>
+                                </div>
+                            </div>
+                            <div style="flex: 1;">
+                                <div style="font-size: var(--font-size-2xl); font-weight: var(--font-weight-bold); color: ${statusColor}; margin-bottom: 4px;">
+                                    ${budget.spent.toFixed(0)} kr
+                                </div>
+                                <div style="font-size: var(--font-size-sm); color: var(--text-secondary);">
+                                    of ${budget.budget_limit.toFixed(0)} kr
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Remaining Amount -->
+                        <div style="padding: 12px; background: var(--background); border-radius: var(--radius-medium); text-align: center;">
+                            <div style="font-size: var(--font-size-xs); color: var(--text-secondary); margin-bottom: 4px; text-transform: uppercase; letter-spacing: 0.5px;">
+                                ${budget.remaining >= 0 ? 'Remaining' : 'Over Budget'}
+                            </div>
+                            <div style="font-size: var(--font-size-xl); font-weight: var(--font-weight-bold); color: ${budget.remaining >= 0 ? 'var(--success-green)' : 'var(--error-red)'};">
+                                ${Math.abs(budget.remaining).toFixed(0)} kr
+                            </div>
+                        </div>
+                    </div>
+                `;
+            }).join('');
+        }
+
+        // Render budget alerts
+        function renderBudgetAlerts(alerts) {
+            const container = document.getElementById('budgetAlertsList');
+            container.innerHTML = alerts.map(alert => {
+                const bgColor = alert.type === 'danger' ? 'rgba(230, 57, 70, 0.1)' : 'rgba(244, 162, 97, 0.1)';
+                const borderColor = alert.type === 'danger' ? 'var(--error-red)' : 'var(--warning-yellow)';
+                const icon = alert.type === 'danger' ? '🚨' : '⚠️';
+
+                return `
+                    <div style="padding: 16px; background: ${bgColor}; border-left: 4px solid ${borderColor}; border-radius: var(--radius-medium); margin-bottom: 12px;">
+                        <div style="display: flex; align-items: center; gap: 12px;">
+                            <div style="font-size: 24px;">${icon}</div>
+                            <div style="flex: 1;">
+                                <div style="font-weight: var(--font-weight-semibold); color: var(--text-primary); margin-bottom: 4px;">
+                                    ${alert.category}
+                                </div>
+                                <div style="font-size: var(--font-size-sm); color: var(--text-secondary);">
+                                    ${alert.message}
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                `;
+            }).join('');
+        }
+
+        // Render monthly spending summary
+        function renderMonthlySpendingSummary(categorySpending) {
+            const container = document.getElementById('monthlySpendingSummary');
+            const categories = Object.entries(categorySpending).sort((a, b) => b[1] - a[1]);
+
+            if (categories.length === 0) {
+                container.innerHTML = '<p style="color: var(--text-secondary); text-align: center; padding: 20px;">No spending this month yet</p>';
+                return;
+            }
+
+            const total = categories.reduce((sum, [_, amount]) => sum + amount, 0);
+
+            container.innerHTML = categories.map(([category, amount]) => {
+                const percentage = (amount / total * 100).toFixed(1);
+                return `
+                    <div style="margin-bottom: 16px;">
+                        <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 8px;">
+                            <span style="font-weight: var(--font-weight-semibold); color: var(--text-primary);">${category}</span>
+                            <span style="font-weight: var(--font-weight-bold); color: var(--text-primary);">${amount.toFixed(0)} kr</span>
+                        </div>
+                        <div style="width: 100%; height: 8px; background: var(--divider); border-radius: 4px; overflow: hidden;">
+                            <div style="width: ${percentage}%; height: 100%; background: var(--primary); transition: width 0.5s ease;"></div>
+                        </div>
+                        <div style="font-size: var(--font-size-xs); color: var(--text-tertiary); margin-top: 4px;">
+                            ${percentage}% of total spending
+                        </div>
+                    </div>
+                `;
+            }).join('');
+        }
+
+        // Show smart budget recommendations
+        async function showSmartRecommendations() {
+            // Calculate average spending per category over last 3 months
+            const threeMonthsAgo = new Date();
+            threeMonthsAgo.setMonth(threeMonthsAgo.getMonth() - 3);
+
+            const categoryTotals = {};
+            const categoryMonths = {};
+
+            allReceipts.forEach(receipt => {
+                const receiptDate = new Date(receipt.date);
+                if (receiptDate >= threeMonthsAgo) {
+                    receipt.items.forEach(item => {
+                        const cat = item.category || 'Other';
+                        const month = receiptDate.toISOString().substring(0, 7);
+
+                        if (!categoryTotals[cat]) {
+                            categoryTotals[cat] = 0;
+                            categoryMonths[cat] = new Set();
+                        }
+                        categoryTotals[cat] += item.price || 0;
+                        categoryMonths[cat].add(month);
+                    });
+                }
+            });
+
+            // Calculate averages and create recommendations
+            const recommendations = Object.entries(categoryTotals).map(([category, total]) => {
+                const monthCount = categoryMonths[category].size || 1;
+                const avgMonthly = total / monthCount;
+                const suggestedBudget = Math.ceil(avgMonthly * 1.1 / 50) * 50; // Round up to nearest 50, add 10% buffer
+
+                return { category, avgMonthly, suggestedBudget };
+            }).sort((a, b) => b.avgMonthly - a.avgMonthly);
+
+            if (recommendations.length === 0) {
+                showToast('Not enough spending history for recommendations', 'info');
+                return;
+            }
+
+            // Show recommendations modal
+            const modal = document.createElement('div');
+            modal.style.cssText = 'position: fixed; inset: 0; background: rgba(0,0,0,0.7); z-index: 3000; display: flex; align-items: center; justify-content: center; padding: 20px;';
+            modal.innerHTML = `
+                <div class="card" style="max-width: 500px; width: 100%; max-height: 80vh; overflow-y: auto;">
+                    <h2 class="card-title">💡 Smart Budget Recommendations</h2>
+                    <p style="color: var(--text-secondary); margin-bottom: 24px;">Based on your last 3 months of spending</p>
+
+                    ${recommendations.map(rec => `
+                        <div style="padding: 16px; border: 1px solid var(--border); border-radius: var(--radius-medium); margin-bottom: 12px;">
+                            <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 8px;">
+                                <div style="font-weight: var(--font-weight-semibold); color: var(--text-primary);">${rec.category}</div>
+                                <div style="font-weight: var(--font-weight-bold); color: var(--primary); font-size: var(--font-size-lg);">
+                                    ${rec.suggestedBudget} kr
+                                </div>
+                            </div>
+                            <div style="font-size: var(--font-size-sm); color: var(--text-secondary);">
+                                Avg: ${rec.avgMonthly.toFixed(0)} kr/month
+                            </div>
+                            <button onclick="applyRecommendedBudget('${rec.category}', ${rec.suggestedBudget}); this.disabled=true; this.textContent='Applied ✓';"
+                                    class="btn" style="width: 100%; margin-top: 12px; padding: 8px;">
+                                <span>Apply This Budget</span>
+                            </button>
+                        </div>
+                    `).join('')}
+
+                    <button onclick="this.closest('div[style*=\"position: fixed\"]').remove()" class="btn btn-secondary" style="width: 100%; margin-top: 16px;">
+                        <span>Close</span>
+                    </button>
+                </div>
+            `;
+            document.body.appendChild(modal);
+        }
+
+        // Apply recommended budget
+        async function applyRecommendedBudget(category, amount) {
+            const { data: { user } } = await _supabase.auth.getUser();
+            if (!user) {
+                showToast('Please sign in to set budgets', 'error');
+                return;
+            }
+
+            try {
+                const { error } = await _supabase
+                    .from('category_budgets')
+                    .upsert({
+                        user_id: user.id,
+                        category: category,
+                        monthly_limit: amount,
+                        start_date: new Date().toISOString().split('T')[0].substring(0, 7) + '-01',
+                        is_active: true
+                    }, {
+                        onConflict: 'user_id,category,start_date'
+                    });
+
+                if (error) {
+                    console.error('Error applying budget:', error);
+                    showToast('Error applying budget', 'error');
+                    return;
+                }
+
+                showToast(`Budget set for ${category}: ${amount} kr/month`, 'success');
+                await loadBudgetData();
+                await updateBudgetGoalsUI();
+            } catch (err) {
+                console.error('Error:', err);
+                showToast('Error applying budget', 'error');
+            }
+        }
+
+        // Open budget modal (enhanced)
+        function openBudgetModal(mode, category = '', amount = 0) {
+            if (mode === 'new') {
+                document.getElementById('budgetCategoryInput').value = '';
+                document.getElementById('budgetLimitInput').value = '';
+            } else {
+                document.getElementById('budgetCategoryInput').value = category;
+                document.getElementById('budgetLimitInput').value = amount;
+            }
+            showBudgetModal();
         }
 
         // Initialize gamification when user logs in
