@@ -2215,7 +2215,7 @@
                     await analyzeReceipt(imgData);
                 };
                 reader.readAsDataURL(files[0]);
-            } else {
+            } else{
                 // Batch processing
                 await processBatchReceipts(files);
             }
@@ -3482,7 +3482,7 @@
                                 <div style="font-size: 1.2em; font-weight: 700;">${receipt.total ? receipt.total.toFixed(2) + ' kr' : 'N/A'}</div>
                                 <div style="color: #666; font-size: 0.9em;">${receipt.items.length} items</div>
                             </div>
-                            ${receipt.image_url ? `<button onclick="event.stopPropagation(); viewReceiptImage('${receipt.image_url}')" style="background: none; border: 1px solid var(--primary); color: var(--primary); padding: 5px 10px; border-radius: 8px; cursor: pointer; font-weight: bold;" title="View receipt image">👁️</button>` : ''}
+                            <button onclick="event.stopPropagation(); viewReceiptImage(${index})" style="background: none; border: 1px solid var(--primary); color: var(--primary); padding: 5px 10px; border-radius: 8px; cursor: pointer; font-weight: bold;" title="View receipt details">👁️</button>
                             <button onclick="event.stopPropagation(); deleteReceipt(${index})" style="background: none; border: 1px solid #ff6b6b; color: #ff6b6b; padding: 5px 10px; border-radius: 8px; cursor: pointer; font-weight: bold;" title="Delete receipt">🗑️</button>
                         </div>
                     </div>
@@ -3696,95 +3696,95 @@
             }
         }
 
-        // View receipt image in modal
-        function viewReceiptImage(imageUrl) {
+        // View receipt details in modal
+        function viewReceiptImage(receiptIndex) {
+            const receipt = allReceipts[receiptIndex];
+            if (!receipt) return;
+
             // Create modal overlay
             const modal = document.createElement('div');
-            modal.id = 'receiptImageModal';
+            modal.id = 'receiptDetailsModal';
             modal.style.cssText = `
                 position: fixed;
                 top: 0;
                 left: 0;
                 width: 100%;
                 height: 100%;
-                background: rgba(0, 0, 0, 0.9);
+                background: rgba(0, 0, 0, 0.8);
                 z-index: 100000;
                 display: flex;
-                flex-direction: column;
                 align-items: center;
                 justify-content: center;
                 padding: 20px;
                 box-sizing: border-box;
+                overflow-y: auto;
             `;
 
-            // Create close button
-            const closeBtn = document.createElement('button');
-            closeBtn.innerHTML = '✕';
-            closeBtn.style.cssText = `
-                position: absolute;
-                top: 20px;
-                right: 20px;
-                background: rgba(255, 255, 255, 0.2);
-                border: 2px solid white;
-                color: white;
-                font-size: 24px;
-                font-weight: bold;
-                width: 50px;
-                height: 50px;
-                border-radius: 50%;
-                cursor: pointer;
-                z-index: 100001;
-                transition: all 0.3s ease;
-            `;
-            closeBtn.onmouseover = () => {
-                closeBtn.style.background = 'rgba(255, 255, 255, 0.3)';
-                closeBtn.style.transform = 'scale(1.1)';
-            };
-            closeBtn.onmouseout = () => {
-                closeBtn.style.background = 'rgba(255, 255, 255, 0.2)';
-                closeBtn.style.transform = 'scale(1)';
-            };
-            closeBtn.onclick = () => modal.remove();
-
-            // Create image
-            const img = document.createElement('img');
-            img.src = imageUrl;
-            img.alt = 'Receipt Image';
-            img.style.cssText = `
-                max-width: 100%;
+            // Create content container
+            const content = document.createElement('div');
+            content.style.cssText = `
+                background: white;
+                border-radius: 16px;
+                max-width: 700px;
+                width: 100%;
                 max-height: 90vh;
-                object-fit: contain;
-                border-radius: 12px;
-                box-shadow: 0 8px 32px rgba(0, 0, 0, 0.5);
+                overflow-y: auto;
+                box-shadow: 0 20px 60px rgba(0, 0, 0, 0.3);
+                position: relative;
             `;
 
-            // Create download button
-            const downloadBtn = document.createElement('a');
-            downloadBtn.href = imageUrl;
-            downloadBtn.download = 'receipt-' + new Date().getTime() + '.jpg';
-            downloadBtn.innerHTML = '⬇️ Download';
-            downloadBtn.style.cssText = `
-                margin-top: 20px;
-                background: var(--primary);
-                color: white;
-                padding: 12px 24px;
-                border-radius: 8px;
-                text-decoration: none;
-                font-weight: bold;
-                cursor: pointer;
-                transition: all 0.3s ease;
-            `;
-            downloadBtn.onmouseover = () => {
-                downloadBtn.style.transform = 'scale(1.05)';
-            };
-            downloadBtn.onmouseout = () => {
-                downloadBtn.style.transform = 'scale(1)';
-            };
+            // Build content HTML
+            content.innerHTML = `
+                <div style="position: sticky; top: 0; background: var(--primary); color: white; padding: 20px; border-radius: 16px 16px 0 0; z-index: 1;">
+                    <h2 style="margin: 0; font-size: 1.5em;">Receipt Details</h2>
+                    <button id="closeModalBtn" style="position: absolute; top: 15px; right: 15px; background: rgba(255,255,255,0.2); border: none; color: white; width: 40px; height: 40px; border-radius: 50%; cursor: pointer; font-size: 20px; font-weight: bold;">✕</button>
+                </div>
 
-            // Assemble modal
-            modal.appendChild(closeBtn);
-            modal.appendChild(img);
-            modal.appendChild(downloadBtn);
+                <div style="padding: 24px;">
+                    <!-- Store Info -->
+                    <div style="margin-bottom: 24px; padding-bottom: 24px; border-bottom: 2px solid #f0f0f0;">
+                        <h3 style="margin: 0 0 12px 0; color: var(--primary); font-size: 1.3em;">🏪 ${receipt.store || 'Unknown Store'}</h3>
+                        <div style="color: #666; font-size: 0.95em;">
+                            <div style="margin: 4px 0;">📅 ${receipt.date || 'N/A'}</div>
+                        </div>
+                    </div>
+
+                    <!-- Summary -->
+                    <div style="background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); color: white; padding: 20px; border-radius: 12px; margin-bottom: 24px;">
+                        <div style="display: flex; justify-content: space-between; align-items: center;">
+                            <div>
+                                <div style="font-size: 0.9em; opacity: 0.9; margin-bottom: 4px;">Total Amount</div>
+                                <div style="font-size: 2em; font-weight: bold;">${receipt.total ? receipt.total.toFixed(2) : '0.00'} kr</div>
+                            </div>
+                            <div style="text-align: right;">
+                                <div style="font-size: 0.9em; opacity: 0.9; margin-bottom: 4px;">Items</div>
+                                <div style="font-size: 2em; font-weight: bold;">${receipt.items?.length || 0}</div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Items List -->
+                    <h3 style="margin: 0 0 16px 0; color: #333;">📝 Items</h3>
+                    <div style="max-height: 400px; overflow-y: auto;">
+                        ${receipt.items.map((item, idx) => `
+                            <div style="display: flex; justify-content: space-between; align-items: start; padding: 12px; background: ${idx % 2 === 0 ? '#f9f9f9' : 'white'}; border-radius: 8px; margin-bottom: 8px;">
+                                <div style="flex: 1;">
+                                    <div style="font-weight: 600; color: #333; margin-bottom: 4px;">${item.name || 'Unknown Item'}</div>
+                                    ${item.category ? `<div style="font-size: 0.85em; color: #666;">Category: ${item.category}</div>` : ''}
+                                    ${item.subcategory ? `<div style="font-size: 0.85em; color: #999;">${item.subcategory}</div>` : ''}
+                                    ${item.quantity && item.quantity > 1 ? `<div style="font-size: 0.85em; color: #666;">Qty: ${item.quantity}</div>` : ''}
+                                </div>
+                                <div style="text-align: right; margin-left: 16px;">
+                                    <div style="font-size: 1.1em; font-weight: bold; color: var(--primary);">${(item.price || 0).toFixed(2)} kr</div>
+                                    ${item.discount ? `<div style="font-size: 0.85em; color: var(--income-green);">-${item.discount.toFixed(2)} kr saved</div>` : ''}
+                                </div>
+                            </div>
+                        `).join('')}
+                    </div>
+                </div>
+            `;
+
+            modal.appendChild(content);
 
             // Close on background click
             modal.addEventListener('click', (e) => {
