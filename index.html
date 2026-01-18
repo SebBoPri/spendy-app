@@ -1931,21 +1931,32 @@
 
         <!-- Dashboard Tab -->
         <div id="dashboard" class="tab-content">
-            <div class="stats-grid">
-                <div class="stat-card">
-                    <div class="stat-icon">💸</div>
-                    <div class="stat-label">Total Spent</div>
-                    <div class="stat-value" id="totalSpent">0 kr</div>
-                </div>
-                <div class="stat-card">
-                    <div class="stat-icon">🧾</div>
-                    <div class="stat-label">Receipts</div>
-                    <div class="stat-value" id="receiptCount">0</div>
-                </div>
-                <div class="stat-card">
-                    <div class="stat-icon">🛒</div>
-                    <div class="stat-label">Items Tracked</div>
-                    <div class="stat-value" id="itemCount">0</div>
+            <!-- Hero Card: Total Balance -->
+            <div class="card" style="background: linear-gradient(135deg, var(--primary) 0%, var(--primary-dark) 100%); color: var(--text-on-primary); border: none; box-shadow: var(--shadow-high); padding: 32px; margin-bottom: 24px;">
+                <div style="font-size: var(--font-size-sm); font-weight: var(--font-weight-semibold); opacity: 0.9; margin-bottom: 8px; letter-spacing: 0.5px; text-transform: uppercase;">Total Balance</div>
+                <div style="font-size: 48px; font-weight: var(--font-weight-bold); line-height: 1; margin-bottom: 4px;" id="heroTotalSpent">0 kr</div>
+                <div style="font-size: var(--font-size-sm); opacity: 0.85;">Across all receipts</div>
+            </div>
+
+            <!-- Budget Stats: Horizontal Row of Cards -->
+            <div style="margin-bottom: 24px;">
+                <h3 style="font-size: var(--font-size-base); font-weight: var(--font-weight-semibold); color: var(--text-secondary); margin-bottom: 16px;">Budget Stats</h3>
+                <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(180px, 1fr)); gap: 16px;">
+                    <div class="stat-card">
+                        <div class="stat-icon">🧾</div>
+                        <div class="stat-label">Receipts</div>
+                        <div class="stat-value" id="receiptCount">0</div>
+                    </div>
+                    <div class="stat-card">
+                        <div class="stat-icon">🛒</div>
+                        <div class="stat-label">Items</div>
+                        <div class="stat-value" id="itemCount">0</div>
+                    </div>
+                    <div class="stat-card">
+                        <div class="stat-icon">💰</div>
+                        <div class="stat-label">Saved</div>
+                        <div class="stat-value" id="totalSavingsStat">0 kr</div>
+                    </div>
                 </div>
             </div>
 
@@ -2170,6 +2181,16 @@
                 <h2 class="card-title">Top Items Tracker</h2>
                 <p style="color: var(--text-secondary); margin-bottom: 20px;">Your most frequent and expensive purchases</p>
                 <div id="topItemsContainer" style="display: grid; grid-template-columns: repeat(auto-fit, minmax(280px, 1fr)); gap: 16px;">
+                </div>
+            </div>
+
+            <!-- Recent Transactions: 5 Most Recent -->
+            <div style="margin-bottom: 24px;">
+                <h3 style="font-size: var(--font-size-base); font-weight: var(--font-weight-semibold); color: var(--text-secondary); margin-bottom: 16px;">Recent Transactions</h3>
+                <div class="card" style="padding: 0; overflow: hidden;">
+                    <div id="recentTransactionsList">
+                        <!-- Populated by JavaScript with 5 most recent -->
+                    </div>
                 </div>
             </div>
         </div>
@@ -3128,19 +3149,31 @@
 
         async function updateDashboard() {
             if (allReceipts.length === 0) {
-                document.getElementById('totalSpent').textContent = '0 kr';
+                // Hero card
+                document.getElementById('heroTotalSpent').textContent = '0 kr';
+                // Budget stats
                 document.getElementById('receiptCount').textContent = '0';
                 document.getElementById('itemCount').textContent = '0';
+                document.getElementById('totalSavingsStat').textContent = '0 kr';
+                // Recent transactions
+                document.getElementById('recentTransactionsList').innerHTML = '<div style="padding: 40px; text-align: center; color: var(--text-tertiary);"><div style="font-size: 3em; margin-bottom: 12px; opacity: 0.3;">📭</div><p>No transactions yet. Start scanning receipts!</p></div>';
                 document.getElementById('priceComparison').innerHTML = '<div class="empty-state"><div class="empty-icon">📭</div><p>No data yet. Start scanning receipts!</p></div>';
                 return;
             }
 
             const totalSpent = allReceipts.reduce((sum, r) => sum + (r.total || 0), 0);
             const totalItems = allReceipts.reduce((sum, r) => sum + r.items.length, 0);
+            const totalSavings = allReceipts.reduce((sum, r) => {
+                return sum + r.items.reduce((itemSum, item) => itemSum + (item.discount || 0), 0);
+            }, 0);
 
-            document.getElementById('totalSpent').textContent = totalSpent.toFixed(2) + ' kr';
+            // Update hero card
+            document.getElementById('heroTotalSpent').textContent = totalSpent.toFixed(2) + ' kr';
+
+            // Update budget stats
             document.getElementById('receiptCount').textContent = allReceipts.length;
             document.getElementById('itemCount').textContent = totalItems;
+            document.getElementById('totalSavingsStat').textContent = totalSavings.toFixed(2) + ' kr';
 
             const categoryTotals = {};
             allReceipts.forEach(receipt => {
@@ -3155,10 +3188,37 @@
             updateMonthlyComparisonChart();
             updatePriceComparison();
             updateTopItems();
+            updateRecentTransactions(); // New function for 5 recent transactions
 
             // Load gamification data and budgets
             await loadGamificationData();
             await loadBudgetData();
+        }
+
+        // New function: Display 5 most recent transactions
+        function updateRecentTransactions() {
+            const recentList = document.getElementById('recentTransactionsList');
+            if (!recentList) return;
+
+            // Get 5 most recent receipts (already sorted newest first)
+            const recentReceipts = allReceipts.slice(0, 5);
+
+            if (recentReceipts.length === 0) {
+                recentList.innerHTML = '<div style="padding: 40px; text-align: center; color: var(--text-tertiary);">No recent transactions</div>';
+                return;
+            }
+
+            recentList.innerHTML = recentReceipts.map((receipt, index) => `
+                <div style="display: flex; justify-content: space-between; align-items: center; padding: 20px; border-bottom: 1px solid var(--divider); transition: background var(--transition-fast);" onmouseover="this.style.background='var(--background)'" onmouseout="this.style.background='transparent'">
+                    <div style="flex: 1;">
+                        <div style="font-weight: var(--font-weight-semibold); color: var(--text-primary); margin-bottom: 4px; font-size: var(--font-size-base);">${receipt.store || 'Unknown Store'}</div>
+                        <div style="font-size: var(--font-size-sm); color: var(--text-tertiary);">${receipt.date || 'N/A'} • ${receipt.items.length} items</div>
+                    </div>
+                    <div style="text-align: right;">
+                        <div style="font-weight: var(--font-weight-bold); font-size: var(--font-size-lg); color: var(--text-primary);">${receipt.total ? receipt.total.toFixed(2) + ' kr' : 'N/A'}</div>
+                    </div>
+                </div>
+            `).join('');
         }
 
         function updateCategoryChart(categoryTotals) {
