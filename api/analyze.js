@@ -348,32 +348,38 @@ Extract now:`
     const textContent = data.content.find(c => c.type === 'text')?.text || '';
 
     if (!textContent) {
-      console.error('No text content in AI response:', data);
+      console.error('No text content in AI response:', JSON.stringify(data, null, 2));
       return res.status(500).json({
-        error: 'AI returned no content',
-        details: 'The AI response was empty'
+        error: 'Receipt analysis failed',
+        message: 'The AI did not return any text content. This might be a temporary issue. Please try again.',
+        details: 'No text content in response'
       });
     }
+
+    console.log('AI Response length:', textContent.length);
+    console.log('AI Response preview:', textContent.substring(0, 200));
 
     // Clean up JSON (removes markdown formatting if AI adds it)
     let cleanedText = textContent.trim();
 
-    // Remove markdown code blocks
+    // Remove markdown code blocks with multiple strategies
     cleanedText = cleanedText
-      .replace(/```json\n?/gi, '')
-      .replace(/```\n?/g, '')
-      .replace(/^json\n?/gi, '');
+      .replace(/```json\s*/gi, '')
+      .replace(/```\s*/g, '')
+      .replace(/^json\s*/gi, '');
 
-    // Try to extract JSON object
+    // Try to extract JSON object with greedy matching
     const jsonMatch = cleanedText.match(/\{[\s\S]*\}/);
     if (jsonMatch) {
       cleanedText = jsonMatch[0];
     } else {
-      console.error('No JSON object found in response:', cleanedText.substring(0, 500));
+      console.error('No JSON object found in response');
+      console.error('Full response:', textContent);
       return res.status(500).json({
-        error: 'Analysis failed',
-        message: 'Could not extract receipt data from AI response. The receipt image may be unclear or not a valid receipt.',
-        debug: cleanedText.substring(0, 200)
+        error: 'Receipt format not recognized',
+        message: 'Could not find receipt data in the image. Please ensure the image shows a clear receipt with visible text.',
+        details: 'No JSON structure found',
+        preview: textContent.substring(0, 300)
       });
     }
 
@@ -382,12 +388,16 @@ Extract now:`
     try {
       receiptData = JSON.parse(cleanedText);
     } catch (parseError) {
-      console.error('JSON parse error:', parseError);
-      console.error('Failed to parse:', cleanedText.substring(0, 500));
+      console.error('JSON parse error:', parseError.message);
+      console.error('Parse error at position:', parseError.message.match(/position (\d+)/)?.[1]);
+      console.error('Failed to parse (first 500 chars):', cleanedText.substring(0, 500));
+      console.error('Failed to parse (last 200 chars):', cleanedText.substring(Math.max(0, cleanedText.length - 200)));
+
       return res.status(500).json({
-        error: 'Analysis failed',
-        message: 'The AI response could not be parsed. Please try again with a clearer receipt image.',
-        debug: parseError.message
+        error: 'Receipt data format error',
+        message: 'The receipt was analyzed but the data format is invalid. This is usually temporary - please try scanning again.',
+        details: parseError.message,
+        hint: 'If this persists, try taking a clearer photo with better lighting'
       });
     }
 
