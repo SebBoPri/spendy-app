@@ -2665,7 +2665,7 @@
                             <div class="item-price">${(item.price || 0).toFixed(2)} kr</div>
                             ${hasDiscount ? `
                                 <div style="font-size: 0.85em; color: var(--text-secondary); text-decoration: line-through;">${(detailItem.original_price || 0).toFixed(2)} kr</div>
-                                <div style="font-size: 0.85em; color: var(--income-green); font-weight: 600;">-${detailItem.discount.toFixed(2)} kr</div>
+                                <div style="font-size: 0.85em; color: var(--income-green); font-weight: 600;">-${(detailItem.discount || 0).toFixed(2)} kr</div>
                             ` : ''}
                         </div>
                     </div>
@@ -3305,7 +3305,7 @@
                                                     <div style="font-weight: 600;">${p.store || 'Unknown'}</div>
                                                     <div style="font-size: 0.85em; color: #999;">${p.date || 'N/A'}</div>
                                                 </div>
-                                                <div style="font-weight: 600;">${p.price.toFixed(2)} kr</div>
+                                                <div style="font-weight: 600;">${(p.price || 0).toFixed(2)} kr</div>
                                             </div>
                                         `).join('')}
                                     </div>
@@ -3575,7 +3575,7 @@
                         <td style="font-weight: 600;">${row.item}</td>
                         <td>${row.category}</td>
                         <td>${row.subcategory}</td>
-                        <td style="text-align: right; font-weight: 600;">${row.price.toFixed(2)} kr</td>
+                        <td style="text-align: right; font-weight: 600;">${(row.price || 0).toFixed(2)} kr</td>
                     </tr>
                 `).join('');
             }
