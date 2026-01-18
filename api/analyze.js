@@ -282,7 +282,7 @@ REQUIRED DATA STRUCTURE:
       "product_type": "general product type (e.g., Milk, Bread, Shampoo)",
       "quantity": 1.0,
       "unit_price": 0.00,
-      "total_price": 0.00,  // CRITICAL: This is the price shown on the receipt line (e.g., 109.00, NOT 0.00)
+      "total_price": 0.00,
       "discount": 0.00,
       "original_price": 0.00,
       "category": "primary category",
@@ -321,16 +321,34 @@ REQUIRED DATA STRUCTURE:
   }
 }
 
+CRITICAL PRICE EXTRACTION RULES:
+- total_price MUST be the actual price from the receipt (e.g., 109.00, 49.10, 72.50)
+- NEVER leave total_price as 0.00 unless the item is actually free
+- Extract the number from the right side of each receipt line
+- Convert commas to periods (e.g., "109,00" becomes 109.00)
+
 EXAMPLE (Willys receipt):
-For a line showing "VITT TOALETTPAPPER        109,00":
+Receipt line: "VITT TOALETTPAPPER        109,00"
+Correct JSON:
 {
   "line_number": 1,
   "raw_text": "VITT TOALETTPAPPER        109,00",
   "name": "Vitt Toalettpapper",
-  "total_price": 109.00  // ← Extract this number from the receipt!
+  "total_price": 109.00
 }
 
-For store name "Fridhemsgatan" at top, extract "Willys" as store_name (NOT "Fridhemsgatan").
+Receipt line: "Willys Plus:FIXIA PAPPER  -49,10"
+Correct JSON:
+{
+  "name": "Willys Plus:Fixia Papper",
+  "total_price": -49.10,
+  "discount": 49.10
+}
+
+Store name extraction:
+- If header shows "Fridhemsgatan" or similar address, look for actual brand
+- Extract "Willys" as store_name (NOT "Fridhemsgatan")
+- Put address in store_location.address field
 
 CATEGORIZATION GUIDE:
 - Groceries: Food, beverages, produce, meat, dairy, bakery, snacks
