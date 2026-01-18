@@ -276,19 +276,19 @@
             to { opacity: 1; transform: translateY(0); }
         }
 
-        /* Financial Hub Card Design */
+        /* Card Component - Modern Minimalist Design */
         .card {
-            background: var(--white);
-            border-radius: var(--radius-xlarge);
-            padding: var(--spacing-lg);
+            background: var(--card);
+            border-radius: var(--radius-large);      /* 16px per spec */
+            padding: 20px;                           /* Minimum 20px padding per spec */
             margin-bottom: var(--spacing-lg);
-            box-shadow: 0 1px 3px rgba(0,0,0,0.06), 0 1px 2px rgba(0,0,0,0.04);
-            transition: all 0.3s ease;
-            border: 1px solid rgba(0,0,0,0.04);
+            box-shadow: var(--shadow-soft);          /* Soft shadow per spec */
+            transition: all var(--transition-base);
+            border: 1px solid var(--border);
         }
 
         .card:hover {
-            box-shadow: 0 4px 12px rgba(0,0,0,0.1), 0 2px 4px rgba(0,0,0,0.06);
+            box-shadow: var(--shadow-medium);
             transform: translateY(-2px);
         }
 
@@ -334,17 +334,17 @@
         }
 
         .stat-card {
-            background: var(--white);
-            padding: var(--spacing-lg);
-            border-radius: var(--radius-xlarge);
-            box-shadow: 0 1px 3px rgba(0,0,0,0.06), 0 1px 2px rgba(0,0,0,0.04);
-            transition: all 0.3s ease;
-            border: 1px solid rgba(0,0,0,0.04);
+            background: var(--card);
+            padding: 20px;                           /* Minimum 20px padding */
+            border-radius: var(--radius-large);      /* 16px per spec */
+            box-shadow: var(--shadow-soft);          /* Soft shadow per spec */
+            transition: all var(--transition-bounce);
+            border: 1px solid var(--border);
         }
 
         .stat-card:hover {
             transform: translateY(-4px);
-            box-shadow: 0 8px 16px rgba(0,0,0,0.12), 0 4px 6px rgba(0,0,0,0.08);
+            box-shadow: var(--shadow-high);
         }
 
         .stat-icon {
@@ -359,12 +359,12 @@
         }
 
         .stat-card:nth-child(1) .stat-icon {
-            background: rgba(91, 168, 159, 0.1);
+            background: var(--primary-alpha-10);
             color: var(--primary);
         }
 
         .stat-card:nth-child(2) .stat-icon {
-            background: rgba(74, 144, 226, 0.1);
+            background: var(--primary-alpha-10);
             color: var(--info-blue);
         }
 
@@ -429,19 +429,19 @@
             width: 72px;
             height: 72px;
             background: linear-gradient(135deg, var(--primary) 0%, var(--primary-dark) 100%);
-            border-radius: 18px;
+            border-radius: var(--radius-large);
             display: flex;
             align-items: center;
             justify-content: center;
             font-size: 36px;
             margin: 0 auto var(--spacing-md);
-            box-shadow: 0 4px 16px rgba(91, 168, 159, 0.25);
-            transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+            box-shadow: var(--shadow-primary);
+            transition: all var(--transition-bounce);
         }
 
         .upload-zone:hover .upload-icon {
             transform: translateY(-6px) rotate(5deg);
-            box-shadow: 0 8px 24px rgba(91, 168, 159, 0.35);
+            box-shadow: var(--shadow-high);
         }
 
         .upload-title {
@@ -456,23 +456,36 @@
             font-size: 14px;
         }
 
-        /* Financial Hub Buttons */
+        /* Button Component - Modern Minimalist Design */
         .btn {
-            background: var(--primary);
-            color: var(--white);
-            border: none;
+            /* Layout */
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
             padding: var(--spacing-md) var(--spacing-lg);
-            border-radius: 12px;
-            font-size: 15px;
-            font-weight: 600;
-            cursor: pointer;
-            transition: all 0.2s ease;
-            box-shadow: 0 2px 8px rgba(91, 168, 159, 0.25);
             min-height: 48px;
+
+            /* Appearance */
+            background: var(--primary);
+            color: var(--text-on-primary);
+            border: none;
+            border-radius: var(--radius-medium);      /* 12px per spec */
+            box-shadow: var(--shadow-primary);
+
+            /* Typography */
+            font-family: var(--font-family);
+            font-size: var(--font-size-base);
+            font-weight: var(--font-weight-semibold);
+
+            /* Interaction */
+            cursor: pointer;
+            transition: all var(--transition-base);  /* Subtle hover transition per spec */
             position: relative;
             overflow: hidden;
+            -webkit-tap-highlight-color: transparent;
         }
 
+        /* Ripple effect on click */
         .btn::before {
             content: '';
             position: absolute;
@@ -481,9 +494,9 @@
             width: 0;
             height: 0;
             border-radius: 50%;
-            background: rgba(255, 255, 255, 0.2);
+            background: rgba(255, 255, 255, 0.3);
             transform: translate(-50%, -50%);
-            transition: width 0.6s, height 0.6s;
+            transition: width 0.6s ease, height 0.6s ease;
         }
 
         .btn:active::before {
@@ -491,26 +504,51 @@
             height: 300px;
         }
 
+        /* Hover state - subtle transition */
         .btn:hover {
             background: var(--primary-dark);
             transform: translateY(-2px);
-            box-shadow: 0 6px 16px rgba(91, 168, 159, 0.35);
+            box-shadow: var(--shadow-high);
         }
 
+        /* Active/pressed state */
         .btn:active {
-            transform: translateY(0) scale(0.96);
-            box-shadow: 0 2px 6px rgba(91, 168, 159, 0.3);
+            transform: translateY(0) scale(0.98);
+            box-shadow: var(--shadow-primary);
         }
 
+        /* Disabled state */
+        .btn:disabled {
+            background: var(--text-disabled);
+            color: var(--text-tertiary);
+            cursor: not-allowed;
+            box-shadow: none;
+            transform: none;
+        }
+
+        /* Secondary button variant */
+        .btn-secondary {
+            background: var(--card);
+            color: var(--primary);
+            border: 1px solid var(--border);
+            box-shadow: var(--shadow-soft);
+        }
+
+        .btn-secondary:hover {
+            background: var(--primary-light);
+            border-color: var(--primary);
+        }
+
+        /* Global button styles */
         button {
-            font-family: inherit;
+            font-family: var(--font-family);
             cursor: pointer;
-            transition: all 0.2s ease;
+            transition: all var(--transition-base);
             -webkit-tap-highlight-color: transparent;
         }
 
         button:active {
-            transform: scale(0.96);
+            transform: scale(0.98);
         }
 
         /* Interactive chart area */
@@ -697,26 +735,26 @@
         select:focus {
             outline: none;
             border-color: var(--primary);
-            box-shadow: 0 0 0 3px var(--primary-light);
+            box-shadow: 0 0 0 3px var(--primary-alpha-10);
         }
 
         input::placeholder {
             color: var(--text-tertiary);
         }
 
-        /* Deep dive expandable */
+        /* Expandable Receipt Cards */
         .expandable {
-            margin-bottom: 16px;
-            border-radius: 16px;
+            margin-bottom: var(--spacing-md);
+            border-radius: var(--radius-large);      /* 16px per spec */
             overflow: hidden;
-            background: white;
-            box-shadow: 0 1px 3px rgba(0,0,0,0.06), 0 1px 2px rgba(0,0,0,0.04);
-            transition: all 0.3s ease;
-            border: 1px solid rgba(0,0,0,0.04);
+            background: var(--card);
+            box-shadow: var(--shadow-soft);          /* Soft shadow per spec */
+            transition: all var(--transition-bounce);
+            border: 1px solid var(--border);
         }
 
         .expandable:hover {
-            box-shadow: 0 4px 12px rgba(0,0,0,0.1), 0 2px 4px rgba(0,0,0,0.06);
+            box-shadow: var(--shadow-medium);
             transform: translateY(-2px);
         }
 
