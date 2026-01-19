@@ -680,29 +680,31 @@
         .chart-container {
             background: var(--card);
             border-radius: var(--radius-large);
-            padding: 32px;
+            padding: 24px;
             box-shadow: var(--shadow-soft);
             margin-bottom: 24px;
+            overflow: hidden;
         }
 
         .chart-title {
             font-size: var(--font-size-lg);
             font-weight: var(--font-weight-bold);
             color: var(--text-primary);
-            margin-bottom: 24px;
+            margin-bottom: 20px;
         }
 
         /* Donut Chart */
         .donut-chart-wrapper {
             position: relative;
             width: 100%;
-            max-width: 320px;
-            margin: 0 auto 32px;
+            max-width: 280px;
+            margin: 0 auto 24px;
         }
 
         .donut-chart {
             width: 100%;
             height: auto;
+            display: block;
         }
 
         .donut-center {
@@ -711,6 +713,7 @@
             left: 50%;
             transform: translate(-50%, -50%);
             text-align: center;
+            pointer-events: none;
         }
 
         .donut-total-label {
@@ -722,7 +725,7 @@
         }
 
         .donut-total-amount {
-            font-size: 32px;
+            font-size: 28px;
             font-weight: var(--font-weight-bold);
             color: var(--text-primary);
             line-height: 1;
@@ -730,16 +733,20 @@
 
         /* Category Legend */
         .category-legend {
-            display: grid;
-            grid-template-columns: repeat(auto-fill, minmax(140px, 1fr));
-            gap: 16px;
-            margin-top: 24px;
+            display: flex;
+            flex-direction: column;
+            gap: 12px;
+            margin-top: 20px;
+            max-width: 100%;
         }
 
         .legend-item {
             display: flex;
             align-items: center;
-            gap: 10px;
+            gap: 12px;
+            padding: 8px;
+            border-radius: 8px;
+            min-width: 0;
         }
 
         .legend-color {
@@ -754,6 +761,9 @@
             color: var(--text-secondary);
             flex: 1;
             min-width: 0;
+            overflow: hidden;
+            text-overflow: ellipsis;
+            white-space: nowrap;
         }
 
         .legend-amount {
@@ -761,18 +771,21 @@
             font-weight: var(--font-weight-semibold);
             color: var(--text-primary);
             white-space: nowrap;
+            flex-shrink: 0;
         }
 
         /* Area Chart */
         .area-chart-wrapper {
             width: 100%;
-            height: 280px;
+            height: 260px;
             position: relative;
+            overflow: hidden;
         }
 
         .area-chart {
             width: 100%;
             height: 100%;
+            display: block;
         }
 
         /* Chart axis labels */
@@ -1762,6 +1775,46 @@
 
             .upload-title {
                 font-size: 1.2em;
+            }
+
+            /* Analytics charts mobile responsive */
+            .chart-container {
+                padding: 16px;
+                margin-bottom: 16px;
+            }
+
+            .chart-title {
+                font-size: var(--font-size-base);
+                margin-bottom: 16px;
+            }
+
+            .donut-chart-wrapper {
+                max-width: 240px;
+                margin-bottom: 16px;
+            }
+
+            .donut-total-amount {
+                font-size: 24px;
+            }
+
+            .time-toggle {
+                padding: 4px;
+                margin-bottom: 16px;
+            }
+
+            .time-toggle-btn {
+                padding: 8px 16px;
+                font-size: var(--font-size-xs);
+            }
+
+            .legend-item {
+                gap: 8px;
+                padding: 6px;
+                font-size: var(--font-size-xs);
+            }
+
+            .area-chart-wrapper {
+                height: 200px;
             }
 
             .upload-subtitle {
