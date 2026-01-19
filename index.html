@@ -5461,6 +5461,11 @@
 
             // Add to page
             document.body.appendChild(modal);
+
+            // Close button click handler (must be added after modal is in DOM)
+            document.getElementById('closeModalBtn')?.addEventListener('click', () => {
+                modal.remove();
+            });
         }
 
         // Initialize Supabase
@@ -6837,6 +6842,7 @@
 
             // Show recommendations modal
             const modal = document.createElement('div');
+            modal.id = 'budgetRecommendationsModal';
             modal.style.cssText = 'position: fixed; inset: 0; background: rgba(0,0,0,0.7); z-index: 3000; display: flex; align-items: center; justify-content: center; padding: 20px;';
             modal.innerHTML = `
                 <div class="card" style="max-width: 500px; width: 100%; max-height: 80vh; overflow-y: auto;">
@@ -6861,11 +6867,19 @@
                         </div>
                     `).join('')}
 
-                    <button onclick="this.closest('div[style*=\"position: fixed\"]').remove()" class="btn btn-secondary" style="width: 100%; margin-top: 16px;">
+                    <button onclick="closeBudgetRecommendationsModal()" class="btn btn-secondary" style="width: 100%; margin-top: 16px;">
                         <span>Close</span>
                     </button>
                 </div>
             `;
+
+            // Add click outside to close
+            modal.addEventListener('click', (e) => {
+                if (e.target.id === 'budgetRecommendationsModal') {
+                    closeBudgetRecommendationsModal();
+                }
+            });
+
             document.body.appendChild(modal);
         }
 
@@ -7802,6 +7816,14 @@
                 item.classList.remove('selected');
             });
             selectedCategory = null;
+        }
+
+        // Close budget recommendations modal
+        function closeBudgetRecommendationsModal() {
+            const modal = document.getElementById('budgetRecommendationsModal');
+            if (modal) {
+                modal.remove();
+            }
         }
 
         // Close modal when clicking outside
