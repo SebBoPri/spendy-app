@@ -946,6 +946,199 @@
         }
 
         /* ====================================
+           TAG SYSTEM
+           Tag pills and management
+           ==================================== */
+
+        .tag-container {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 6px;
+            align-items: center;
+            min-height: 24px;
+        }
+
+        .tag-pill {
+            display: inline-flex;
+            align-items: center;
+            gap: 4px;
+            background: var(--primary-alpha-10);
+            color: var(--primary);
+            padding: 4px 10px;
+            border-radius: 12px;
+            font-size: var(--font-size-xs);
+            font-weight: var(--font-weight-medium);
+            white-space: nowrap;
+            transition: all var(--transition-fast);
+            cursor: default;
+        }
+
+        .tag-pill:hover {
+            background: var(--primary-alpha-20);
+            transform: scale(1.05);
+        }
+
+        .tag-remove {
+            background: none;
+            border: none;
+            color: var(--primary);
+            cursor: pointer;
+            padding: 0;
+            width: 14px;
+            height: 14px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            border-radius: 50%;
+            font-size: 10px;
+            font-weight: bold;
+            transition: all var(--transition-fast);
+        }
+
+        .tag-remove:hover {
+            background: var(--primary);
+            color: white;
+        }
+
+        .tag-add-btn {
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            width: 24px;
+            height: 24px;
+            background: var(--divider);
+            color: var(--text-tertiary);
+            border: none;
+            border-radius: 50%;
+            cursor: pointer;
+            font-size: 14px;
+            font-weight: bold;
+            transition: all var(--transition-fast);
+        }
+
+        .tag-add-btn:hover {
+            background: var(--primary);
+            color: white;
+            transform: scale(1.1);
+        }
+
+        .tag-input-popup {
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: rgba(0, 0, 0, 0.5);
+            z-index: var(--z-modal);
+            display: none;
+            align-items: center;
+            justify-content: center;
+            padding: 20px;
+        }
+
+        .tag-input-popup.active {
+            display: flex;
+        }
+
+        .tag-input-content {
+            background: var(--card);
+            border-radius: var(--radius-large);
+            padding: 24px;
+            max-width: 400px;
+            width: 100%;
+            box-shadow: var(--shadow-high);
+        }
+
+        .tag-input-header {
+            font-size: var(--font-size-lg);
+            font-weight: var(--font-weight-bold);
+            color: var(--text-primary);
+            margin-bottom: 16px;
+        }
+
+        .tag-input-field {
+            width: 100%;
+            padding: 12px;
+            border: 1px solid var(--border);
+            border-radius: var(--radius-medium);
+            font-size: var(--font-size-base);
+            margin-bottom: 16px;
+            transition: all var(--transition-fast);
+        }
+
+        .tag-input-field:focus {
+            outline: none;
+            border-color: var(--primary);
+            box-shadow: 0 0 0 3px var(--primary-alpha-10);
+        }
+
+        .tag-suggestions {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 8px;
+            margin-bottom: 16px;
+        }
+
+        .tag-suggestion {
+            background: var(--background);
+            color: var(--text-secondary);
+            padding: 6px 12px;
+            border-radius: 12px;
+            font-size: var(--font-size-sm);
+            cursor: pointer;
+            transition: all var(--transition-fast);
+            border: 1px solid var(--border);
+        }
+
+        .tag-suggestion:hover {
+            background: var(--primary);
+            color: white;
+            border-color: var(--primary);
+            transform: scale(1.05);
+        }
+
+        .tag-input-buttons {
+            display: flex;
+            gap: 12px;
+            justify-content: flex-end;
+        }
+
+        /* Tag filter in Data tab */
+        .tag-filter-container {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 8px;
+            margin-top: 12px;
+            padding: 12px;
+            background: var(--background);
+            border-radius: var(--radius-medium);
+        }
+
+        .tag-filter-pill {
+            display: inline-flex;
+            align-items: center;
+            gap: 6px;
+            background: white;
+            color: var(--text-secondary);
+            padding: 6px 12px;
+            border-radius: 12px;
+            font-size: var(--font-size-sm);
+            cursor: pointer;
+            transition: all var(--transition-fast);
+            border: 2px solid transparent;
+        }
+
+        .tag-filter-pill:hover {
+            border-color: var(--primary);
+        }
+
+        .tag-filter-pill.active {
+            background: var(--primary);
+            color: white;
+            border-color: var(--primary);
+        }
+
+        /* ====================================
            INTERACTIVE CHART ELEMENTS
            Hover states and click interactions
            ==================================== */
@@ -2600,6 +2793,40 @@
         </div>
     </div>
 
+    <!-- Tag Input Modal -->
+    <div id="tagInputPopup" class="tag-input-popup">
+        <div class="tag-input-content">
+            <h3 class="tag-input-header">Add Tags</h3>
+            <p style="color: var(--text-secondary); font-size: var(--font-size-sm); margin-bottom: 16px;">
+                Add tags to organize and categorize this item
+            </p>
+
+            <input
+                type="text"
+                id="tagInputField"
+                class="tag-input-field"
+                placeholder="Enter tag name..."
+                onkeypress="if(event.key==='Enter') addTagFromInput()"
+            />
+
+            <div style="margin-bottom: 12px;">
+                <div style="font-size: var(--font-size-xs); color: var(--text-tertiary); margin-bottom: 8px; text-transform: uppercase;">Quick suggestions:</div>
+                <div class="tag-suggestions" id="tagSuggestions">
+                    <!-- Suggestions will be populated here -->
+                </div>
+            </div>
+
+            <div class="tag-input-buttons">
+                <button class="btn btn-secondary" onclick="closeTagInputPopup()">
+                    <span>Cancel</span>
+                </button>
+                <button class="btn" onclick="addTagFromInput()">
+                    <span>Add Tag</span>
+                </button>
+            </div>
+        </div>
+    </div>
+
     <!-- Level Up Celebration Modal -->
     <div id="levelUpModal" style="display: none; position: fixed; inset: 0; background: rgba(0,0,0,0.7); z-index: 3000; align-items: center; justify-content: center; padding: 20px;">
         <div class="card" style="max-width: 400px; width: 100%; text-align: center; background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); color: white; position: relative; overflow: hidden;">
@@ -3203,6 +3430,13 @@
                         <option value="">All Categories</option>
                     </select>
                 </div>
+
+                <!-- Tag Filter -->
+                <div id="tagFilterContainer" class="tag-filter-container" style="display: none;">
+                    <span style="font-size: var(--font-size-sm); color: var(--text-tertiary); margin-right: 8px;">Filter by tag:</span>
+                    <div id="tagFilterPills"></div>
+                </div>
+
                 <div style="overflow-x: auto;">
                     <table id="dataTable">
                         <thead>
@@ -3212,6 +3446,7 @@
                                 <th onclick="sortTable('item')">Item ↕</th>
                                 <th onclick="sortTable('category')">Category ↕</th>
                                 <th onclick="sortTable('subcategory')">Subcategory ↕</th>
+                                <th>Tags</th>
                                 <th onclick="sortTable('price')" style="text-align: right;">Price ↕</th>
                             </tr>
                         </thead>
@@ -5235,24 +5470,32 @@
 
             currentTableData = [];
             allReceipts.forEach(receipt => {
-                receipt.items.forEach(item => {
+                receipt.items.forEach((item, itemIdx) => {
                     currentTableData.push({
                         date: receipt.date || 'N/A',
                         store: receipt.store || 'Unknown',
                         item: item.name,
                         category: item.category || 'Other',
                         subcategory: item.subcategory || 'N/A',
-                        price: item.price
+                        price: item.price,
+                        receiptId: receipt.id,
+                        itemId: itemIdx,
+                        tags: item.tags || []
                     });
                 });
             });
 
             let filtered = currentTableData;
             if (filter) filtered = filtered.filter(r => r.category === filter);
-            if (search) filtered = filtered.filter(r => 
+            if (search) filtered = filtered.filter(r =>
                 r.item.toLowerCase().includes(search) ||
                 r.store.toLowerCase().includes(search)
             );
+
+            // Apply tag filter
+            if (activeTagFilter) {
+                filtered = filtered.filter(r => r.tags && r.tags.includes(activeTagFilter));
+            }
 
             filtered.sort((a, b) => {
                 let aVal = a[currentSort.column];
@@ -5275,7 +5518,7 @@
 
             const tbody = document.getElementById('dataTableBody');
             if (filtered.length === 0) {
-                tbody.innerHTML = '<tr><td colspan="6" style="text-align: center; padding: 40px;">No data found</td></tr>';
+                tbody.innerHTML = '<tr><td colspan="7" style="text-align: center; padding: 40px;">No data found</td></tr>';
             } else {
                 tbody.innerHTML = filtered.map(row => `
                     <tr>
@@ -5284,6 +5527,7 @@
                         <td style="font-weight: 600;">${row.item}</td>
                         <td>${row.category}</td>
                         <td>${row.subcategory}</td>
+                        <td>${renderTags(row.receiptId, row.itemId)}</td>
                         <td style="text-align: right; font-weight: 600;">${(row.price || 0).toFixed(2)} kr</td>
                     </tr>
                 `).join('');
@@ -5292,6 +5536,9 @@
             const total = filtered.reduce((sum, row) => sum + row.price, 0);
             document.getElementById('dataTableSummary').textContent =
                 `📊 Showing ${filtered.length} items • Total: ${total.toFixed(2)} kr`;
+
+            // Update tag filters
+            updateTagFilters();
 
             // Generate AI insight
             generateInsight();
@@ -7878,6 +8125,242 @@
                 modal.remove();
             }
         }
+
+        // ============ TAG SYSTEM ============
+
+        let currentTagContext = null; // Stores { receiptId, itemId }
+        let activeTagFilter = null;
+        const commonTagSuggestions = ['Work', 'Personal', 'Gift', 'Business', 'Reimbursable', 'Tax Deductible', 'Recurring', 'One-time', 'Essential', 'Luxury'];
+
+        // Open tag input popup
+        function openTagInputPopup(receiptId, itemId) {
+            currentTagContext = { receiptId, itemId };
+            const popup = document.getElementById('tagInputPopup');
+            const input = document.getElementById('tagInputField');
+
+            input.value = '';
+            input.focus();
+
+            // Populate suggestions
+            renderTagSuggestions();
+
+            popup.classList.add('active');
+        }
+
+        // Close tag input popup
+        function closeTagInputPopup() {
+            const popup = document.getElementById('tagInputPopup');
+            popup.classList.remove('active');
+            currentTagContext = null;
+        }
+
+        // Render tag suggestions
+        function renderTagSuggestions() {
+            const container = document.getElementById('tagSuggestions');
+
+            // Get existing tags for this item
+            const existingTags = getItemTags(currentTagContext.receiptId, currentTagContext.itemId);
+
+            // Filter suggestions to exclude already added tags
+            const availableSuggestions = commonTagSuggestions.filter(tag => !existingTags.includes(tag));
+
+            container.innerHTML = availableSuggestions.map(tag => `
+                <div class="tag-suggestion" onclick="addTagFromSuggestion('${tag}')">
+                    ${tag}
+                </div>
+            `).join('');
+        }
+
+        // Add tag from input field
+        async function addTagFromInput() {
+            const input = document.getElementById('tagInputField');
+            const tagName = input.value.trim();
+
+            if (!tagName) {
+                showToast('Please enter a tag name', 'warning');
+                return;
+            }
+
+            if (!currentTagContext) {
+                showToast('Tag context lost. Please try again', 'error');
+                return;
+            }
+
+            await addTag(currentTagContext.receiptId, currentTagContext.itemId, tagName);
+            input.value = '';
+            renderTagSuggestions();
+        }
+
+        // Add tag from suggestion
+        async function addTagFromSuggestion(tagName) {
+            if (!currentTagContext) return;
+            await addTag(currentTagContext.receiptId, currentTagContext.itemId, tagName);
+            closeTagInputPopup();
+        }
+
+        // Add tag to item
+        async function addTag(receiptId, itemId, tagName) {
+            try {
+                const { data: { user } } = await _supabase.auth.getUser();
+                if (!user) {
+                    showToast('Please sign in to add tags', 'error');
+                    return;
+                }
+
+                // Get current tags
+                const existingTags = getItemTags(receiptId, itemId);
+
+                // Check if tag already exists
+                if (existingTags.includes(tagName)) {
+                    showToast('Tag already exists', 'warning');
+                    return;
+                }
+
+                // Add new tag
+                const updatedTags = [...existingTags, tagName];
+
+                // Update the receipt in allReceipts
+                const receipt = allReceipts.find(r => r.id === receiptId);
+                if (receipt && receipt.items) {
+                    const item = receipt.items.find((_, idx) => idx === itemId);
+                    if (item) {
+                        if (!item.tags) item.tags = [];
+                        item.tags = updatedTags;
+
+                        // Update in Supabase
+                        const { error } = await _supabase
+                            .from('receipts')
+                            .update({ items: receipt.items })
+                            .eq('id', receiptId);
+
+                        if (error) throw error;
+
+                        showToast(`Tag "${tagName}" added`, 'success');
+                        updateDataTable();
+                        updateTagFilters();
+                    }
+                }
+            } catch (error) {
+                console.error('Error adding tag:', error);
+                showToast('Failed to add tag', 'error');
+            }
+        }
+
+        // Remove tag from item
+        async function removeTag(receiptId, itemId, tagName) {
+            try {
+                const { data: { user } } = await _supabase.auth.getUser();
+                if (!user) return;
+
+                // Get current tags
+                const existingTags = getItemTags(receiptId, itemId);
+                const updatedTags = existingTags.filter(t => t !== tagName);
+
+                // Update the receipt in allReceipts
+                const receipt = allReceipts.find(r => r.id === receiptId);
+                if (receipt && receipt.items) {
+                    const item = receipt.items.find((_, idx) => idx === itemId);
+                    if (item) {
+                        item.tags = updatedTags;
+
+                        // Update in Supabase
+                        const { error } = await _supabase
+                            .from('receipts')
+                            .update({ items: receipt.items })
+                            .eq('id', receiptId);
+
+                        if (error) throw error;
+
+                        showToast(`Tag "${tagName}" removed`, 'info');
+                        updateDataTable();
+                        updateTagFilters();
+                    }
+                }
+            } catch (error) {
+                console.error('Error removing tag:', error);
+                showToast('Failed to remove tag', 'error');
+            }
+        }
+
+        // Get tags for an item
+        function getItemTags(receiptId, itemId) {
+            const receipt = allReceipts.find(r => r.id === receiptId);
+            if (receipt && receipt.items) {
+                const item = receipt.items.find((_, idx) => idx === itemId);
+                return item?.tags || [];
+            }
+            return [];
+        }
+
+        // Render tags for an item
+        function renderTags(receiptId, itemId) {
+            const tags = getItemTags(receiptId, itemId);
+
+            const tagsHTML = tags.map(tag => `
+                <span class="tag-pill">
+                    ${tag}
+                    <button class="tag-remove" onclick="removeTag('${receiptId}', ${itemId}, '${tag}')" title="Remove tag">
+                        ×
+                    </button>
+                </span>
+            `).join('');
+
+            const addButton = `<button class="tag-add-btn" onclick="openTagInputPopup('${receiptId}', ${itemId})" title="Add tag">+</button>`;
+
+            return `<div class="tag-container">${tagsHTML}${addButton}</div>`;
+        }
+
+        // Update tag filters
+        function updateTagFilters() {
+            const allTags = new Set();
+
+            // Collect all unique tags from all items
+            allReceipts.forEach(receipt => {
+                if (receipt.items) {
+                    receipt.items.forEach(item => {
+                        if (item.tags && Array.isArray(item.tags)) {
+                            item.tags.forEach(tag => allTags.add(tag));
+                        }
+                    });
+                }
+            });
+
+            const container = document.getElementById('tagFilterContainer');
+            const pillsContainer = document.getElementById('tagFilterPills');
+
+            if (allTags.size === 0) {
+                container.style.display = 'none';
+                return;
+            }
+
+            container.style.display = 'flex';
+
+            // Create clear filter option
+            let pillsHTML = `<div class="tag-filter-pill ${!activeTagFilter ? 'active' : ''}" onclick="setTagFilter(null)">All</div>`;
+
+            // Create filter pill for each tag
+            pillsHTML += Array.from(allTags).sort().map(tag => `
+                <div class="tag-filter-pill ${activeTagFilter === tag ? 'active' : ''}" onclick="setTagFilter('${tag}')">
+                    🏷️ ${tag}
+                </div>
+            `).join('');
+
+            pillsContainer.innerHTML = pillsHTML;
+        }
+
+        // Set tag filter
+        function setTagFilter(tag) {
+            activeTagFilter = tag;
+            updateTagFilters();
+            updateDataTable();
+        }
+
+        // Close popup when clicking outside
+        document.getElementById('tagInputPopup')?.addEventListener('click', (e) => {
+            if (e.target.id === 'tagInputPopup') {
+                closeTagInputPopup();
+            }
+        });
 
         // Close modal when clicking outside
         document.getElementById('categoryModal')?.addEventListener('click', (e) => {
