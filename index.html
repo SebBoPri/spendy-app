@@ -842,6 +842,96 @@
             transition: width 0.6s ease;
         }
 
+        /* ====================================
+           INSIGHT CARD COMPONENT
+           AI-generated insights with gradient
+           ==================================== */
+
+        .insight-card {
+            background: linear-gradient(135deg, #E3F2FD 0%, #BBDEFB 100%);
+            border: 2px solid #2D9CDB;
+            border-radius: var(--radius-large);
+            padding: 24px;
+            margin-top: 32px;
+            box-shadow: var(--shadow-soft);
+            position: relative;
+            overflow: hidden;
+            transition: all var(--transition-base);
+        }
+
+        .insight-card::before {
+            content: '';
+            position: absolute;
+            top: -50%;
+            right: -50%;
+            width: 200%;
+            height: 200%;
+            background: radial-gradient(circle, rgba(255, 255, 255, 0.3) 0%, transparent 70%);
+            opacity: 0;
+            transition: opacity var(--transition-slow);
+        }
+
+        .insight-card:hover {
+            box-shadow: var(--shadow-medium);
+            transform: translateY(-2px);
+        }
+
+        .insight-card:hover::before {
+            opacity: 1;
+        }
+
+        .insight-header {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            margin-bottom: 16px;
+        }
+
+        .insight-icon {
+            font-size: 32px;
+            animation: sparkle 2s ease-in-out infinite;
+        }
+
+        @keyframes sparkle {
+            0%, 100% {
+                transform: scale(1) rotate(0deg);
+                opacity: 1;
+            }
+            50% {
+                transform: scale(1.1) rotate(5deg);
+                opacity: 0.9;
+            }
+        }
+
+        .insight-title {
+            font-size: var(--font-size-lg);
+            font-weight: var(--font-weight-bold);
+            color: var(--primary-dark);
+            margin: 0;
+        }
+
+        .insight-text {
+            font-size: var(--font-size-base);
+            line-height: 1.6;
+            color: #1565C0;
+            font-weight: var(--font-weight-medium);
+            position: relative;
+            z-index: 1;
+        }
+
+        .insight-badge {
+            display: inline-block;
+            background: var(--primary);
+            color: white;
+            padding: 4px 12px;
+            border-radius: 12px;
+            font-size: var(--font-size-xs);
+            font-weight: var(--font-weight-semibold);
+            margin-top: 12px;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+        }
+
         .nav-tab {
             flex: 1;
             padding: 10px 4px;
@@ -2919,6 +3009,18 @@
                 </div>
                 <div class="summary-box" id="dataTableSummary"></div>
             </div>
+
+            <!-- AI Insight Card -->
+            <div class="insight-card">
+                <div class="insight-header">
+                    <div class="insight-icon">✨</div>
+                    <h3 class="insight-title">Smart Insights</h3>
+                </div>
+                <div class="insight-text" id="insightText">
+                    Loading insights...
+                </div>
+                <span class="insight-badge">AI-Powered</span>
+            </div>
         </div>
 
         <!-- History Tab -->
@@ -4976,8 +5078,11 @@
             }
 
             const total = filtered.reduce((sum, row) => sum + row.price, 0);
-            document.getElementById('dataTableSummary').textContent = 
+            document.getElementById('dataTableSummary').textContent =
                 `📊 Showing ${filtered.length} items • Total: ${total.toFixed(2)} kr`;
+
+            // Generate AI insight
+            generateInsight();
         }
 
         function sortTable(column) {
@@ -7294,6 +7399,112 @@
             }).join('');
 
             container.innerHTML = cardsHTML;
+        }
+
+        // ============ AI INSIGHT GENERATION ============
+
+        function generateInsight() {
+            const insightElement = document.getElementById('insightText');
+
+            if (!allReceipts || allReceipts.length === 0) {
+                insightElement.textContent = 'Start scanning receipts to get personalized spending insights!';
+                return;
+            }
+
+            // Calculate spending data for insights
+            const now = new Date();
+            const lastWeek = new Date(now);
+            lastWeek.setDate(now.getDate() - 7);
+            const lastMonth = new Date(now);
+            lastMonth.setMonth(now.getMonth() - 1);
+
+            const thisWeekReceipts = allReceipts.filter(r => new Date(r.purchase_date || r.date) >= lastWeek);
+            const lastMonthReceipts = allReceipts.filter(r => {
+                const date = new Date(r.purchase_date || r.date);
+                return date >= lastMonth && date < lastWeek;
+            });
+
+            // Calculate category totals
+            const categoryTotals = {};
+            const categoryWeekTotals = {};
+            allReceipts.forEach(receipt => {
+                if (receipt.items) {
+                    receipt.items.forEach(item => {
+                        const category = item.category || 'Other';
+                        const price = item.total_price || item.price || 0;
+                        categoryTotals[category] = (categoryTotals[category] || 0) + price;
+                    });
+                }
+            });
+
+            thisWeekReceipts.forEach(receipt => {
+                if (receipt.items) {
+                    receipt.items.forEach(item => {
+                        const category = item.category || 'Other';
+                        const price = item.total_price || item.price || 0;
+                        categoryWeekTotals[category] = (categoryWeekTotals[category] || 0) + price;
+                    });
+                }
+            });
+
+            // Calculate total spending
+            const thisWeekTotal = thisWeekReceipts.reduce((sum, r) => sum + (r.total_amount || r.total || 0), 0);
+            const lastMonthTotal = lastMonthReceipts.reduce((sum, r) => sum + (r.total_amount || r.total || 0), 0);
+            const avgWeeklySpending = lastMonthTotal / 4;
+
+            // Find top category
+            const topCategory = Object.entries(categoryTotals).sort((a, b) => b[1] - a[1])[0];
+
+            // Generate insights
+            const insights = [];
+
+            // Insight 1: Weekly spending comparison
+            if (avgWeeklySpending > 0) {
+                const percentChange = ((thisWeekTotal - avgWeeklySpending) / avgWeeklySpending) * 100;
+                if (percentChange < -10) {
+                    insights.push(`💚 Great job! You've spent ${Math.abs(percentChange).toFixed(0)}% less this week than your average. Keep it up!`);
+                } else if (percentChange > 10) {
+                    insights.push(`📊 You've spent ${percentChange.toFixed(0)}% more this week than usual. Consider reviewing your budget.`);
+                } else {
+                    insights.push(`✅ Your spending this week is on track with your average of ${avgWeeklySpending.toFixed(0)} kr.`);
+                }
+            }
+
+            // Insight 2: Top category
+            if (topCategory) {
+                const percentage = (topCategory[1] / Object.values(categoryTotals).reduce((a, b) => a + b, 0)) * 100;
+                insights.push(`${categoryIcons[topCategory[0]] || '📦'} Your biggest spending category is ${topCategory[0]} at ${percentage.toFixed(0)}% of total (${topCategory[1].toFixed(0)} kr).`);
+            }
+
+            // Insight 3: Transaction frequency
+            const avgTransactionsPerWeek = (allReceipts.length / Math.max(1, Math.ceil((now - new Date(allReceipts[allReceipts.length - 1]?.purchase_date || allReceipts[allReceipts.length - 1]?.date)) / (7 * 24 * 60 * 60 * 1000))));
+            if (thisWeekReceipts.length > avgTransactionsPerWeek * 1.5) {
+                insights.push(`🛒 You've made ${thisWeekReceipts.length} purchases this week, more than your usual ${avgTransactionsPerWeek.toFixed(0)} per week.`);
+            } else if (thisWeekReceipts.length < avgTransactionsPerWeek * 0.5) {
+                insights.push(`🎯 You've made fewer purchases this week (${thisWeekReceipts.length}) compared to your average of ${avgTransactionsPerWeek.toFixed(0)} per week.`);
+            }
+
+            // Insight 4: Category-specific insights
+            const groceriesThisWeek = categoryWeekTotals['Groceries'] || 0;
+            const diningThisWeek = categoryWeekTotals['Dining'] || 0;
+
+            if (diningThisWeek > groceriesThisWeek && diningThisWeek > 500) {
+                insights.push(`🍽️ You're spending more on dining (${diningThisWeek.toFixed(0)} kr) than groceries this week. Cooking at home could save you money!`);
+            }
+
+            // Insight 5: Streak or milestone
+            if (allReceipts.length >= 10) {
+                insights.push(`🏆 You've tracked ${allReceipts.length} receipts! You're building great financial awareness.`);
+            }
+
+            // Select a random insight or combine them
+            let finalInsight = insights[Math.floor(Math.random() * insights.length)];
+
+            if (!finalInsight) {
+                finalInsight = `📈 You've tracked ${allReceipts.length} receipt${allReceipts.length > 1 ? 's' : ''} with a total of ${Object.values(categoryTotals).reduce((a, b) => a + b, 0).toFixed(0)} kr in spending. Keep tracking to get personalized insights!`;
+            }
+
+            insightElement.textContent = finalInsight;
         }
     </script>
 </body>
