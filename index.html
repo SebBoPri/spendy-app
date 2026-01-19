@@ -932,6 +932,131 @@
             letter-spacing: 0.5px;
         }
 
+        /* ====================================
+           INTERACTIVE CHART ELEMENTS
+           Hover states and click interactions
+           ==================================== */
+
+        .donut-segment {
+            cursor: pointer;
+            transition: opacity var(--transition-fast);
+        }
+
+        .donut-segment:hover {
+            opacity: 0.8;
+            filter: brightness(1.1);
+        }
+
+        .donut-segment.selected {
+            opacity: 1;
+            filter: drop-shadow(0 0 8px currentColor);
+        }
+
+        .legend-item {
+            cursor: pointer;
+            transition: all var(--transition-fast);
+            padding: 8px;
+            border-radius: 8px;
+        }
+
+        .legend-item:hover {
+            background: var(--primary-alpha-10);
+        }
+
+        .legend-item.selected {
+            background: var(--primary-alpha-20);
+            box-shadow: 0 0 0 2px var(--primary);
+        }
+
+        .category-spending-card {
+            cursor: pointer;
+        }
+
+        /* Category Detail Modal */
+        .category-modal {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: rgba(0, 0, 0, 0.5);
+            z-index: var(--z-modal);
+            align-items: center;
+            justify-content: center;
+            padding: 20px;
+        }
+
+        .category-modal.active {
+            display: flex;
+        }
+
+        .category-modal-content {
+            background: var(--card);
+            border-radius: var(--radius-large);
+            padding: 32px;
+            max-width: 600px;
+            width: 100%;
+            max-height: 80vh;
+            overflow-y: auto;
+            box-shadow: var(--shadow-high);
+            position: relative;
+            animation: modalSlideIn 0.3s ease-out;
+        }
+
+        @keyframes modalSlideIn {
+            from {
+                transform: translateY(50px);
+                opacity: 0;
+            }
+            to {
+                transform: translateY(0);
+                opacity: 1;
+            }
+        }
+
+        .category-modal-header {
+            display: flex;
+            align-items: center;
+            gap: 16px;
+            margin-bottom: 24px;
+            padding-bottom: 16px;
+            border-bottom: 2px solid var(--divider);
+        }
+
+        .category-modal-close {
+            position: absolute;
+            top: 16px;
+            right: 16px;
+            background: none;
+            border: none;
+            font-size: 24px;
+            color: var(--text-tertiary);
+            cursor: pointer;
+            width: 32px;
+            height: 32px;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            transition: all var(--transition-fast);
+        }
+
+        .category-modal-close:hover {
+            background: var(--background);
+            color: var(--text-primary);
+        }
+
+        .category-detail-item {
+            padding: 12px;
+            border-radius: 12px;
+            background: var(--background);
+            margin-bottom: 12px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
         .nav-tab {
             flex: 1;
             padding: 10px 4px;
@@ -2384,6 +2509,40 @@
             <div style="display: flex; gap: 10px;">
                 <button class="btn" onclick="saveBudget()" style="flex: 1;"><span>Set Budget</span></button>
                 <button class="btn btn-secondary" onclick="closeBudgetModal()" style="flex: 1;"><span>Cancel</span></button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Category Detail Modal -->
+    <div id="categoryModal" class="category-modal">
+        <div class="category-modal-content">
+            <button class="category-modal-close" onclick="closeCategoryModal()">×</button>
+
+            <div class="category-modal-header">
+                <div class="category-icon-circle" id="modalCategoryIcon" style="width: 56px; height: 56px; font-size: 28px;">
+                    📦
+                </div>
+                <div>
+                    <h2 class="card-title" style="margin: 0;" id="modalCategoryName">Category</h2>
+                    <div style="font-size: var(--font-size-sm); color: var(--text-secondary);" id="modalCategoryPeriod">This week</div>
+                </div>
+            </div>
+
+            <!-- Summary Stats -->
+            <div style="display: grid; grid-template-columns: repeat(2, 1fr); gap: 16px; margin-bottom: 24px;">
+                <div style="text-align: center; padding: 16px; background: var(--background); border-radius: 12px;">
+                    <div style="font-size: var(--font-size-xs); color: var(--text-tertiary); margin-bottom: 4px; text-transform: uppercase;">Total Spent</div>
+                    <div style="font-size: var(--font-size-2xl); font-weight: var(--font-weight-bold); color: var(--primary);" id="modalCategoryTotal">0 kr</div>
+                </div>
+                <div style="text-align: center; padding: 16px; background: var(--background); border-radius: 12px;">
+                    <div style="font-size: var(--font-size-xs); color: var(--text-tertiary); margin-bottom: 4px; text-transform: uppercase;">Transactions</div>
+                    <div style="font-size: var(--font-size-2xl); font-weight: var(--font-weight-bold); color: var(--expense-red);" id="modalCategoryCount">0</div>
+                </div>
+            </div>
+
+            <h3 style="font-size: var(--font-size-lg); font-weight: var(--font-weight-semibold); margin-bottom: 16px;">All Items</h3>
+            <div id="modalCategoryItems">
+                <!-- Items will be populated here -->
             </div>
         </div>
     </div>
@@ -7176,6 +7335,12 @@
                 path.setAttribute('d', pathData);
                 path.setAttribute('fill', categoryColors[category] || '#95A5A6');
                 path.setAttribute('class', 'donut-segment');
+                path.setAttribute('data-category', category);
+                path.style.cursor = 'pointer';
+
+                // Add click handler to donut segment
+                path.addEventListener('click', () => selectCategory(category));
+
                 svg.appendChild(path);
 
                 currentAngle = endAngle;
@@ -7183,7 +7348,7 @@
 
             // Render legend
             const legendHTML = categories.map(({ category, amount }) => `
-                <div class="legend-item">
+                <div class="legend-item" data-category="${category}" onclick="selectCategory('${category}')">
                     <div class="legend-color" style="background: ${categoryColors[category] || '#95A5A6'};"></div>
                     <div class="legend-label">${category}</div>
                     <div class="legend-amount">${amount.toFixed(0)} kr</div>
@@ -7367,7 +7532,7 @@
                 const lightColor = `${color}20`; // Add alpha for light background
 
                 return `
-                    <div class="category-spending-card">
+                    <div class="category-spending-card" onclick="showCategoryDetail('${category}')">
                         <div style="display: flex; align-items: center; gap: 16px;">
                             <!-- Category Icon -->
                             <div class="category-icon-circle" style="background: ${lightColor};">
@@ -7506,6 +7671,145 @@
 
             insightElement.textContent = finalInsight;
         }
+
+        // ============ INTERACTIVE CATEGORY SELECTION ============
+
+        let selectedCategory = null;
+
+        function selectCategory(category) {
+            selectedCategory = category;
+
+            // Highlight the selected segment in donut chart
+            document.querySelectorAll('.donut-segment').forEach(segment => {
+                if (segment.getAttribute('data-category') === category) {
+                    segment.classList.add('selected');
+                } else {
+                    segment.classList.remove('selected');
+                }
+            });
+
+            // Highlight the selected legend item
+            document.querySelectorAll('.legend-item').forEach(item => {
+                if (item.getAttribute('data-category') === category) {
+                    item.classList.add('selected');
+                } else {
+                    item.classList.remove('selected');
+                }
+            });
+
+            // Scroll legend item into view
+            const selectedLegendItem = document.querySelector(`.legend-item[data-category="${category}"]`);
+            if (selectedLegendItem) {
+                selectedLegendItem.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
+            }
+
+            // Show category detail modal
+            showCategoryDetail(category);
+        }
+
+        function showCategoryDetail(category) {
+            const modal = document.getElementById('categoryModal');
+            const color = categoryColors[category] || '#95A5A6';
+            const icon = categoryIcons[category] || '📦';
+            const lightColor = `${color}20`;
+
+            // Set modal header
+            document.getElementById('modalCategoryName').textContent = category;
+            document.getElementById('modalCategoryPeriod').textContent = `${currentAnalyticsPeriod === 'week' ? 'This Week' : currentAnalyticsPeriod === 'month' ? 'This Month' : 'This Year'}`;
+
+            const modalIcon = document.getElementById('modalCategoryIcon');
+            modalIcon.textContent = icon;
+            modalIcon.style.background = lightColor;
+
+            // Calculate category data
+            const now = new Date();
+            let startDate;
+            if (currentAnalyticsPeriod === 'week') {
+                startDate = new Date(now);
+                startDate.setDate(now.getDate() - 7);
+            } else if (currentAnalyticsPeriod === 'month') {
+                startDate = new Date(now);
+                startDate.setMonth(now.getMonth() - 1);
+            } else {
+                startDate = new Date(now);
+                startDate.setFullYear(now.getFullYear() - 1);
+            }
+
+            // Get all items in this category within the period
+            const categoryItems = [];
+            allReceipts.forEach(receipt => {
+                const receiptDate = new Date(receipt.purchase_date || receipt.date);
+                if (receiptDate >= startDate && receiptDate <= now) {
+                    if (receipt.items) {
+                        receipt.items.forEach(item => {
+                            if ((item.category || 'Other') === category) {
+                                categoryItems.push({
+                                    name: item.name,
+                                    price: item.total_price || item.price || 0,
+                                    store: receipt.store || 'Unknown',
+                                    date: receipt.date || receipt.purchase_date
+                                });
+                            }
+                        });
+                    }
+                }
+            });
+
+            // Calculate total and count
+            const total = categoryItems.reduce((sum, item) => sum + item.price, 0);
+            const count = categoryItems.length;
+
+            document.getElementById('modalCategoryTotal').textContent = total.toFixed(0) + ' kr';
+            document.getElementById('modalCategoryCount').textContent = count;
+
+            // Sort items by price (highest first)
+            categoryItems.sort((a, b) => b.price - a.price);
+
+            // Render items list
+            const itemsHTML = categoryItems.length > 0
+                ? categoryItems.map(item => `
+                    <div class="category-detail-item">
+                        <div style="flex: 1; min-width: 0;">
+                            <div style="font-weight: var(--font-weight-semibold); color: var(--text-primary); margin-bottom: 2px;">
+                                ${item.name}
+                            </div>
+                            <div style="font-size: var(--font-size-sm); color: var(--text-secondary);">
+                                ${item.store} • ${item.date}
+                            </div>
+                        </div>
+                        <div style="font-weight: var(--font-weight-bold); color: ${color}; font-size: var(--font-size-lg);">
+                            ${item.price.toFixed(2)} kr
+                        </div>
+                    </div>
+                `).join('')
+                : '<p style="color: var(--text-tertiary); text-align: center; padding: 20px;">No items in this category</p>';
+
+            document.getElementById('modalCategoryItems').innerHTML = itemsHTML;
+
+            // Show modal
+            modal.classList.add('active');
+        }
+
+        function closeCategoryModal() {
+            const modal = document.getElementById('categoryModal');
+            modal.classList.remove('active');
+
+            // Clear selection
+            document.querySelectorAll('.donut-segment.selected').forEach(segment => {
+                segment.classList.remove('selected');
+            });
+            document.querySelectorAll('.legend-item.selected').forEach(item => {
+                item.classList.remove('selected');
+            });
+            selectedCategory = null;
+        }
+
+        // Close modal when clicking outside
+        document.getElementById('categoryModal')?.addEventListener('click', (e) => {
+            if (e.target.id === 'categoryModal') {
+                closeCategoryModal();
+            }
+        });
     </script>
 </body>
 </html>
