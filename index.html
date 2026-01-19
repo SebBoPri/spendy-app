@@ -800,6 +800,48 @@
             opacity: 1;
         }
 
+        /* Top Spending Category Cards */
+        .category-spending-card {
+            background: var(--card);
+            border-radius: 24px;
+            padding: 20px;
+            margin-bottom: 16px;
+            box-shadow: var(--shadow-soft);
+            transition: all var(--transition-base);
+            cursor: default;
+        }
+
+        .category-spending-card:hover {
+            box-shadow: var(--shadow-medium);
+            transform: translateY(-2px);
+        }
+
+        .category-icon-circle {
+            width: 48px;
+            height: 48px;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 24px;
+            flex-shrink: 0;
+        }
+
+        .spending-progress-bar {
+            width: 100%;
+            height: 6px;
+            background: var(--divider);
+            border-radius: 3px;
+            overflow: hidden;
+            margin-top: 12px;
+        }
+
+        .spending-progress-fill {
+            height: 100%;
+            border-radius: 3px;
+            transition: width 0.6s ease;
+        }
+
         .nav-tab {
             flex: 1;
             padding: 10px 4px;
@@ -2832,6 +2874,14 @@
                 <div class="card" style="padding: 20px; text-align: center;">
                     <div style="font-size: var(--font-size-xs); color: var(--text-tertiary); margin-bottom: 8px; text-transform: uppercase; letter-spacing: 0.5px;">Transactions</div>
                     <div style="font-size: var(--font-size-2xl); font-weight: var(--font-weight-bold); color: var(--expense-red);" id="transactionCount">0</div>
+                </div>
+            </div>
+
+            <!-- Top Spending Section -->
+            <div style="margin-top: 32px;">
+                <h3 class="chart-title">Top Spending Categories</h3>
+                <div id="topSpendingList">
+                    <!-- Category cards will be populated by JavaScript -->
                 </div>
             </div>
         </div>
@@ -6831,6 +6881,7 @@
             renderDonutChart(data.categoryBreakdown, data.totalSpent);
             renderAreaChart(data.trendData);
             updateQuickStats(data);
+            renderTopSpending(data.categoryBreakdown, data.totalSpent);
         }
 
         function getAnalyticsData(period) {
@@ -7172,6 +7223,77 @@
             document.getElementById('avgPerDay').textContent = data.avgPerDay.toFixed(0) + ' kr';
             document.getElementById('topCategory').textContent = data.topCategory;
             document.getElementById('transactionCount').textContent = data.transactionCount;
+        }
+
+        // Category icons mapping
+        const categoryIcons = {
+            'Groceries': '🛒',
+            'Dining': '🍽️',
+            'Transport': '🚗',
+            'Entertainment': '🎬',
+            'Shopping': '🛍️',
+            'Healthcare': '💊',
+            'Household': '🏠',
+            'Personal Care': '💆',
+            'Other': '📦'
+        };
+
+        function renderTopSpending(categoryBreakdown, totalSpent) {
+            const container = document.getElementById('topSpendingList');
+
+            if (!categoryBreakdown || totalSpent === 0) {
+                container.innerHTML = '<p style="color: var(--text-tertiary); text-align: center; padding: 40px 20px;">No spending data available for this period</p>';
+                return;
+            }
+
+            // Sort categories by amount (highest first) and take top 5
+            const sortedCategories = Object.entries(categoryBreakdown)
+                .map(([category, amount]) => ({
+                    category,
+                    amount,
+                    percentage: (amount / totalSpent) * 100
+                }))
+                .sort((a, b) => b.amount - a.amount)
+                .slice(0, 5);
+
+            const cardsHTML = sortedCategories.map(({ category, amount, percentage }) => {
+                const color = categoryColors[category] || '#95A5A6';
+                const icon = categoryIcons[category] || '📦';
+                const lightColor = `${color}20`; // Add alpha for light background
+
+                return `
+                    <div class="category-spending-card">
+                        <div style="display: flex; align-items: center; gap: 16px;">
+                            <!-- Category Icon -->
+                            <div class="category-icon-circle" style="background: ${lightColor};">
+                                ${icon}
+                            </div>
+
+                            <!-- Category Info -->
+                            <div style="flex: 1; min-width: 0;">
+                                <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 4px;">
+                                    <div style="font-size: var(--font-size-lg); font-weight: var(--font-weight-semibold); color: var(--text-primary);">
+                                        ${category}
+                                    </div>
+                                    <div style="font-size: var(--font-size-xl); font-weight: var(--font-weight-bold); color: ${color};">
+                                        ${amount.toFixed(0)} kr
+                                    </div>
+                                </div>
+                                <div style="font-size: var(--font-size-sm); color: var(--text-secondary); margin-bottom: 8px;">
+                                    ${percentage.toFixed(1)}% of total spending
+                                </div>
+
+                                <!-- Progress Bar -->
+                                <div class="spending-progress-bar">
+                                    <div class="spending-progress-fill" style="width: ${percentage}%; background: ${color};"></div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                `;
+            }).join('');
+
+            container.innerHTML = cardsHTML;
         }
     </script>
 </body>
