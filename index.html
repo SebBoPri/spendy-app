@@ -532,6 +532,85 @@
             transform: scale(1.05);
         }
 
+        /* Processing Spinner Overlay */
+        .processing-overlay {
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: rgba(0, 0, 0, 0.9);
+            display: none;
+            align-items: center;
+            justify-content: center;
+            flex-direction: column;
+            gap: 20px;
+            z-index: 20;
+        }
+
+        .processing-overlay.active {
+            display: flex;
+        }
+
+        .processing-spinner {
+            width: 60px;
+            height: 60px;
+            border: 4px solid rgba(45, 156, 219, 0.3);
+            border-top-color: var(--primary);
+            border-radius: 50%;
+            animation: spin 1s linear infinite;
+        }
+
+        @keyframes spin {
+            to { transform: rotate(360deg); }
+        }
+
+        .processing-text {
+            color: white;
+            font-size: var(--font-size-lg);
+            font-weight: var(--font-weight-semibold);
+        }
+
+        /* Category Pill Selector */
+        .category-pills {
+            display: flex;
+            gap: 8px;
+            overflow-x: auto;
+            padding: 8px 0;
+            scrollbar-width: none;
+            -ms-overflow-style: none;
+            margin-bottom: 8px;
+        }
+
+        .category-pills::-webkit-scrollbar {
+            display: none;
+        }
+
+        .category-pill {
+            flex-shrink: 0;
+            padding: 10px 20px;
+            background: var(--background);
+            border: 2px solid var(--border);
+            border-radius: 24px;
+            color: var(--text-secondary);
+            font-size: var(--font-size-sm);
+            font-weight: var(--font-weight-semibold);
+            cursor: pointer;
+            transition: all var(--transition-fast);
+            white-space: nowrap;
+        }
+
+        .category-pill:hover {
+            border-color: var(--primary);
+            background: var(--primary-alpha-10);
+        }
+
+        .category-pill.active {
+            background: var(--primary);
+            border-color: var(--primary);
+            color: white;
+        }
+
         /* Floating Pill Bottom Navigation (Spendy Design) */
         .nav-tabs {
             position: fixed;
@@ -546,6 +625,14 @@
             box-shadow: var(--shadow-soft);  /* Soft Floating Shadow */
             z-index: var(--z-sticky);
             border: none;
+            transition: opacity var(--transition-base), visibility var(--transition-base);
+        }
+
+        /* Hide BottomNav when scanner is active */
+        .receipt-scanner.active ~ * .nav-tabs {
+            opacity: 0;
+            visibility: hidden;
+            pointer-events: none;
         }
 
         .nav-tab {
@@ -2083,6 +2170,12 @@
                     🖼️
                 </button>
             </div>
+
+            <!-- Processing Overlay -->
+            <div class="processing-overlay" id="processingOverlay">
+                <div class="processing-spinner"></div>
+                <div class="processing-text">Processing...</div>
+            </div>
         </div>
     </div>
 
@@ -2769,11 +2862,15 @@
 
         async function capturePhoto() {
             const video = document.getElementById('cameraVideo');
+            const processingOverlay = document.getElementById('processingOverlay');
 
             if (!video.srcObject) {
                 showToast('Camera not ready', 'error');
                 return;
             }
+
+            // Show processing overlay
+            processingOverlay.classList.add('active');
 
             // Create canvas to capture frame
             const canvas = document.createElement('canvas');
@@ -2785,12 +2882,17 @@
             // Convert to blob
             canvas.toBlob(async (blob) => {
                 if (!blob) {
+                    processingOverlay.classList.remove('active');
                     showToast('Failed to capture image', 'error');
                     return;
                 }
 
+                // Brief delay to show processing state
+                await new Promise(resolve => setTimeout(resolve, 800));
+
                 // Close scanner
                 closeScanner();
+                processingOverlay.classList.remove('active');
 
                 // Create file from blob
                 const file = new File([blob], 'receipt.jpg', { type: 'image/jpeg' });
@@ -2800,6 +2902,9 @@
                 const preview = document.getElementById('receiptPreview');
                 preview.src = URL.createObjectURL(file);
                 preview.style.display = 'block';
+
+                // Switch to scan tab to show results
+                switchTab('scan');
 
                 // Process the image
                 await handleReceiptUpload(file);
@@ -3426,10 +3531,16 @@
             metadataHTML += `</div>`;
 
             // Enhanced items display with detailed metadata
+            const availableCategories = [
+                'Groceries', 'Dining', 'Transport', 'Entertainment',
+                'Shopping', 'Healthcare', 'Household', 'Personal Care', 'Other'
+            ];
+
             const itemsHTML = detailedItems.map((item, index) => {
                 const detailItem = data._items_detailed ? data._items_detailed[index] : null;
                 const tags = detailItem?.tags || [];
                 const hasDiscount = detailItem && detailItem.discount && detailItem.discount > 0;
+                const currentCategory = item.category || 'Other';
 
                 return `
                     <div class="item" style="border-left: 3px solid ${hasDiscount ? 'var(--income-green)' : 'transparent'};">
@@ -3444,8 +3555,23 @@
                                     </div>
                                 ` : ''}
                             </div>
-                            <div style="display: flex; gap: 12px; margin-top: 4px; flex-wrap: wrap;">
-                                <div class="item-category">${item.category}${item.subcategory ? ' › ' + item.subcategory : ''}</div>
+
+                            <!-- Category Pills Selector -->
+                            <div style="margin-top: 12px; margin-bottom: 8px;">
+                                <div style="font-size: 0.75em; color: var(--text-tertiary); margin-bottom: 6px; text-transform: uppercase; letter-spacing: 0.5px; font-weight: 600;">Category</div>
+                                <div class="category-pills" id="categoryPills-${index}">
+                                    ${availableCategories.map(cat => `
+                                        <button class="category-pill ${cat === currentCategory ? 'active' : ''}"
+                                                onclick="updateItemCategory(${index}, '${cat}')"
+                                                type="button">
+                                            ${cat}
+                                        </button>
+                                    `).join('')}
+                                </div>
+                            </div>
+
+                            <div style="display: flex; gap: 12px; margin-top: 8px; flex-wrap: wrap;">
+                                ${item.subcategory ? `<div style="font-size: 0.85em; color: var(--text-secondary);">Subcategory: ${item.subcategory}</div>` : ''}
                                 ${detailItem?.brand ? `<div style="font-size: 0.85em; color: var(--text-secondary);">Brand: ${detailItem.brand}</div>` : ''}
                                 ${detailItem?.package_size ? `<div style="font-size: 0.85em; color: var(--text-secondary);">${detailItem.package_size}</div>` : ''}
                                 ${detailItem && detailItem.quantity > 1 ? `<div style="font-size: 0.85em; color: var(--text-secondary);">Qty: ${detailItem.quantity}</div>` : ''}
@@ -3463,6 +3589,36 @@
             }).join('');
 
             document.getElementById('itemsList').innerHTML = validationHTML + metadataHTML + itemsHTML;
+        }
+
+        function updateItemCategory(itemIndex, newCategory) {
+            if (!currentReceipt || !currentReceipt.items || !currentReceipt.items[itemIndex]) {
+                console.error('Invalid item index or no receipt loaded');
+                return;
+            }
+
+            // Update the category in the current receipt
+            currentReceipt.items[itemIndex].category = newCategory;
+
+            // Also update in _items_detailed if it exists
+            if (currentReceipt._items_detailed && currentReceipt._items_detailed[itemIndex]) {
+                currentReceipt._items_detailed[itemIndex].category = newCategory;
+            }
+
+            // Update the pills UI to show the new active state
+            const pillsContainer = document.getElementById(`categoryPills-${itemIndex}`);
+            if (pillsContainer) {
+                const pills = pillsContainer.querySelectorAll('.category-pill');
+                pills.forEach(pill => {
+                    if (pill.textContent.trim() === newCategory) {
+                        pill.classList.add('active');
+                    } else {
+                        pill.classList.remove('active');
+                    }
+                });
+            }
+
+            showToast(`Category updated to ${newCategory}`, 'success');
         }
 
         async function saveReceiptAuto() {
