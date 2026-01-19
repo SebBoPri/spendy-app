@@ -297,6 +297,241 @@
             }
         }
 
+        /* ====================================
+           RECEIPT SCANNER COMPONENT
+           Full-screen camera viewfinder
+           ==================================== */
+
+        .receipt-scanner {
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: #000;
+            z-index: var(--z-modal);
+            display: none;
+        }
+
+        .receipt-scanner.active {
+            display: flex;
+            flex-direction: column;
+        }
+
+        /* Camera Viewfinder */
+        .camera-viewfinder {
+            position: relative;
+            flex: 1;
+            width: 100%;
+            overflow: hidden;
+            background: #000;
+        }
+
+        .camera-viewfinder video {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+        }
+
+        /* Overlay */
+        .scanner-overlay {
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: rgba(0, 0, 0, 0.5);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            pointer-events: none;
+        }
+
+        /* Focus Frame (80% width, centered) */
+        .focus-frame {
+            position: relative;
+            width: 80%;
+            aspect-ratio: 3/4;
+            border: 3px solid var(--primary);
+            border-radius: var(--radius-large);
+            box-shadow: 0 0 0 9999px rgba(0, 0, 0, 0.5);
+            background: transparent;
+            overflow: hidden;
+        }
+
+        /* Corner Indicators */
+        .focus-frame::before,
+        .focus-frame::after {
+            content: '';
+            position: absolute;
+            width: 30px;
+            height: 30px;
+            border: 3px solid var(--primary);
+            box-shadow: 0 0 10px rgba(45, 156, 219, 0.5);
+        }
+
+        .focus-frame::before {
+            top: -3px;
+            left: -3px;
+            border-right: none;
+            border-bottom: none;
+            border-top-left-radius: var(--radius-large);
+        }
+
+        .focus-frame::after {
+            bottom: -3px;
+            right: -3px;
+            border-left: none;
+            border-top: none;
+            border-bottom-right-radius: var(--radius-large);
+        }
+
+        /* Scanning Animation Line */
+        .scan-line {
+            position: absolute;
+            left: 0;
+            right: 0;
+            height: 2px;
+            background: linear-gradient(90deg,
+                transparent 0%,
+                var(--primary) 50%,
+                transparent 100%
+            );
+            box-shadow: 0 0 10px var(--primary), 0 0 20px rgba(45, 156, 219, 0.5);
+            animation: scan 2s ease-in-out infinite;
+        }
+
+        @keyframes scan {
+            0%, 100% {
+                top: 10%;
+                opacity: 0.8;
+            }
+            50% {
+                top: 90%;
+                opacity: 1;
+            }
+        }
+
+        /* Tip Box */
+        .scanner-tip {
+            position: absolute;
+            bottom: 140px;
+            left: 50%;
+            transform: translateX(-50%);
+            background: rgba(0, 0, 0, 0.75);
+            backdrop-filter: blur(10px);
+            color: white;
+            padding: 12px 20px;
+            border-radius: var(--radius-medium);
+            font-size: var(--font-size-sm);
+            font-weight: var(--font-weight-medium);
+            text-align: center;
+            max-width: 90%;
+            pointer-events: none;
+        }
+
+        /* Bottom Control Bar */
+        .scanner-controls {
+            position: absolute;
+            bottom: 0;
+            left: 0;
+            right: 0;
+            padding: 24px;
+            background: linear-gradient(to top, rgba(0, 0, 0, 0.9), transparent);
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            gap: 24px;
+            pointer-events: none;
+        }
+
+        .scanner-controls > * {
+            pointer-events: auto;
+        }
+
+        /* Control Buttons */
+        .control-button {
+            width: 56px;
+            height: 56px;
+            border-radius: 50%;
+            background: rgba(255, 255, 255, 0.2);
+            backdrop-filter: blur(10px);
+            border: 2px solid rgba(255, 255, 255, 0.3);
+            color: white;
+            font-size: 24px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            cursor: pointer;
+            transition: all var(--transition-fast);
+        }
+
+        .control-button:hover {
+            background: rgba(255, 255, 255, 0.3);
+            transform: scale(1.05);
+        }
+
+        .control-button:active {
+            transform: scale(0.95);
+        }
+
+        .control-button.active {
+            background: var(--primary);
+            border-color: var(--primary);
+        }
+
+        /* Shutter Button (large, circular, teal) */
+        .shutter-button {
+            width: 80px;
+            height: 80px;
+            border-radius: 50%;
+            background: var(--primary);
+            border: 4px solid white;
+            box-shadow: 0 4px 20px rgba(45, 156, 219, 0.5), 0 0 0 8px rgba(45, 156, 219, 0.2);
+            color: white;
+            font-size: 32px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            cursor: pointer;
+            transition: all var(--transition-fast);
+        }
+
+        .shutter-button:hover {
+            transform: scale(1.05);
+            box-shadow: 0 6px 24px rgba(45, 156, 219, 0.6), 0 0 0 8px rgba(45, 156, 219, 0.3);
+        }
+
+        .shutter-button:active {
+            transform: scale(0.95);
+        }
+
+        /* Close Scanner Button */
+        .close-scanner {
+            position: absolute;
+            top: 20px;
+            right: 20px;
+            width: 44px;
+            height: 44px;
+            border-radius: 50%;
+            background: rgba(0, 0, 0, 0.6);
+            backdrop-filter: blur(10px);
+            border: 2px solid rgba(255, 255, 255, 0.3);
+            color: white;
+            font-size: 24px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            cursor: pointer;
+            transition: all var(--transition-fast);
+            z-index: 10;
+        }
+
+        .close-scanner:hover {
+            background: rgba(0, 0, 0, 0.8);
+            transform: scale(1.05);
+        }
+
         /* Floating Pill Bottom Navigation (Spendy Design) */
         .nav-tabs {
             position: fixed;
@@ -1809,6 +2044,48 @@
         </div>
     </div>
 
+    <!-- Receipt Scanner Component -->
+    <div class="receipt-scanner" id="receiptScanner">
+        <!-- Close Button -->
+        <button class="close-scanner" onclick="closeScanner()">✕</button>
+
+        <!-- Camera Viewfinder -->
+        <div class="camera-viewfinder">
+            <video id="cameraVideo" autoplay playsinline></video>
+
+            <!-- Overlay with Focus Frame -->
+            <div class="scanner-overlay">
+                <div class="focus-frame">
+                    <!-- Scanning Animation Line -->
+                    <div class="scan-line"></div>
+                </div>
+            </div>
+
+            <!-- Tip Box -->
+            <div class="scanner-tip">
+                💡 Align receipt within the frame for best results
+            </div>
+
+            <!-- Bottom Control Bar -->
+            <div class="scanner-controls">
+                <!-- Flash Toggle (Left) -->
+                <button class="control-button" id="flashButton" onclick="toggleFlash()" title="Toggle Flash">
+                    <span id="flashIcon">⚡</span>
+                </button>
+
+                <!-- Shutter Button (Center) -->
+                <button class="shutter-button" onclick="capturePhoto()" title="Capture Photo">
+                    📸
+                </button>
+
+                <!-- Upload from Gallery (Right) -->
+                <button class="control-button" onclick="openGallery()" title="Upload from Gallery">
+                    🖼️
+                </button>
+            </div>
+        </div>
+    </div>
+
     <div class="container">
         <header>
             <div class="home-header">
@@ -1882,20 +2159,27 @@
 
         <!-- Scan Tab -->
         <div id="scan" class="tab-content active">
+            <!-- Scan Options -->
             <div class="card">
-                <h2 class="card-title">Snap Your Receipt</h2>
-                <div class="upload-zone" onclick="document.getElementById('fileInput').click()">
-                    <div class="upload-icon">📸</div>
-                    <h3 class="upload-title">Take Photo or Upload</h3>
-                    <p class="upload-subtitle">Camera on mobile, file picker on desktop</p>
-                </div>
-                <input type="file" id="fileInput" accept="image/*" capture="environment">
+                <h2 class="card-title">Scan Your Receipt</h2>
+                <p style="color: var(--text-secondary); margin-bottom: 24px;">Choose how you'd like to scan your receipt</p>
 
-                <div style="text-align: center; margin-top: 16px;">
-                    <button onclick="document.getElementById('fileInputMultiple').click()" style="background: none; border: 2px solid var(--primary); color: var(--primary); padding: 12px 24px; border-radius: 10px; cursor: pointer; font-weight: 600; font-size: 14px;">
-                        📁 Upload Multiple Files
+                <!-- Camera Scanner Button -->
+                <button class="btn" onclick="openScanner()" style="width: 100%; margin-bottom: 16px;">
+                    <span>📸 Open Camera Scanner</span>
+                </button>
+
+                <!-- Upload Options -->
+                <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 12px;">
+                    <button onclick="document.getElementById('fileInput').click()" class="btn btn-secondary">
+                        <span>📁 Upload File</span>
+                    </button>
+                    <button onclick="document.getElementById('fileInputMultiple').click()" class="btn btn-secondary">
+                        <span>📂 Multiple Files</span>
                     </button>
                 </div>
+
+                <input type="file" id="fileInput" accept="image/*" capture="environment" style="display: none;">
                 <input type="file" id="fileInputMultiple" accept="image/*" multiple style="display: none;">
 
                 <div id="processingArea" style="display: none;">
@@ -2398,6 +2682,135 @@
             displayName: '',
             profilePic: ''
         };
+
+        // ============ RECEIPT SCANNER CAMERA CONTROLS ============
+        let cameraStream = null;
+        let flashEnabled = false;
+
+        async function openScanner() {
+            const scanner = document.getElementById('receiptScanner');
+            const video = document.getElementById('cameraVideo');
+
+            try {
+                // Request camera access with rear camera preference
+                cameraStream = await navigator.mediaDevices.getUserMedia({
+                    video: {
+                        facingMode: 'environment',  // Use rear camera on mobile
+                        width: { ideal: 1920 },
+                        height: { ideal: 1080 }
+                    }
+                });
+
+                video.srcObject = cameraStream;
+                scanner.classList.add('active');
+
+                // Check if flash is available
+                const track = cameraStream.getVideoTracks()[0];
+                const capabilities = track.getCapabilities();
+                if (!capabilities.torch) {
+                    document.getElementById('flashButton').style.opacity = '0.5';
+                    document.getElementById('flashButton').style.pointerEvents = 'none';
+                }
+
+                showToast('Camera ready!', 'success');
+            } catch (error) {
+                console.error('Camera access error:', error);
+                showToast('Camera access denied. Please enable camera permissions.', 'error');
+            }
+        }
+
+        function closeScanner() {
+            const scanner = document.getElementById('receiptScanner');
+            const video = document.getElementById('cameraVideo');
+
+            // Stop camera stream
+            if (cameraStream) {
+                cameraStream.getTracks().forEach(track => track.stop());
+                cameraStream = null;
+            }
+
+            video.srcObject = null;
+            scanner.classList.remove('active');
+            flashEnabled = false;
+            document.getElementById('flashButton').classList.remove('active');
+        }
+
+        async function toggleFlash() {
+            if (!cameraStream) return;
+
+            const track = cameraStream.getVideoTracks()[0];
+            const capabilities = track.getCapabilities();
+
+            if (!capabilities.torch) {
+                showToast('Flash not available on this device', 'warning');
+                return;
+            }
+
+            flashEnabled = !flashEnabled;
+
+            try {
+                await track.applyConstraints({
+                    advanced: [{ torch: flashEnabled }]
+                });
+
+                const flashButton = document.getElementById('flashButton');
+                if (flashEnabled) {
+                    flashButton.classList.add('active');
+                    showToast('Flash enabled', 'info');
+                } else {
+                    flashButton.classList.remove('active');
+                    showToast('Flash disabled', 'info');
+                }
+            } catch (error) {
+                console.error('Flash toggle error:', error);
+                showToast('Failed to toggle flash', 'error');
+            }
+        }
+
+        async function capturePhoto() {
+            const video = document.getElementById('cameraVideo');
+
+            if (!video.srcObject) {
+                showToast('Camera not ready', 'error');
+                return;
+            }
+
+            // Create canvas to capture frame
+            const canvas = document.createElement('canvas');
+            canvas.width = video.videoWidth;
+            canvas.height = video.videoHeight;
+            const ctx = canvas.getContext('2d');
+            ctx.drawImage(video, 0, 0);
+
+            // Convert to blob
+            canvas.toBlob(async (blob) => {
+                if (!blob) {
+                    showToast('Failed to capture image', 'error');
+                    return;
+                }
+
+                // Close scanner
+                closeScanner();
+
+                // Create file from blob
+                const file = new File([blob], 'receipt.jpg', { type: 'image/jpeg' });
+
+                // Show processing UI
+                document.getElementById('processingArea').style.display = 'block';
+                const preview = document.getElementById('receiptPreview');
+                preview.src = URL.createObjectURL(file);
+                preview.style.display = 'block';
+
+                // Process the image
+                await handleReceiptUpload(file);
+            }, 'image/jpeg', 0.9);
+        }
+
+        function openGallery() {
+            // Close scanner and open file picker
+            closeScanner();
+            document.getElementById('fileInput').click();
+        }
 
         // ============ TOAST NOTIFICATION SYSTEM ============
         function showToast(message, type = 'info', title = '') {
