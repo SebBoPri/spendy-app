@@ -635,6 +635,171 @@
             pointer-events: none;
         }
 
+        /* ====================================
+           DATA ANALYTICS COMPONENTS
+           Charts and visualizations
+           ==================================== */
+
+        /* Time Period Toggle (Segmented Control) */
+        .time-toggle {
+            display: flex;
+            gap: 8px;
+            background: var(--background);
+            padding: 6px;
+            border-radius: 32px;
+            margin-bottom: 32px;
+            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.04);
+        }
+
+        .time-toggle-btn {
+            flex: 1;
+            padding: 12px 24px;
+            background: transparent;
+            border: none;
+            border-radius: 24px;
+            color: var(--text-secondary);
+            font-size: var(--font-size-sm);
+            font-weight: var(--font-weight-semibold);
+            cursor: pointer;
+            transition: all var(--transition-base);
+            white-space: nowrap;
+        }
+
+        .time-toggle-btn:hover:not(.active) {
+            color: var(--text-primary);
+            background: rgba(0, 0, 0, 0.03);
+        }
+
+        .time-toggle-btn.active {
+            background: var(--primary);
+            color: white;
+            box-shadow: 0 4px 12px rgba(45, 156, 219, 0.25);
+        }
+
+        /* Chart Container */
+        .chart-container {
+            background: var(--card);
+            border-radius: var(--radius-large);
+            padding: 32px;
+            box-shadow: var(--shadow-soft);
+            margin-bottom: 24px;
+        }
+
+        .chart-title {
+            font-size: var(--font-size-lg);
+            font-weight: var(--font-weight-bold);
+            color: var(--text-primary);
+            margin-bottom: 24px;
+        }
+
+        /* Donut Chart */
+        .donut-chart-wrapper {
+            position: relative;
+            width: 100%;
+            max-width: 320px;
+            margin: 0 auto 32px;
+        }
+
+        .donut-chart {
+            width: 100%;
+            height: auto;
+        }
+
+        .donut-center {
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            text-align: center;
+        }
+
+        .donut-total-label {
+            font-size: var(--font-size-xs);
+            color: var(--text-tertiary);
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+            margin-bottom: 4px;
+        }
+
+        .donut-total-amount {
+            font-size: 32px;
+            font-weight: var(--font-weight-bold);
+            color: var(--text-primary);
+            line-height: 1;
+        }
+
+        /* Category Legend */
+        .category-legend {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(140px, 1fr));
+            gap: 16px;
+            margin-top: 24px;
+        }
+
+        .legend-item {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .legend-color {
+            width: 16px;
+            height: 16px;
+            border-radius: 4px;
+            flex-shrink: 0;
+        }
+
+        .legend-label {
+            font-size: var(--font-size-sm);
+            color: var(--text-secondary);
+            flex: 1;
+            min-width: 0;
+        }
+
+        .legend-amount {
+            font-size: var(--font-size-sm);
+            font-weight: var(--font-weight-semibold);
+            color: var(--text-primary);
+            white-space: nowrap;
+        }
+
+        /* Area Chart */
+        .area-chart-wrapper {
+            width: 100%;
+            height: 280px;
+            position: relative;
+        }
+
+        .area-chart {
+            width: 100%;
+            height: 100%;
+        }
+
+        /* Chart axis labels */
+        .chart-axis-label {
+            font-size: var(--font-size-xs);
+            fill: var(--text-tertiary);
+        }
+
+        /* Tooltip for charts */
+        .chart-tooltip {
+            position: absolute;
+            background: rgba(0, 0, 0, 0.9);
+            color: white;
+            padding: 8px 12px;
+            border-radius: 8px;
+            font-size: var(--font-size-xs);
+            pointer-events: none;
+            opacity: 0;
+            transition: opacity var(--transition-fast);
+            z-index: 100;
+            white-space: nowrap;
+        }
+
+        .chart-tooltip.visible {
+            opacity: 1;
+        }
+
         .nav-tab {
             flex: 1;
             padding: 10px 4px;
@@ -2235,6 +2400,10 @@
                 <span class="nav-icon">💰</span>
                 <span>Budgets</span>
             </button>
+            <button class="nav-tab" onclick="switchTab('analytics')">
+                <span class="nav-icon">📊</span>
+                <span>Analytics</span>
+            </button>
             <button class="nav-tab" onclick="switchTab('data')">
                 <span class="nav-icon">📈</span>
                 <span>Data</span>
@@ -2605,6 +2774,64 @@
                 <h3 class="card-title">This Month's Spending</h3>
                 <div id="monthlySpendingSummary">
                     <p style="color: var(--text-secondary); text-align: center; padding: 20px;">No data for this month yet</p>
+                </div>
+            </div>
+        </div>
+
+        <!-- Analytics Tab -->
+        <div id="analytics" class="tab-content">
+            <!-- Time Period Toggle -->
+            <div class="time-toggle">
+                <button class="time-toggle-btn active" id="toggle-week" onclick="setAnalyticsPeriod('week')">Week</button>
+                <button class="time-toggle-btn" id="toggle-month" onclick="setAnalyticsPeriod('month')">Month</button>
+                <button class="time-toggle-btn" id="toggle-year" onclick="setAnalyticsPeriod('year')">Year</button>
+            </div>
+
+            <!-- Donut Chart: Category Breakdown -->
+            <div class="chart-container">
+                <h3 class="chart-title">Spending by Category</h3>
+
+                <div class="donut-chart-wrapper">
+                    <svg class="donut-chart" viewBox="0 0 200 200" id="donutChart">
+                        <!-- Chart will be rendered here by JavaScript -->
+                    </svg>
+                    <div class="donut-center">
+                        <div class="donut-total-label">Total Spent</div>
+                        <div class="donut-total-amount" id="donutTotalAmount">0 kr</div>
+                    </div>
+                </div>
+
+                <!-- Category Legend -->
+                <div class="category-legend" id="categoryLegend">
+                    <!-- Legend items will be populated by JavaScript -->
+                </div>
+            </div>
+
+            <!-- Area Chart: Spending Trend -->
+            <div class="chart-container">
+                <h3 class="chart-title">Spending Trend</h3>
+                <div class="area-chart-wrapper">
+                    <svg class="area-chart" id="areaChart" viewBox="0 0 800 280">
+                        <!-- Chart will be rendered here by JavaScript -->
+                    </svg>
+                </div>
+                <!-- Chart Tooltip -->
+                <div class="chart-tooltip" id="chartTooltip"></div>
+            </div>
+
+            <!-- Quick Stats Grid -->
+            <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(150px, 1fr)); gap: 16px; margin-top: 24px;">
+                <div class="card" style="padding: 20px; text-align: center;">
+                    <div style="font-size: var(--font-size-xs); color: var(--text-tertiary); margin-bottom: 8px; text-transform: uppercase; letter-spacing: 0.5px;">Avg per Day</div>
+                    <div style="font-size: var(--font-size-2xl); font-weight: var(--font-weight-bold); color: var(--primary);" id="avgPerDay">0 kr</div>
+                </div>
+                <div class="card" style="padding: 20px; text-align: center;">
+                    <div style="font-size: var(--font-size-xs); color: var(--text-tertiary); margin-bottom: 8px; text-transform: uppercase; letter-spacing: 0.5px;">Top Category</div>
+                    <div style="font-size: var(--font-size-lg); font-weight: var(--font-weight-bold); color: var(--text-primary);" id="topCategory">-</div>
+                </div>
+                <div class="card" style="padding: 20px; text-align: center;">
+                    <div style="font-size: var(--font-size-xs); color: var(--text-tertiary); margin-bottom: 8px; text-transform: uppercase; letter-spacing: 0.5px;">Transactions</div>
+                    <div style="font-size: var(--font-size-2xl); font-weight: var(--font-weight-bold); color: var(--expense-red);" id="transactionCount">0</div>
                 </div>
             </div>
         </div>
@@ -3045,6 +3272,7 @@
 
             if (tabName === 'dashboard') updateDashboard();
             else if (tabName === 'budgets') updateBudgetGoalsUI();
+            else if (tabName === 'analytics') updateAnalytics();
             else if (tabName === 'history') updateHistory();
             else if (tabName === 'data') updateDataTable();
             else if (tabName === 'account') updateAccountPage();
@@ -6568,6 +6796,382 @@
             console.log('✅ Running as installed PWA');
             // Optional: Hide install button if already installed
             installButton.style.display = 'none';
+        }
+
+        // ============ ANALYTICS FUNCTIONS ============
+
+        let currentAnalyticsPeriod = 'week';
+
+        // Category colors for donut chart
+        const categoryColors = {
+            'Groceries': '#27AE60',
+            'Dining': '#E67E22',
+            'Transport': '#3498DB',
+            'Entertainment': '#9B59B6',
+            'Shopping': '#E74C3C',
+            'Healthcare': '#1ABC9C',
+            'Household': '#F39C12',
+            'Personal Care': '#E91E63',
+            'Other': '#95A5A6'
+        };
+
+        function setAnalyticsPeriod(period) {
+            currentAnalyticsPeriod = period;
+
+            // Update toggle buttons
+            document.querySelectorAll('.time-toggle-btn').forEach(btn => btn.classList.remove('active'));
+            document.getElementById(`toggle-${period}`).classList.add('active');
+
+            // Refresh analytics
+            updateAnalytics();
+        }
+
+        function updateAnalytics() {
+            const data = getAnalyticsData(currentAnalyticsPeriod);
+            renderDonutChart(data.categoryBreakdown, data.totalSpent);
+            renderAreaChart(data.trendData);
+            updateQuickStats(data);
+        }
+
+        function getAnalyticsData(period) {
+            const now = new Date();
+            let startDate;
+
+            // Calculate start date based on period
+            if (period === 'week') {
+                startDate = new Date(now);
+                startDate.setDate(now.getDate() - 7);
+            } else if (period === 'month') {
+                startDate = new Date(now);
+                startDate.setMonth(now.getMonth() - 1);
+            } else if (period === 'year') {
+                startDate = new Date(now);
+                startDate.setFullYear(now.getFullYear() - 1);
+            }
+
+            // Filter receipts within the period
+            const periodReceipts = allReceipts.filter(receipt => {
+                const receiptDate = new Date(receipt.purchase_date || receipt.date);
+                return receiptDate >= startDate && receiptDate <= now;
+            });
+
+            // Calculate category breakdown
+            const categoryBreakdown = {};
+            let totalSpent = 0;
+
+            periodReceipts.forEach(receipt => {
+                if (receipt.items) {
+                    receipt.items.forEach(item => {
+                        const category = item.category || 'Other';
+                        const price = item.total_price || item.price || 0;
+
+                        if (!categoryBreakdown[category]) {
+                            categoryBreakdown[category] = 0;
+                        }
+                        categoryBreakdown[category] += price;
+                        totalSpent += price;
+                    });
+                }
+            });
+
+            // Calculate trend data
+            const trendData = calculateTrendData(periodReceipts, period, startDate, now);
+
+            // Calculate stats
+            const daysInPeriod = period === 'week' ? 7 : period === 'month' ? 30 : 365;
+            const avgPerDay = totalSpent / daysInPeriod;
+            const topCategory = Object.entries(categoryBreakdown)
+                .sort((a, b) => b[1] - a[1])[0]?.[0] || 'None';
+            const transactionCount = periodReceipts.length;
+
+            return {
+                categoryBreakdown,
+                totalSpent,
+                trendData,
+                avgPerDay,
+                topCategory,
+                transactionCount
+            };
+        }
+
+        function calculateTrendData(receipts, period, startDate, endDate) {
+            const dataPoints = period === 'week' ? 7 : period === 'month' ? 30 : 12;
+            const trendData = [];
+
+            if (period === 'year') {
+                // Group by month for year view
+                for (let i = 0; i < 12; i++) {
+                    const monthStart = new Date(startDate);
+                    monthStart.setMonth(startDate.getMonth() + i);
+                    const monthEnd = new Date(monthStart);
+                    monthEnd.setMonth(monthStart.getMonth() + 1);
+
+                    const monthReceipts = receipts.filter(r => {
+                        const date = new Date(r.purchase_date || r.date);
+                        return date >= monthStart && date < monthEnd;
+                    });
+
+                    const monthTotal = monthReceipts.reduce((sum, r) => {
+                        const total = r.total_amount || r.total || 0;
+                        return sum + total;
+                    }, 0);
+
+                    trendData.push({
+                        label: monthStart.toLocaleDateString('en-US', { month: 'short' }),
+                        value: monthTotal
+                    });
+                }
+            } else {
+                // Group by day for week/month view
+                for (let i = 0; i < dataPoints; i++) {
+                    const dayDate = new Date(startDate);
+                    dayDate.setDate(startDate.getDate() + i);
+                    const dayEnd = new Date(dayDate);
+                    dayEnd.setDate(dayDate.getDate() + 1);
+
+                    const dayReceipts = receipts.filter(r => {
+                        const date = new Date(r.purchase_date || r.date);
+                        return date >= dayDate && date < dayEnd;
+                    });
+
+                    const dayTotal = dayReceipts.reduce((sum, r) => {
+                        const total = r.total_amount || r.total || 0;
+                        return sum + total;
+                    }, 0);
+
+                    const label = period === 'week'
+                        ? dayDate.toLocaleDateString('en-US', { weekday: 'short' })
+                        : dayDate.getDate().toString();
+
+                    trendData.push({
+                        label,
+                        value: dayTotal
+                    });
+                }
+            }
+
+            return trendData;
+        }
+
+        function renderDonutChart(categoryBreakdown, totalSpent) {
+            const svg = document.getElementById('donutChart');
+            svg.innerHTML = '';
+
+            // Update total amount
+            document.getElementById('donutTotalAmount').textContent = totalSpent.toFixed(0) + ' kr';
+
+            if (totalSpent === 0) {
+                // Show empty state
+                const text = document.createElementNS('http://www.w3.org/2000/svg', 'text');
+                text.setAttribute('x', '100');
+                text.setAttribute('y', '100');
+                text.setAttribute('text-anchor', 'middle');
+                text.setAttribute('fill', '#9CA3AF');
+                text.setAttribute('font-size', '14');
+                text.textContent = 'No data';
+                svg.appendChild(text);
+
+                document.getElementById('categoryLegend').innerHTML = '<p style="color: var(--text-tertiary); text-align: center;">No transactions in this period</p>';
+                return;
+            }
+
+            // Calculate percentages and sort categories
+            const categories = Object.entries(categoryBreakdown)
+                .map(([cat, amount]) => ({
+                    category: cat,
+                    amount,
+                    percentage: (amount / totalSpent) * 100
+                }))
+                .sort((a, b) => b.amount - a.amount);
+
+            // Draw donut chart
+            const centerX = 100;
+            const centerY = 100;
+            const radius = 80;
+            const innerRadius = 55;
+            let currentAngle = -90; // Start from top
+
+            categories.forEach(({ category, percentage }) => {
+                const angle = (percentage / 100) * 360;
+                const endAngle = currentAngle + angle;
+
+                // Create arc path
+                const startX = centerX + radius * Math.cos((currentAngle * Math.PI) / 180);
+                const startY = centerY + radius * Math.sin((currentAngle * Math.PI) / 180);
+                const endX = centerX + radius * Math.cos((endAngle * Math.PI) / 180);
+                const endY = centerY + radius * Math.sin((endAngle * Math.PI) / 180);
+
+                const innerStartX = centerX + innerRadius * Math.cos((endAngle * Math.PI) / 180);
+                const innerStartY = centerY + innerRadius * Math.sin((endAngle * Math.PI) / 180);
+                const innerEndX = centerX + innerRadius * Math.cos((currentAngle * Math.PI) / 180);
+                const innerEndY = centerY + innerRadius * Math.sin((currentAngle * Math.PI) / 180);
+
+                const largeArcFlag = angle > 180 ? 1 : 0;
+
+                const pathData = [
+                    `M ${startX} ${startY}`,
+                    `A ${radius} ${radius} 0 ${largeArcFlag} 1 ${endX} ${endY}`,
+                    `L ${innerStartX} ${innerStartY}`,
+                    `A ${innerRadius} ${innerRadius} 0 ${largeArcFlag} 0 ${innerEndX} ${innerEndY}`,
+                    'Z'
+                ].join(' ');
+
+                const path = document.createElementNS('http://www.w3.org/2000/svg', 'path');
+                path.setAttribute('d', pathData);
+                path.setAttribute('fill', categoryColors[category] || '#95A5A6');
+                path.setAttribute('class', 'donut-segment');
+                svg.appendChild(path);
+
+                currentAngle = endAngle;
+            });
+
+            // Render legend
+            const legendHTML = categories.map(({ category, amount }) => `
+                <div class="legend-item">
+                    <div class="legend-color" style="background: ${categoryColors[category] || '#95A5A6'};"></div>
+                    <div class="legend-label">${category}</div>
+                    <div class="legend-amount">${amount.toFixed(0)} kr</div>
+                </div>
+            `).join('');
+
+            document.getElementById('categoryLegend').innerHTML = legendHTML;
+        }
+
+        function renderAreaChart(trendData) {
+            const svg = document.getElementById('areaChart');
+            svg.innerHTML = '';
+
+            if (!trendData || trendData.length === 0) {
+                const text = document.createElementNS('http://www.w3.org/2000/svg', 'text');
+                text.setAttribute('x', '400');
+                text.setAttribute('y', '140');
+                text.setAttribute('text-anchor', 'middle');
+                text.setAttribute('fill', '#9CA3AF');
+                text.setAttribute('font-size', '16');
+                text.textContent = 'No trend data available';
+                svg.appendChild(text);
+                return;
+            }
+
+            const width = 800;
+            const height = 280;
+            const padding = { top: 20, right: 40, bottom: 40, left: 60 };
+            const chartWidth = width - padding.left - padding.right;
+            const chartHeight = height - padding.top - padding.bottom;
+
+            // Find max value for scaling
+            const maxValue = Math.max(...trendData.map(d => d.value), 1);
+            const yScale = chartHeight / maxValue;
+            const xStep = chartWidth / (trendData.length - 1 || 1);
+
+            // Create points for line and area
+            const points = trendData.map((d, i) => ({
+                x: padding.left + (i * xStep),
+                y: padding.top + chartHeight - (d.value * yScale)
+            }));
+
+            // Draw area (gradient fill)
+            const areaPath = [
+                `M ${points[0].x} ${height - padding.bottom}`,
+                ...points.map(p => `L ${p.x} ${p.y}`),
+                `L ${points[points.length - 1].x} ${height - padding.bottom}`,
+                'Z'
+            ].join(' ');
+
+            const defs = document.createElementNS('http://www.w3.org/2000/svg', 'defs');
+            const gradient = document.createElementNS('http://www.w3.org/2000/svg', 'linearGradient');
+            gradient.setAttribute('id', 'areaGradient');
+            gradient.setAttribute('x1', '0');
+            gradient.setAttribute('x2', '0');
+            gradient.setAttribute('y1', '0');
+            gradient.setAttribute('y2', '1');
+
+            const stop1 = document.createElementNS('http://www.w3.org/2000/svg', 'stop');
+            stop1.setAttribute('offset', '0%');
+            stop1.setAttribute('stop-color', '#2D9CDB');
+            stop1.setAttribute('stop-opacity', '0.3');
+
+            const stop2 = document.createElementNS('http://www.w3.org/2000/svg', 'stop');
+            stop2.setAttribute('offset', '100%');
+            stop2.setAttribute('stop-color', '#2D9CDB');
+            stop2.setAttribute('stop-opacity', '0.05');
+
+            gradient.appendChild(stop1);
+            gradient.appendChild(stop2);
+            defs.appendChild(gradient);
+            svg.appendChild(defs);
+
+            const area = document.createElementNS('http://www.w3.org/2000/svg', 'path');
+            area.setAttribute('d', areaPath);
+            area.setAttribute('fill', 'url(#areaGradient)');
+            svg.appendChild(area);
+
+            // Draw line
+            const linePath = points.map((p, i) => `${i === 0 ? 'M' : 'L'} ${p.x} ${p.y}`).join(' ');
+            const line = document.createElementNS('http://www.w3.org/2000/svg', 'path');
+            line.setAttribute('d', linePath);
+            line.setAttribute('stroke', '#2D9CDB');
+            line.setAttribute('stroke-width', '3');
+            line.setAttribute('fill', 'none');
+            line.setAttribute('stroke-linecap', 'round');
+            line.setAttribute('stroke-linejoin', 'round');
+            svg.appendChild(line);
+
+            // Draw data points
+            points.forEach((p, i) => {
+                const circle = document.createElementNS('http://www.w3.org/2000/svg', 'circle');
+                circle.setAttribute('cx', p.x);
+                circle.setAttribute('cy', p.y);
+                circle.setAttribute('r', '4');
+                circle.setAttribute('fill', '#2D9CDB');
+                circle.setAttribute('stroke', 'white');
+                circle.setAttribute('stroke-width', '2');
+                svg.appendChild(circle);
+            });
+
+            // Draw X-axis labels
+            trendData.forEach((d, i) => {
+                const x = padding.left + (i * xStep);
+                const text = document.createElementNS('http://www.w3.org/2000/svg', 'text');
+                text.setAttribute('x', x);
+                text.setAttribute('y', height - padding.bottom + 25);
+                text.setAttribute('text-anchor', 'middle');
+                text.setAttribute('class', 'chart-axis-label');
+                text.textContent = d.label;
+                svg.appendChild(text);
+            });
+
+            // Draw Y-axis labels (simplified)
+            const yTicks = 5;
+            for (let i = 0; i <= yTicks; i++) {
+                const value = (maxValue / yTicks) * i;
+                const y = padding.top + chartHeight - (value * yScale);
+
+                const text = document.createElementNS('http://www.w3.org/2000/svg', 'text');
+                text.setAttribute('x', padding.left - 10);
+                text.setAttribute('y', y);
+                text.setAttribute('text-anchor', 'end');
+                text.setAttribute('class', 'chart-axis-label');
+                text.textContent = value.toFixed(0);
+                svg.appendChild(text);
+
+                // Grid line
+                const gridLine = document.createElementNS('http://www.w3.org/2000/svg', 'line');
+                gridLine.setAttribute('x1', padding.left);
+                gridLine.setAttribute('y1', y);
+                gridLine.setAttribute('x2', width - padding.right);
+                gridLine.setAttribute('y2', y);
+                gridLine.setAttribute('stroke', '#E5E7EB');
+                gridLine.setAttribute('stroke-width', '1');
+                gridLine.setAttribute('stroke-dasharray', '4 4');
+                svg.insertBefore(gridLine, svg.firstChild);
+            }
+        }
+
+        function updateQuickStats(data) {
+            document.getElementById('avgPerDay').textContent = data.avgPerDay.toFixed(0) + ' kr';
+            document.getElementById('topCategory').textContent = data.topCategory;
+            document.getElementById('transactionCount').textContent = data.transactionCount;
         }
     </script>
 </body>
