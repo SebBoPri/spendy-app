@@ -8637,10 +8637,9 @@
                 // Create receipt object (compatible with scanned receipts)
                 const manualReceipt = {
                     user_id: user.id,
-                    store: store,
-                    date: date,
-                    total_amount: amount,
+                    store_name: store,
                     purchase_date: date,
+                    total_amount: amount,
                     items: [
                         {
                             name: itemName,
@@ -8653,7 +8652,8 @@
                         }
                     ],
                     is_manual_entry: true,
-                    created_at: new Date().toISOString()
+                    items_count: 1,
+                    currency: 'SEK'
                 };
 
                 // Save to Supabase
