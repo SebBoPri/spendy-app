@@ -1,6 +1,6 @@
 // Spendy Service Worker - Enables offline functionality and caching
-const CACHE_NAME = 'spendy-v1.0.1';
-const RUNTIME_CACHE = 'spendy-runtime';
+const CACHE_NAME = 'spendy-v2.0.0-airy';
+const RUNTIME_CACHE = 'spendy-runtime-v2';
 
 // Files to cache immediately on install
 const PRECACHE_URLS = [
