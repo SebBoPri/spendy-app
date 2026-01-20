@@ -3210,30 +3210,117 @@
                 <h2 class="card-title">Add Expense</h2>
                 <p style="color: var(--text-secondary); margin-bottom: 24px;">Choose how you'd like to add your expense</p>
 
-                <!-- Camera Scanner Button -->
-                <button class="btn" onclick="openScanner()" style="width: 100%; margin-bottom: 16px;">
-                    <span>📸 Open Camera Scanner</span>
-                </button>
+                <!-- Action Tiles Menu -->
+                <div style="display: flex; flex-direction: column; gap: 16px;">
 
-                <!-- Upload Options -->
-                <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 12px; margin-bottom: 16px;">
-                    <button onclick="document.getElementById('fileInput').click()" class="btn btn-secondary">
-                        <span>📁 Upload File</span>
+                    <!-- Primary Tile: Scan Receipt (Large, Blue) -->
+                    <button
+                        onclick="openScanner()"
+                        style="
+                            width: 100%;
+                            padding: 32px 24px;
+                            background: linear-gradient(135deg, var(--primary) 0%, var(--primary-dark) 100%);
+                            border: none;
+                            border-radius: 24px;
+                            box-shadow: var(--shadow-soft), 0 4px 20px rgba(45, 156, 219, 0.25);
+                            cursor: pointer;
+                            transition: all var(--transition-base);
+                            display: flex;
+                            flex-direction: column;
+                            align-items: center;
+                            gap: 12px;
+                        "
+                        onmouseover="this.style.transform='translateY(-4px)'; this.style.boxShadow='var(--shadow-medium), 0 8px 30px rgba(45, 156, 219, 0.35)'"
+                        onmouseout="this.style.transform='translateY(0)'; this.style.boxShadow='var(--shadow-soft), 0 4px 20px rgba(45, 156, 219, 0.25)'"
+                    >
+                        <div style="font-size: 48px; line-height: 1;">📸</div>
+                        <div style="color: white; font-size: var(--font-size-xl); font-weight: var(--font-weight-bold);">Scan Receipt</div>
+                        <div style="color: rgba(255, 255, 255, 0.9); font-size: var(--font-size-sm);">Use your camera to scan instantly</div>
                     </button>
-                    <button onclick="document.getElementById('fileInputMultiple').click()" class="btn btn-secondary">
-                        <span>📂 Multiple Files</span>
-                    </button>
-                </div>
 
-                <!-- Manual Entry Button -->
-                <div style="text-align: center; margin: 20px 0;">
-                    <div style="color: var(--text-tertiary); font-size: var(--font-size-sm); margin-bottom: 12px;">Or</div>
-                    <button class="btn" onclick="openManualEntryModal()" style="width: 100%; background: var(--income-green); border: none;">
-                        <span>✍️ Add Manually</span>
+                    <!-- Secondary Tiles Row: Upload Options (Outline Style) -->
+                    <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 12px;">
+                        <!-- Upload Photo Tile -->
+                        <button
+                            onclick="document.getElementById('fileInput').click()"
+                            style="
+                                padding: 24px 16px;
+                                background: white;
+                                border: 2px solid var(--border);
+                                border-radius: 16px;
+                                box-shadow: var(--shadow-low);
+                                cursor: pointer;
+                                transition: all var(--transition-base);
+                                display: flex;
+                                flex-direction: column;
+                                align-items: center;
+                                gap: 8px;
+                            "
+                            onmouseover="this.style.borderColor='var(--primary)'; this.style.boxShadow='var(--shadow-medium)'; this.style.transform='translateY(-2px)'"
+                            onmouseout="this.style.borderColor='var(--border)'; this.style.boxShadow='var(--shadow-low)'; this.style.transform='translateY(0)'"
+                        >
+                            <div style="font-size: 32px; line-height: 1;">📁</div>
+                            <div style="color: var(--text-primary); font-size: var(--font-size-base); font-weight: var(--font-weight-semibold); text-align: center;">Upload Photo</div>
+                            <div style="color: var(--text-tertiary); font-size: var(--font-size-xs); text-align: center;">From gallery</div>
+                        </button>
+
+                        <!-- Multiple Files Tile -->
+                        <button
+                            onclick="document.getElementById('fileInputMultiple').click()"
+                            style="
+                                padding: 24px 16px;
+                                background: white;
+                                border: 2px solid var(--border);
+                                border-radius: 16px;
+                                box-shadow: var(--shadow-low);
+                                cursor: pointer;
+                                transition: all var(--transition-base);
+                                display: flex;
+                                flex-direction: column;
+                                align-items: center;
+                                gap: 8px;
+                            "
+                            onmouseover="this.style.borderColor='var(--primary)'; this.style.boxShadow='var(--shadow-medium)'; this.style.transform='translateY(-2px)'"
+                            onmouseout="this.style.borderColor='var(--border)'; this.style.boxShadow='var(--shadow-low)'; this.style.transform='translateY(0)'"
+                        >
+                            <div style="font-size: 32px; line-height: 1;">📂</div>
+                            <div style="color: var(--text-primary); font-size: var(--font-size-base); font-weight: var(--font-weight-semibold); text-align: center;">Multiple Files</div>
+                            <div style="color: var(--text-tertiary); font-size: var(--font-size-xs); text-align: center;">Batch upload</div>
+                        </button>
+                    </div>
+
+                    <!-- Divider -->
+                    <div style="display: flex; align-items: center; gap: 16px; margin: 8px 0;">
+                        <div style="flex: 1; height: 1px; background: var(--divider);"></div>
+                        <span style="color: var(--text-tertiary); font-size: var(--font-size-sm); font-weight: var(--font-weight-medium);">or</span>
+                        <div style="flex: 1; height: 1px; background: var(--divider);"></div>
+                    </div>
+
+                    <!-- Manual Entry Tile (Soft Green Background) -->
+                    <button
+                        onclick="openManualEntryModal()"
+                        style="
+                            width: 100%;
+                            padding: 24px;
+                            background: linear-gradient(135deg, #F0FDF4 0%, #DCFCE7 100%);
+                            border: 2px solid #86EFAC;
+                            border-radius: 20px;
+                            box-shadow: var(--shadow-soft);
+                            cursor: pointer;
+                            transition: all var(--transition-base);
+                            display: flex;
+                            flex-direction: column;
+                            align-items: center;
+                            gap: 8px;
+                        "
+                        onmouseover="this.style.transform='translateY(-2px)'; this.style.boxShadow='var(--shadow-medium)'; this.style.borderColor='#4ADE80'"
+                        onmouseout="this.style.transform='translateY(0)'; this.style.boxShadow='var(--shadow-soft)'; this.style.borderColor='#86EFAC'"
+                    >
+                        <div style="font-size: 36px; line-height: 1;">✍️</div>
+                        <div style="color: #166534; font-size: var(--font-size-lg); font-weight: var(--font-weight-bold);">Add Manually</div>
+                        <div style="color: #15803D; font-size: var(--font-size-sm); text-align: center;">For cash purchases or when you don't have a receipt</div>
                     </button>
-                    <p style="color: var(--text-tertiary); font-size: var(--font-size-xs); margin-top: 8px;">
-                        For cash purchases or when you don't have a receipt
-                    </p>
+
                 </div>
 
                 <input type="file" id="fileInput" accept="image/*" capture="environment" style="display: none;">
