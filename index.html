@@ -1213,10 +1213,12 @@
 
         .form-label {
             display: block;
-            font-size: var(--font-size-sm);
-            font-weight: var(--font-weight-semibold);
-            color: var(--text-primary);
-            margin-bottom: 8px;
+            font-size: var(--font-size-xs);  /* Smaller labels to save space */
+            font-weight: var(--font-weight-medium);
+            color: var(--text-secondary);  /* Lighter color, less prominent */
+            margin-bottom: 6px;
+            text-transform: uppercase;  /* Small caps for professional look */
+            letter-spacing: 0.5px;
         }
 
         .form-label.required::after {
@@ -1228,12 +1230,12 @@
         .form-select,
         .form-textarea {
             width: 100%;
-            padding: 12px;
-            border: 1px solid var(--border);
+            padding: 14px 16px;  /* Increased padding for better touch targets */
+            border: 2px solid #F3F4F6;  /* Light gray border (border-gray-100 equivalent) */
             border-radius: var(--radius-medium);
             font-size: var(--font-size-base);
             font-family: inherit;
-            transition: all var(--transition-fast);
+            transition: all var(--transition-base);
             background: var(--card);
             color: var(--text-primary);
         }
@@ -1242,8 +1244,9 @@
         .form-select:focus,
         .form-textarea:focus {
             outline: none;
-            border-color: var(--primary);
-            box-shadow: 0 0 0 3px var(--primary-alpha-10);
+            border-color: #60A5FA;  /* Blue-400 equivalent */
+            border-width: 3px;  /* Thicker border on focus */
+            box-shadow: 0 0 0 4px rgba(96, 165, 250, 0.1);  /* Blue glow */
         }
 
         .form-textarea {
@@ -1739,20 +1742,21 @@
             display: inline-flex;
             align-items: center;
             justify-content: center;
-            padding: var(--spacing-md) var(--spacing-lg);
-            min-height: 48px;
+            padding: 0 var(--spacing-xl);  /* Horizontal padding only */
+            height: 56px;  /* Fixed height for all primary buttons */
+            min-height: 56px;
 
             /* Appearance */
             background: var(--primary);
             color: var(--text-on-primary);
             border: none;
-            border-radius: var(--radius-medium);      /* 12px per spec */
+            border-radius: 9999px;  /* Fully rounded (rounded-full) */
             box-shadow: var(--shadow-primary);
 
             /* Typography */
             font-family: var(--font-family);
             font-size: var(--font-size-base);
-            font-weight: var(--font-weight-semibold);
+            font-weight: var(--font-weight-bold);  /* Bolder for primary actions */
 
             /* Interaction */
             cursor: pointer;
@@ -1807,13 +1811,16 @@
         .btn-secondary {
             background: var(--card);
             color: var(--primary);
-            border: 1px solid var(--border);
+            border: 2px solid #F3F4F6;  /* Matches form inputs */
             box-shadow: var(--shadow-soft);
+            height: 56px;  /* Same height as primary buttons */
+            min-height: 56px;
         }
 
         .btn-secondary:hover {
             background: var(--primary-light);
-            border-color: var(--primary);
+            border-color: #60A5FA;  /* Blue-400 on hover */
+            border-width: 3px;  /* Thicker on hover */
         }
 
         /* Global button styles */
@@ -3100,53 +3107,53 @@
 
                         <!-- Description -->
                         <div style="margin-bottom: 24px;">
-                            <label style="display: block; font-size: var(--font-size-sm); color: var(--text-secondary); margin-bottom: 8px; font-weight: var(--font-weight-medium);">DESCRIPTION</label>
+                            <label style="display: block; font-size: var(--font-size-xs); color: var(--text-secondary); margin-bottom: 6px; font-weight: var(--font-weight-medium); text-transform: uppercase; letter-spacing: 0.5px;">DESCRIPTION</label>
                             <input
                                 type="text"
                                 id="manualItem"
                                 placeholder="e.g., Lunch, Coffee, Groceries"
                                 style="
                                     width: 100%;
-                                    padding: 12px 16px;
-                                    border: 2px solid var(--border);
+                                    padding: 14px 16px;
+                                    border: 2px solid #F3F4F6;
                                     border-radius: 12px;
                                     font-size: var(--font-size-base);
                                     outline: none;
-                                    transition: all var(--transition-fast);
+                                    transition: all var(--transition-base);
                                     font-family: var(--font-family);
                                 "
-                                onfocus="this.style.borderColor='var(--primary)'"
-                                onblur="this.style.borderColor='var(--border)'"
+                                onfocus="this.style.borderColor='#60A5FA'; this.style.borderWidth='3px'"
+                                onblur="this.style.borderColor='#F3F4F6'; this.style.borderWidth='2px'"
                                 required
                             >
                         </div>
 
                         <!-- Store/Vendor -->
                         <div style="margin-bottom: 24px;">
-                            <label style="display: block; font-size: var(--font-size-sm); color: var(--text-secondary); margin-bottom: 8px; font-weight: var(--font-weight-medium);">STORE/VENDOR</label>
+                            <label style="display: block; font-size: var(--font-size-xs); color: var(--text-secondary); margin-bottom: 6px; font-weight: var(--font-weight-medium); text-transform: uppercase; letter-spacing: 0.5px;">STORE/VENDOR</label>
                             <input
                                 type="text"
                                 id="manualStore"
                                 placeholder="e.g., ICA, Willys, Restaurant"
                                 style="
                                     width: 100%;
-                                    padding: 12px 16px;
-                                    border: 2px solid var(--border);
+                                    padding: 14px 16px;
+                                    border: 2px solid #F3F4F6;
                                     border-radius: 12px;
                                     font-size: var(--font-size-base);
                                     outline: none;
-                                    transition: all var(--transition-fast);
+                                    transition: all var(--transition-base);
                                     font-family: var(--font-family);
                                 "
-                                onfocus="this.style.borderColor='var(--primary)'"
-                                onblur="this.style.borderColor='var(--border)'"
+                                onfocus="this.style.borderColor='#60A5FA'; this.style.borderWidth='3px'"
+                                onblur="this.style.borderColor='#F3F4F6'; this.style.borderWidth='2px'"
                                 required
                             >
                         </div>
 
                         <!-- Category Pills (Horizontal Scrolling) -->
                         <div style="margin-bottom: 24px;">
-                            <label style="display: block; font-size: var(--font-size-sm); color: var(--text-secondary); margin-bottom: 12px; font-weight: var(--font-weight-medium);">CATEGORY</label>
+                            <label style="display: block; font-size: var(--font-size-xs); color: var(--text-secondary); margin-bottom: 12px; font-weight: var(--font-weight-medium); text-transform: uppercase; letter-spacing: 0.5px;">CATEGORY</label>
                             <div style="display: flex; gap: 8px; overflow-x: auto; padding-bottom: 4px; -webkit-overflow-scrolling: touch; scrollbar-width: none;">
                                 <button type="button" class="category-pill" data-category="Groceries" onclick="selectCategory('Groceries', this)">
                                     <span style="font-size: 20px;">🛒</span>
@@ -3190,22 +3197,22 @@
 
                         <!-- Date -->
                         <div>
-                            <label style="display: block; font-size: var(--font-size-sm); color: var(--text-secondary); margin-bottom: 8px; font-weight: var(--font-weight-medium);">DATE</label>
+                            <label style="display: block; font-size: var(--font-size-xs); color: var(--text-secondary); margin-bottom: 6px; font-weight: var(--font-weight-medium); text-transform: uppercase; letter-spacing: 0.5px;">DATE</label>
                             <input
                                 type="date"
                                 id="manualDate"
                                 style="
                                     width: 100%;
-                                    padding: 12px 16px;
-                                    border: 2px solid var(--border);
+                                    padding: 14px 16px;
+                                    border: 2px solid #F3F4F6;
                                     border-radius: 12px;
                                     font-size: var(--font-size-base);
                                     outline: none;
-                                    transition: all var(--transition-fast);
+                                    transition: all var(--transition-base);
                                     font-family: var(--font-family);
                                 "
-                                onfocus="this.style.borderColor='var(--primary)'"
-                                onblur="this.style.borderColor='var(--border)'"
+                                onfocus="this.style.borderColor='#60A5FA'; this.style.borderWidth='3px'"
+                                onblur="this.style.borderColor='#F3F4F6'; this.style.borderWidth='2px'"
                                 required
                             >
                         </div>
@@ -3235,16 +3242,19 @@
                         type="submit"
                         style="
                             width: 100%;
-                            padding: 16px;
+                            height: 56px;
                             background: linear-gradient(135deg, var(--primary) 0%, var(--primary-dark) 100%);
                             color: white;
                             border: none;
-                            border-radius: 16px;
+                            border-radius: 9999px;
                             font-size: var(--font-size-lg);
                             font-weight: var(--font-weight-bold);
                             cursor: pointer;
                             transition: all var(--transition-base);
                             box-shadow: var(--shadow-primary);
+                            display: flex;
+                            align-items: center;
+                            justify-content: center;
                         "
                         onmouseover="this.style.transform='translateY(-2px)'; this.style.boxShadow='0 8px 30px rgba(45, 156, 219, 0.35)'"
                         onmouseout="this.style.transform='translateY(0)'; this.style.boxShadow='var(--shadow-primary)'"
