@@ -1267,14 +1267,101 @@
             flex: 1;
         }
 
+        /* ====================================
+           CATEGORY PILLS
+           Horizontal scrolling category selector
+           ==================================== */
+
+        .category-pill {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: 4px;
+            padding: 12px 16px;
+            background: var(--background);
+            border: 2px solid var(--border);
+            border-radius: 12px;
+            cursor: pointer;
+            transition: all var(--transition-fast);
+            min-width: 80px;
+            flex-shrink: 0;
+        }
+
+        .category-pill:hover {
+            border-color: var(--primary);
+            background: var(--primary-light);
+        }
+
+        .category-pill.selected {
+            background: var(--primary);
+            border-color: var(--primary);
+            color: white;
+        }
+
+        .category-pill.selected span:last-child {
+            color: white;
+        }
+
+        .category-pill span:last-child {
+            font-size: var(--font-size-xs);
+            font-weight: var(--font-weight-medium);
+            color: var(--text-primary);
+        }
+
+        /* ====================================
+           CUSTOM NUMERIC KEYPAD
+           Finance app-style number input
+           ==================================== */
+
+        .keypad-btn {
+            padding: 20px;
+            background: var(--background);
+            border: 1px solid var(--border);
+            border-radius: 12px;
+            font-size: 24px;
+            font-weight: var(--font-weight-semibold);
+            color: var(--text-primary);
+            cursor: pointer;
+            transition: all var(--transition-fast);
+            user-select: none;
+        }
+
+        .keypad-btn:hover {
+            background: var(--primary-light);
+            border-color: var(--primary);
+        }
+
+        .keypad-btn:active {
+            transform: scale(0.95);
+            background: var(--primary);
+            color: white;
+        }
+
+        .keypad-backspace {
+            background: var(--expense-red);
+            color: white;
+            border-color: var(--expense-red);
+        }
+
+        .keypad-backspace:hover {
+            background: #C92A35;
+        }
+
         @media (max-width: 768px) {
             .manual-entry-content {
-                padding: 24px;
-                max-height: 85vh;
+                padding: 0;
+                max-height: 100vh;
+                height: 100vh;
+                border-radius: 0;
             }
 
             .manual-entry-title {
                 font-size: var(--font-size-xl);
+            }
+
+            .keypad-btn {
+                padding: 16px;
+                font-size: 20px;
             }
         }
 
@@ -2967,75 +3054,205 @@
         </div>
     </div>
 
-    <!-- Manual Entry Modal -->
+    <!-- Manual Entry Modal - Redesigned Finance App Style -->
     <div id="manualEntryModal" class="manual-entry-modal">
-        <div class="manual-entry-content">
-            <div class="manual-entry-header">
-                <h2 class="manual-entry-title">✍️ Add Expense Manually</h2>
-                <button class="manual-entry-close" onclick="closeManualEntryModal()">×</button>
+        <div class="manual-entry-content" style="max-width: 480px; height: 100%; display: flex; flex-direction: column; background: var(--background);">
+
+            <!-- Header -->
+            <div style="padding: 20px 24px; background: white; border-bottom: 1px solid var(--divider); display: flex; align-items: center; justify-content: space-between;">
+                <h2 style="font-size: var(--font-size-lg); font-weight: var(--font-weight-bold); color: var(--text-primary); margin: 0;">Add Expense</h2>
+                <button onclick="closeManualEntryModal()" style="width: 32px; height: 32px; border-radius: 50%; background: var(--background); border: none; font-size: 20px; cursor: pointer; display: flex; align-items: center; justify-content: center; color: var(--text-secondary);">×</button>
             </div>
 
-            <form id="manualEntryForm" onsubmit="submitManualEntry(event)">
-                <!-- Store Name -->
-                <div class="form-group">
-                    <label class="form-label required" for="manualStore">Store/Vendor</label>
-                    <input type="text" id="manualStore" class="form-input" placeholder="e.g., ICA, Willys, Restaurant" required>
-                    <div class="form-hint">Where did you make this purchase?</div>
+            <form id="manualEntryForm" onsubmit="submitManualEntry(event)" style="flex: 1; display: flex; flex-direction: column; overflow-y: auto;">
+
+                <!-- Amount Input (Primary Focus - Large, Centered, Blue) -->
+                <div style="padding: 32px 24px; background: white; text-align: center; border-bottom: 1px solid var(--divider);">
+                    <div style="font-size: var(--font-size-sm); color: var(--text-tertiary); margin-bottom: 8px; font-weight: var(--font-weight-medium);">AMOUNT</div>
+                    <div style="display: flex; align-items: center; justify-content: center; gap: 8px;">
+                        <input
+                            type="text"
+                            id="manualAmount"
+                            placeholder="0"
+                            inputmode="decimal"
+                            style="
+                                font-size: 56px;
+                                font-weight: var(--font-weight-bold);
+                                color: var(--primary);
+                                border: none;
+                                outline: none;
+                                text-align: center;
+                                width: auto;
+                                min-width: 100px;
+                                max-width: 300px;
+                                background: transparent;
+                                font-family: var(--font-family);
+                            "
+                            required
+                        >
+                        <span style="font-size: 32px; font-weight: var(--font-weight-semibold); color: var(--primary); margin-top: 12px;">kr</span>
+                    </div>
                 </div>
 
-                <!-- Item Name -->
-                <div class="form-group">
-                    <label class="form-label required" for="manualItem">Item/Description</label>
-                    <input type="text" id="manualItem" class="form-input" placeholder="e.g., Groceries, Coffee, Lunch" required>
-                    <div class="form-hint">What did you buy?</div>
+                <!-- Details Card (White card with grouped fields) -->
+                <div style="padding: 24px; flex: 1;">
+                    <div style="background: white; border-radius: 24px; padding: 24px; box-shadow: var(--shadow-soft);">
+
+                        <!-- Description -->
+                        <div style="margin-bottom: 24px;">
+                            <label style="display: block; font-size: var(--font-size-sm); color: var(--text-secondary); margin-bottom: 8px; font-weight: var(--font-weight-medium);">DESCRIPTION</label>
+                            <input
+                                type="text"
+                                id="manualItem"
+                                placeholder="e.g., Lunch, Coffee, Groceries"
+                                style="
+                                    width: 100%;
+                                    padding: 12px 16px;
+                                    border: 2px solid var(--border);
+                                    border-radius: 12px;
+                                    font-size: var(--font-size-base);
+                                    outline: none;
+                                    transition: all var(--transition-fast);
+                                    font-family: var(--font-family);
+                                "
+                                onfocus="this.style.borderColor='var(--primary)'"
+                                onblur="this.style.borderColor='var(--border)'"
+                                required
+                            >
+                        </div>
+
+                        <!-- Store/Vendor -->
+                        <div style="margin-bottom: 24px;">
+                            <label style="display: block; font-size: var(--font-size-sm); color: var(--text-secondary); margin-bottom: 8px; font-weight: var(--font-weight-medium);">STORE/VENDOR</label>
+                            <input
+                                type="text"
+                                id="manualStore"
+                                placeholder="e.g., ICA, Willys, Restaurant"
+                                style="
+                                    width: 100%;
+                                    padding: 12px 16px;
+                                    border: 2px solid var(--border);
+                                    border-radius: 12px;
+                                    font-size: var(--font-size-base);
+                                    outline: none;
+                                    transition: all var(--transition-fast);
+                                    font-family: var(--font-family);
+                                "
+                                onfocus="this.style.borderColor='var(--primary)'"
+                                onblur="this.style.borderColor='var(--border)'"
+                                required
+                            >
+                        </div>
+
+                        <!-- Category Pills (Horizontal Scrolling) -->
+                        <div style="margin-bottom: 24px;">
+                            <label style="display: block; font-size: var(--font-size-sm); color: var(--text-secondary); margin-bottom: 12px; font-weight: var(--font-weight-medium);">CATEGORY</label>
+                            <div style="display: flex; gap: 8px; overflow-x: auto; padding-bottom: 4px; -webkit-overflow-scrolling: touch; scrollbar-width: none;">
+                                <button type="button" class="category-pill" data-category="Groceries" onclick="selectCategory('Groceries', this)">
+                                    <span style="font-size: 20px;">🛒</span>
+                                    <span>Groceries</span>
+                                </button>
+                                <button type="button" class="category-pill" data-category="Dining" onclick="selectCategory('Dining', this)">
+                                    <span style="font-size: 20px;">🍽️</span>
+                                    <span>Dining</span>
+                                </button>
+                                <button type="button" class="category-pill" data-category="Transport" onclick="selectCategory('Transport', this)">
+                                    <span style="font-size: 20px;">🚗</span>
+                                    <span>Transport</span>
+                                </button>
+                                <button type="button" class="category-pill" data-category="Entertainment" onclick="selectCategory('Entertainment', this)">
+                                    <span style="font-size: 20px;">🎬</span>
+                                    <span>Entertainment</span>
+                                </button>
+                                <button type="button" class="category-pill" data-category="Shopping" onclick="selectCategory('Shopping', this)">
+                                    <span style="font-size: 20px;">🛍️</span>
+                                    <span>Shopping</span>
+                                </button>
+                                <button type="button" class="category-pill" data-category="Healthcare" onclick="selectCategory('Healthcare', this)">
+                                    <span style="font-size: 20px;">💊</span>
+                                    <span>Healthcare</span>
+                                </button>
+                                <button type="button" class="category-pill" data-category="Household" onclick="selectCategory('Household', this)">
+                                    <span style="font-size: 20px;">🏠</span>
+                                    <span>Household</span>
+                                </button>
+                                <button type="button" class="category-pill" data-category="Personal Care" onclick="selectCategory('Personal Care', this)">
+                                    <span style="font-size: 20px;">💆</span>
+                                    <span>Personal</span>
+                                </button>
+                                <button type="button" class="category-pill" data-category="Other" onclick="selectCategory('Other', this)">
+                                    <span style="font-size: 20px;">📦</span>
+                                    <span>Other</span>
+                                </button>
+                            </div>
+                            <input type="hidden" id="manualCategory" required>
+                        </div>
+
+                        <!-- Date -->
+                        <div>
+                            <label style="display: block; font-size: var(--font-size-sm); color: var(--text-secondary); margin-bottom: 8px; font-weight: var(--font-weight-medium);">DATE</label>
+                            <input
+                                type="date"
+                                id="manualDate"
+                                style="
+                                    width: 100%;
+                                    padding: 12px 16px;
+                                    border: 2px solid var(--border);
+                                    border-radius: 12px;
+                                    font-size: var(--font-size-base);
+                                    outline: none;
+                                    transition: all var(--transition-fast);
+                                    font-family: var(--font-family);
+                                "
+                                onfocus="this.style.borderColor='var(--primary)'"
+                                onblur="this.style.borderColor='var(--border)'"
+                                required
+                            >
+                        </div>
+
+                    </div>
                 </div>
 
-                <!-- Amount -->
-                <div class="form-group">
-                    <label class="form-label required" for="manualAmount">Amount (kr)</label>
-                    <input type="number" id="manualAmount" class="form-input" placeholder="0.00" step="0.01" min="0" required>
-                    <div class="form-hint">Enter the total amount in Swedish Krona</div>
+                <!-- Custom Numeric Keypad -->
+                <div id="customKeypad" style="background: white; border-top: 1px solid var(--divider); padding: 16px; display: grid; grid-template-columns: repeat(3, 1fr); gap: 12px;">
+                    <button type="button" class="keypad-btn" onclick="appendNumber('1')">1</button>
+                    <button type="button" class="keypad-btn" onclick="appendNumber('2')">2</button>
+                    <button type="button" class="keypad-btn" onclick="appendNumber('3')">3</button>
+                    <button type="button" class="keypad-btn" onclick="appendNumber('4')">4</button>
+                    <button type="button" class="keypad-btn" onclick="appendNumber('5')">5</button>
+                    <button type="button" class="keypad-btn" onclick="appendNumber('6')">6</button>
+                    <button type="button" class="keypad-btn" onclick="appendNumber('7')">7</button>
+                    <button type="button" class="keypad-btn" onclick="appendNumber('8')">8</button>
+                    <button type="button" class="keypad-btn" onclick="appendNumber('9')">9</button>
+                    <button type="button" class="keypad-btn" onclick="appendNumber('.')">.</button>
+                    <button type="button" class="keypad-btn" onclick="appendNumber('0')">0</button>
+                    <button type="button" class="keypad-btn keypad-backspace" onclick="backspaceNumber()">⌫</button>
                 </div>
 
-                <!-- Category -->
-                <div class="form-group">
-                    <label class="form-label required" for="manualCategory">Category</label>
-                    <select id="manualCategory" class="form-select" required>
-                        <option value="">Select a category...</option>
-                        <option value="Groceries">🛒 Groceries</option>
-                        <option value="Dining">🍽️ Dining</option>
-                        <option value="Transport">🚗 Transport</option>
-                        <option value="Entertainment">🎬 Entertainment</option>
-                        <option value="Shopping">🛍️ Shopping</option>
-                        <option value="Healthcare">💊 Healthcare</option>
-                        <option value="Household">🏠 Household</option>
-                        <option value="Personal Care">💆 Personal Care</option>
-                        <option value="Other">📦 Other</option>
-                    </select>
-                </div>
-
-                <!-- Date -->
-                <div class="form-group">
-                    <label class="form-label required" for="manualDate">Date</label>
-                    <input type="date" id="manualDate" class="form-input" required>
-                    <div class="form-hint">When was this purchase made?</div>
-                </div>
-
-                <!-- Notes (Optional) -->
-                <div class="form-group">
-                    <label class="form-label" for="manualNotes">Notes (Optional)</label>
-                    <textarea id="manualNotes" class="form-textarea" placeholder="Add any additional details..."></textarea>
-                </div>
-
-                <!-- Form Buttons -->
-                <div class="form-buttons">
-                    <button type="button" class="btn btn-secondary" onclick="closeManualEntryModal()">
-                        <span>Cancel</span>
+                <!-- Save Button (Fixed at bottom) -->
+                <div style="padding: 16px 24px; background: white; border-top: 1px solid var(--divider);">
+                    <button
+                        type="submit"
+                        style="
+                            width: 100%;
+                            padding: 16px;
+                            background: linear-gradient(135deg, var(--primary) 0%, var(--primary-dark) 100%);
+                            color: white;
+                            border: none;
+                            border-radius: 16px;
+                            font-size: var(--font-size-lg);
+                            font-weight: var(--font-weight-bold);
+                            cursor: pointer;
+                            transition: all var(--transition-base);
+                            box-shadow: var(--shadow-primary);
+                        "
+                        onmouseover="this.style.transform='translateY(-2px)'; this.style.boxShadow='0 8px 30px rgba(45, 156, 219, 0.35)'"
+                        onmouseout="this.style.transform='translateY(0)'; this.style.boxShadow='var(--shadow-primary)'"
+                    >
+                        Save Expense
                     </button>
-                    <button type="submit" class="btn">
-                        <span>💾 Save Expense</span>
-                    </button>
                 </div>
+
             </form>
         </div>
     </div>
@@ -8683,11 +8900,60 @@
             // Reset form
             form.reset();
 
+            // Reset amount display
+            document.getElementById('manualAmount').value = '';
+
+            // Reset category selection
+            document.querySelectorAll('.category-pill').forEach(pill => {
+                pill.classList.remove('selected');
+            });
+
             // Set today's date as default
             const today = new Date().toISOString().split('T')[0];
             document.getElementById('manualDate').value = today;
 
             modal.classList.add('active');
+        }
+
+        // Category selection handler
+        function selectCategory(category, button) {
+            // Remove selected from all pills
+            document.querySelectorAll('.category-pill').forEach(pill => {
+                pill.classList.remove('selected');
+            });
+
+            // Add selected to clicked pill
+            button.classList.add('selected');
+
+            // Set hidden input value
+            document.getElementById('manualCategory').value = category;
+        }
+
+        // Keypad append number
+        function appendNumber(digit) {
+            const amountInput = document.getElementById('manualAmount');
+            let currentValue = amountInput.value;
+
+            // Prevent multiple decimal points
+            if (digit === '.' && currentValue.includes('.')) {
+                return;
+            }
+
+            // Limit to 2 decimal places
+            if (currentValue.includes('.')) {
+                const decimalPart = currentValue.split('.')[1];
+                if (decimalPart && decimalPart.length >= 2) {
+                    return;
+                }
+            }
+
+            amountInput.value = currentValue + digit;
+        }
+
+        // Keypad backspace
+        function backspaceNumber() {
+            const amountInput = document.getElementById('manualAmount');
+            amountInput.value = amountInput.value.slice(0, -1);
         }
 
         // Close manual entry modal
@@ -8713,10 +8979,9 @@
                 const amount = parseFloat(document.getElementById('manualAmount').value);
                 const category = document.getElementById('manualCategory').value;
                 const date = document.getElementById('manualDate').value;
-                const notes = document.getElementById('manualNotes').value.trim();
 
                 // Validate
-                if (!store || !itemName || !amount || !category || !date) {
+                if (!store || !itemName || isNaN(amount) || amount <= 0 || !category || !date) {
                     showToast('Please fill in all required fields', 'warning');
                     return;
                 }
