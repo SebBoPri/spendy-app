@@ -4974,142 +4974,193 @@
                 `;
             }
 
-            // Enhanced metadata display
-            const metadata = data._metadata || {};
-            const financial = data._financial || {};
-            const detailedItems = data._items_detailed || data.items;
-
+            // Editable metadata display
             let metadataHTML = `
                 <div style="background: var(--primary-light); padding: 20px; border-radius: 16px; margin-bottom: 20px;">
-                    <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 12px;">
+                    <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(150px, 1fr)); gap: 16px;">
                         <div>
-                            <div style="font-size: 0.85em; color: var(--text-tertiary); margin-bottom: 4px;">Store</div>
-                            <div style="font-weight: 600;">${data.store || 'Not visible'}</div>
-                            ${metadata.store_chain ? `<div style="font-size: 0.9em; color: var(--text-secondary);">${metadata.store_chain}</div>` : ''}
+                            <label style="font-size: 0.75em; color: var(--text-tertiary); margin-bottom: 6px; display: block; text-transform: uppercase; letter-spacing: 0.5px; font-weight: 600;">Store</label>
+                            <input type="text" id="editStore" value="${data.store || ''}" placeholder="Store name"
+                                style="width: 100%; padding: 10px 12px; border: 1px solid var(--border); border-radius: 8px; font-size: 14px; font-weight: 600; background: white;">
                         </div>
                         <div>
-                            <div style="font-size: 0.85em; color: var(--text-tertiary); margin-bottom: 4px;">Date & Time</div>
-                            <div style="font-weight: 600;">${data.date || 'Not visible'}</div>
-                            ${data.time ? `<div style="font-size: 0.9em; color: var(--text-secondary);">${data.time}</div>` : ''}
+                            <label style="font-size: 0.75em; color: var(--text-tertiary); margin-bottom: 6px; display: block; text-transform: uppercase; letter-spacing: 0.5px; font-weight: 600;">Date</label>
+                            <input type="date" id="editDate" value="${data.date || new Date().toISOString().split('T')[0]}"
+                                style="width: 100%; padding: 10px 12px; border: 1px solid var(--border); border-radius: 8px; font-size: 14px; font-weight: 600; background: white;">
                         </div>
                         <div>
-                            <div style="font-size: 0.85em; color: var(--text-tertiary); margin-bottom: 4px;">Total</div>
-                            <div style="font-weight: 700; font-size: 1.3em; color: var(--primary);">${data.total ? data.total.toFixed(2) + ' kr' : 'Not visible'}</div>
+                            <label style="font-size: 0.75em; color: var(--text-tertiary); margin-bottom: 6px; display: block; text-transform: uppercase; letter-spacing: 0.5px; font-weight: 600;">Total</label>
+                            <div style="position: relative;">
+                                <input type="number" id="editTotal" value="${data.total || 0}" step="0.01" min="0"
+                                    style="width: 100%; padding: 10px 12px; padding-right: 35px; border: 1px solid var(--border); border-radius: 8px; font-size: 14px; font-weight: 700; color: var(--primary); background: white;">
+                                <span style="position: absolute; right: 12px; top: 50%; transform: translateY(-50%); color: var(--text-secondary); font-size: 14px;">kr</span>
+                            </div>
                         </div>
                     </div>
+                </div>
             `;
 
-            // Add financial details if available
-            if ((financial.total_discounts && financial.total_discounts > 0) || (financial.loyalty_points_earned && financial.loyalty_points_earned > 0)) {
-                metadataHTML += `
-                    <div style="margin-top: 16px; padding-top: 16px; border-top: 1px solid var(--border); display: flex; gap: 24px; flex-wrap: wrap;">
-                        ${financial.total_discounts && financial.total_discounts > 0 ? `
-                            <div>
-                                <div style="font-size: 0.85em; color: var(--text-tertiary);">Discounts</div>
-                                <div style="font-weight: 600; color: var(--income-green);">-${financial.total_discounts.toFixed(2)} kr</div>
-                            </div>
-                        ` : ''}
-                        ${financial.loyalty_points_earned && financial.loyalty_points_earned > 0 ? `
-                            <div>
-                                <div style="font-size: 0.85em; color: var(--text-tertiary);">Points Earned</div>
-                                <div style="font-weight: 600;">🎁 ${financial.loyalty_points_earned}</div>
-                            </div>
-                        ` : ''}
-                    </div>
-                `;
-            }
+            // Items section header with Add button
+            let itemsHeaderHTML = `
+                <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 12px;">
+                    <h4 style="font-size: 14px; font-weight: 600; color: var(--text-secondary); text-transform: uppercase; letter-spacing: 0.5px;">Items (${data.items.length})</h4>
+                    <button onclick="addNewItem()" style="background: var(--teal-primary); color: white; border: none; padding: 8px 16px; border-radius: 8px; font-size: 13px; font-weight: 600; cursor: pointer; display: flex; align-items: center; gap: 6px;">
+                        <span style="font-size: 16px;">+</span> Add Item
+                    </button>
+                </div>
+            `;
 
-            metadataHTML += `</div>`;
-
-            // Enhanced items display with detailed metadata
+            // Available categories for dropdown
             const availableCategories = [
                 'Groceries', 'Dining', 'Transport', 'Entertainment',
                 'Shopping', 'Healthcare', 'Household', 'Personal Care', 'Other'
             ];
 
-            const itemsHTML = detailedItems.map((item, index) => {
-                const detailItem = data._items_detailed ? data._items_detailed[index] : null;
-                const tags = detailItem?.tags || [];
-                const hasDiscount = detailItem && detailItem.discount && detailItem.discount > 0;
+            // Editable items display
+            const itemsHTML = data.items.map((item, index) => {
                 const currentCategory = item.category || 'Other';
 
                 return `
-                    <div class="item" style="border-left: 3px solid ${hasDiscount ? 'var(--income-green)' : 'transparent'};">
-                        <div style="flex: 1;">
-                            <div class="item-name">
-                                ${item.name}
-                                ${tags.length > 0 ? `
-                                    <div style="display: inline-flex; gap: 4px; margin-left: 8px;">
-                                        ${tags.map(tag => `
-                                            <span style="font-size: 10px; padding: 2px 6px; background: var(--primary-light); color: var(--primary); border-radius: 4px; font-weight: 500;">${tag}</span>
-                                        `).join('')}
-                                    </div>
-                                ` : ''}
+                    <div class="edit-item-card" id="itemCard-${index}" style="background: white; border: 1px solid var(--border); border-radius: 12px; padding: 16px; margin-bottom: 12px; position: relative;">
+                        <!-- Delete button -->
+                        <button onclick="removeItem(${index})" style="position: absolute; top: 8px; right: 8px; background: rgba(248, 113, 113, 0.1); border: none; color: #f87171; width: 28px; height: 28px; border-radius: 6px; cursor: pointer; font-size: 14px; display: flex; align-items: center; justify-content: center;" title="Remove item">
+                            ✕
+                        </button>
+
+                        <!-- Item name -->
+                        <div style="margin-bottom: 12px; padding-right: 36px;">
+                            <label style="font-size: 0.7em; color: var(--text-tertiary); margin-bottom: 4px; display: block; text-transform: uppercase; letter-spacing: 0.5px; font-weight: 600;">Item Name</label>
+                            <input type="text" value="${item.name || ''}" onchange="updateItemField(${index}, 'name', this.value)"
+                                style="width: 100%; padding: 8px 10px; border: 1px solid var(--border); border-radius: 6px; font-size: 14px; font-weight: 500;">
+                        </div>
+
+                        <div style="display: grid; grid-template-columns: 1fr 120px; gap: 12px;">
+                            <!-- Category dropdown -->
+                            <div>
+                                <label style="font-size: 0.7em; color: var(--text-tertiary); margin-bottom: 4px; display: block; text-transform: uppercase; letter-spacing: 0.5px; font-weight: 600;">Category</label>
+                                <select onchange="updateItemField(${index}, 'category', this.value)"
+                                    style="width: 100%; padding: 8px 10px; border: 1px solid var(--border); border-radius: 6px; font-size: 14px; background: white; cursor: pointer;">
+                                    ${availableCategories.map(cat => `
+                                        <option value="${cat}" ${cat === currentCategory ? 'selected' : ''}>${cat}</option>
+                                    `).join('')}
+                                </select>
                             </div>
 
-                            <!-- Category Pills Selector -->
-                            <div style="margin-top: 12px; margin-bottom: 8px;">
-                                <div style="font-size: 0.75em; color: var(--text-tertiary); margin-bottom: 6px; text-transform: uppercase; letter-spacing: 0.5px; font-weight: 600;">Category</div>
-                                <div class="category-pills" id="categoryPills-${index}">
-                                    ${availableCategories.map(cat => `
-                                        <button class="category-pill ${cat === currentCategory ? 'active' : ''}"
-                                                onclick="updateItemCategory(${index}, '${cat}')"
-                                                type="button">
-                                            ${cat}
-                                        </button>
-                                    `).join('')}
+                            <!-- Price -->
+                            <div>
+                                <label style="font-size: 0.7em; color: var(--text-tertiary); margin-bottom: 4px; display: block; text-transform: uppercase; letter-spacing: 0.5px; font-weight: 600;">Price</label>
+                                <div style="position: relative;">
+                                    <input type="number" value="${item.price || 0}" step="0.01" min="0" onchange="updateItemField(${index}, 'price', parseFloat(this.value) || 0)"
+                                        style="width: 100%; padding: 8px 10px; padding-right: 28px; border: 1px solid var(--border); border-radius: 6px; font-size: 14px; font-weight: 600; color: var(--expense-red);">
+                                    <span style="position: absolute; right: 8px; top: 50%; transform: translateY(-50%); color: var(--text-tertiary); font-size: 12px;">kr</span>
                                 </div>
                             </div>
-
-                            <div style="display: flex; gap: 12px; margin-top: 8px; flex-wrap: wrap;">
-                                ${item.subcategory ? `<div style="font-size: 0.85em; color: var(--text-secondary);">Subcategory: ${item.subcategory}</div>` : ''}
-                                ${detailItem?.brand ? `<div style="font-size: 0.85em; color: var(--text-secondary);">Brand: ${detailItem.brand}</div>` : ''}
-                                ${detailItem?.package_size ? `<div style="font-size: 0.85em; color: var(--text-secondary);">${detailItem.package_size}</div>` : ''}
-                                ${detailItem && detailItem.quantity > 1 ? `<div style="font-size: 0.85em; color: var(--text-secondary);">Qty: ${detailItem.quantity}</div>` : ''}
-                            </div>
-                        </div>
-                        <div style="text-align: right;">
-                            <div class="item-price">${(item.price || 0).toFixed(2)} kr</div>
-                            ${hasDiscount ? `
-                                <div style="font-size: 0.85em; color: var(--text-secondary); text-decoration: line-through;">${(detailItem.original_price || 0).toFixed(2)} kr</div>
-                                <div style="font-size: 0.85em; color: var(--income-green); font-weight: 600;">-${(detailItem.discount || 0).toFixed(2)} kr</div>
-                            ` : ''}
                         </div>
                     </div>
                 `;
             }).join('');
 
-            document.getElementById('itemsList').innerHTML = validationHTML + metadataHTML + itemsHTML;
+            // Recalculate total button
+            let recalcHTML = `
+                <button onclick="recalculateTotal()" style="width: 100%; background: var(--primary-light); color: var(--primary); border: 1px dashed var(--primary); padding: 12px; border-radius: 8px; font-size: 13px; font-weight: 600; cursor: pointer; margin-top: 8px; margin-bottom: 16px;">
+                    🔄 Recalculate Total from Items
+                </button>
+            `;
+
+            document.getElementById('itemsList').innerHTML = validationHTML + metadataHTML + itemsHeaderHTML + itemsHTML + recalcHTML;
         }
 
-        function updateItemCategory(itemIndex, newCategory) {
+        // Update a specific field on an item
+        function updateItemField(itemIndex, field, value) {
             if (!currentReceipt || !currentReceipt.items || !currentReceipt.items[itemIndex]) {
                 console.error('Invalid item index or no receipt loaded');
                 return;
             }
 
-            // Update the category in the current receipt
-            currentReceipt.items[itemIndex].category = newCategory;
+            currentReceipt.items[itemIndex][field] = value;
 
             // Also update in _items_detailed if it exists
             if (currentReceipt._items_detailed && currentReceipt._items_detailed[itemIndex]) {
-                currentReceipt._items_detailed[itemIndex].category = newCategory;
+                currentReceipt._items_detailed[itemIndex][field] = value;
+            }
+        }
+
+        // Remove an item from the receipt
+        function removeItem(itemIndex) {
+            if (!currentReceipt || !currentReceipt.items) return;
+
+            currentReceipt.items.splice(itemIndex, 1);
+
+            if (currentReceipt._items_detailed) {
+                currentReceipt._items_detailed.splice(itemIndex, 1);
             }
 
-            // Update the pills UI to show the new active state
-            const pillsContainer = document.getElementById(`categoryPills-${itemIndex}`);
-            if (pillsContainer) {
-                const pills = pillsContainer.querySelectorAll('.category-pill');
-                pills.forEach(pill => {
-                    if (pill.textContent.trim() === newCategory) {
-                        pill.classList.add('active');
-                    } else {
-                        pill.classList.remove('active');
-                    }
+            // Re-render the results
+            displayResults(currentReceipt);
+            showToast('Item removed', 'info');
+        }
+
+        // Add a new item to the receipt
+        function addNewItem() {
+            if (!currentReceipt) return;
+
+            const newItem = {
+                name: 'New Item',
+                price: 0,
+                category: 'Other'
+            };
+
+            currentReceipt.items.push(newItem);
+
+            if (currentReceipt._items_detailed) {
+                currentReceipt._items_detailed.push({
+                    ...newItem,
+                    total_price: 0
                 });
             }
 
-            showToast(`Category updated to ${newCategory}`, 'success');
+            // Re-render the results
+            displayResults(currentReceipt);
+
+            // Scroll to the new item and focus on its name input
+            setTimeout(() => {
+                const newIndex = currentReceipt.items.length - 1;
+                const newCard = document.getElementById(`itemCard-${newIndex}`);
+                if (newCard) {
+                    newCard.scrollIntoView({ behavior: 'smooth', block: 'center' });
+                    const nameInput = newCard.querySelector('input[type="text"]');
+                    if (nameInput) {
+                        nameInput.focus();
+                        nameInput.select();
+                    }
+                }
+            }, 100);
+
+            showToast('New item added', 'success');
+        }
+
+        // Recalculate total from all items
+        function recalculateTotal() {
+            if (!currentReceipt || !currentReceipt.items) return;
+
+            const newTotal = currentReceipt.items.reduce((sum, item) => sum + (parseFloat(item.price) || 0), 0);
+            currentReceipt.total = newTotal;
+
+            document.getElementById('editTotal').value = newTotal.toFixed(2);
+            showToast(`Total updated to ${newTotal.toFixed(2)} kr`, 'success');
+        }
+
+        // Update receipt metadata before saving
+        function updateReceiptFromForm() {
+            if (!currentReceipt) return;
+
+            currentReceipt.store = document.getElementById('editStore').value || 'Unknown Store';
+            currentReceipt.date = document.getElementById('editDate').value || new Date().toISOString().split('T')[0];
+            currentReceipt.total = parseFloat(document.getElementById('editTotal').value) || 0;
+        }
+
+        function updateItemCategory(itemIndex, newCategory) {
+            updateItemField(itemIndex, 'category', newCategory);
         }
 
         async function saveReceiptAuto() {
@@ -5191,6 +5242,9 @@
 
         async function saveReceipt() {
             if (!currentReceipt) return;
+
+            // Update receipt from form fields before saving
+            updateReceiptFromForm();
 
             // Check if user is logged in to Supabase
             const { data: { user } } = await _supabase.auth.getUser();
