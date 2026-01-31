@@ -2414,8 +2414,25 @@
         }
 
         @keyframes pulse {
-            0%, 100% { opacity: 1; }
-            50% { opacity: 0.7; }
+            0%, 100% { opacity: 1; transform: scale(1); }
+            50% { opacity: 0.5; transform: scale(0.8); }
+        }
+
+        @keyframes receiptFloat {
+            0%, 100% { transform: translate(-50%, -50%) rotate(-2deg); }
+            50% { transform: translate(-50%, -55%) rotate(2deg); }
+        }
+
+        @keyframes scanMove {
+            0% { top: 15%; opacity: 0; }
+            10% { opacity: 1; }
+            90% { opacity: 1; }
+            100% { top: 85%; opacity: 0; }
+        }
+
+        @keyframes scanLine {
+            0%, 100% { opacity: 0.3; transform: scaleX(0.8); }
+            50% { opacity: 1; transform: scaleX(1); }
         }
 
         .batch-actions {
@@ -3562,19 +3579,65 @@
                 <div id="processingArea" style="display: none;">
                     <img id="receiptPreview" class="receipt-preview">
                     <div id="loadingState" class="loading" style="display: none;">
-                        <div class="spinner"></div>
-                        <p class="loading-text">AI is reading your receipt... ✨</p>
-                        <div style="margin-top: 16px; text-align: center;">
-                            <div style="font-size: 24px; font-weight: 700; color: var(--primary); margin-bottom: 4px;" id="progress-percentage">0%</div>
-                            <div style="width: 100%; height: 8px; background: var(--border); border-radius: 4px; overflow: hidden;">
-                                <div id="progress-bar" style="width: 0%; height: 100%; background: var(--teal-primary); transition: width 0.3s ease;"></div>
+                        <!-- Fun animated pending UI -->
+                        <div style="text-align: center; padding: 40px 20px;">
+                            <!-- Animated receipt icon -->
+                            <div style="position: relative; width: 120px; height: 120px; margin: 0 auto 24px;">
+                                <div style="
+                                    width: 80px;
+                                    height: 100px;
+                                    background: white;
+                                    border-radius: 8px;
+                                    box-shadow: 0 4px 20px rgba(0,0,0,0.1);
+                                    position: absolute;
+                                    left: 50%;
+                                    top: 50%;
+                                    transform: translate(-50%, -50%);
+                                    animation: receiptFloat 2s ease-in-out infinite;
+                                ">
+                                    <div style="padding: 12px 8px;">
+                                        <div style="height: 6px; background: var(--teal-light); border-radius: 3px; margin-bottom: 8px; animation: scanLine 1.5s ease-in-out infinite;"></div>
+                                        <div style="height: 4px; background: #e5e7eb; border-radius: 2px; margin-bottom: 6px; width: 70%;"></div>
+                                        <div style="height: 4px; background: #e5e7eb; border-radius: 2px; margin-bottom: 6px; width: 90%;"></div>
+                                        <div style="height: 4px; background: #e5e7eb; border-radius: 2px; margin-bottom: 6px; width: 60%;"></div>
+                                        <div style="height: 4px; background: #e5e7eb; border-radius: 2px; margin-bottom: 6px; width: 80%;"></div>
+                                        <div style="height: 4px; background: #e5e7eb; border-radius: 2px; width: 50%;"></div>
+                                    </div>
+                                </div>
+                                <!-- Scanning effect -->
+                                <div style="
+                                    position: absolute;
+                                    width: 100px;
+                                    height: 3px;
+                                    background: linear-gradient(90deg, transparent, var(--teal-primary), transparent);
+                                    left: 50%;
+                                    transform: translateX(-50%);
+                                    animation: scanMove 2s ease-in-out infinite;
+                                    border-radius: 2px;
+                                    box-shadow: 0 0 10px var(--teal-primary);
+                                "></div>
+                            </div>
+
+                            <!-- Fun rotating messages -->
+                            <p class="loading-text" style="font-size: 18px; font-weight: 600; color: var(--text-primary); margin-bottom: 8px;">AI is reading your receipt...</p>
+                            <p id="funMessage" style="font-size: 14px; color: var(--text-secondary); min-height: 20px; transition: opacity 0.2s ease;"></p>
+
+                            <!-- Pulsing dots -->
+                            <div style="display: flex; justify-content: center; gap: 8px; margin-top: 24px;">
+                                <div style="width: 10px; height: 10px; background: var(--teal-primary); border-radius: 50%; animation: pulse 1.4s ease-in-out infinite;"></div>
+                                <div style="width: 10px; height: 10px; background: var(--teal-primary); border-radius: 50%; animation: pulse 1.4s ease-in-out 0.2s infinite;"></div>
+                                <div style="width: 10px; height: 10px; background: var(--teal-primary); border-radius: 50%; animation: pulse 1.4s ease-in-out 0.4s infinite;"></div>
                             </div>
                         </div>
                     </div>
                     <div id="resultsArea" style="display: none;">
-                        <h3 style="margin-top: 24px; margin-bottom: 16px; font-family: 'Fraunces', serif; font-size: 1.5em;">Items Found</h3>
+                        <h3 style="margin-top: 24px; margin-bottom: 8px; font-size: 1.5em; font-weight: 700;">Review Your Receipt</h3>
+                        <p style="color: var(--text-secondary); margin-bottom: 16px; font-size: 14px;">Please verify the items and categories before saving</p>
                         <div id="itemsList" class="item-list"></div>
-                        <button class="btn" onclick="saveReceipt()" style="margin-top: 24px;"><span>Save to Budget 💾</span></button>
+                        <div style="display: flex; gap: 12px; margin-top: 24px;">
+                            <button class="btn" onclick="saveReceipt()" style="flex: 1;"><span>✓ Confirm & Save</span></button>
+                            <button class="btn btn-secondary" onclick="cancelReceipt()" style="flex: 1;"><span>✕ Cancel</span></button>
+                        </div>
                     </div>
                 </div>
             </div>
@@ -4808,15 +4871,51 @@
             window.currentBatchResults = null;
         }
 
-         async function analyzeReceipt(imageData) {
-            try {
-                // Simulate progress updates
-                updateProgress(10);
-                document.querySelector('.loading-text').textContent = 'Uploading image...';
+        // Fun messages to show while analyzing
+        const funMessages = [
+            "Deciphering cashier handwriting... 🔍",
+            "Teaching AI about Swedish groceries... 🇸🇪",
+            "Counting every krona... 💰",
+            "Hunting for hidden discounts... 🎯",
+            "Reading between the lines... 📝",
+            "Organizing your spending... 📊",
+            "Almost there, hang tight... ⏳",
+            "Making sense of receipt hieroglyphics... 🧩",
+            "Crunching the numbers... 🔢",
+            "Finding the best categories... 🏷️"
+        ];
 
-                // Use your secure Vercel bridge instead of calling Anthropic directly
-                updateProgress(30);
-                document.querySelector('.loading-text').textContent = 'AI is analyzing receipt...';
+        let funMessageInterval = null;
+
+        function startFunMessages() {
+            const funMessageEl = document.getElementById('funMessage');
+            if (!funMessageEl) return;
+
+            let messageIndex = 0;
+            funMessageEl.textContent = funMessages[0];
+
+            funMessageInterval = setInterval(() => {
+                messageIndex = (messageIndex + 1) % funMessages.length;
+                funMessageEl.style.opacity = '0';
+                setTimeout(() => {
+                    funMessageEl.textContent = funMessages[messageIndex];
+                    funMessageEl.style.opacity = '1';
+                }, 200);
+            }, 2500);
+        }
+
+        function stopFunMessages() {
+            if (funMessageInterval) {
+                clearInterval(funMessageInterval);
+                funMessageInterval = null;
+            }
+        }
+
+        async function analyzeReceipt(imageData) {
+            try {
+                // Start fun animated messages
+                document.querySelector('.loading-text').textContent = 'AI is reading your receipt...';
+                startFunMessages();
 
                 const response = await fetch('/api/analyze', {
                     method: 'POST',
@@ -4824,16 +4923,10 @@
                     body: JSON.stringify({ imageData })
                 });
 
-                updateProgress(60);
-                document.querySelector('.loading-text').textContent = 'Extracting items and prices...';
-
                 if (!response.ok) {
                     const errorData = await response.json();
                     throw new Error(errorData.error || `API Error: ${response.status}`);
                 }
-
-                updateProgress(80);
-                document.querySelector('.loading-text').textContent = 'Categorizing items...';
 
                 const receiptData = await response.json();
 
@@ -4841,20 +4934,27 @@
                     throw new Error('Invalid receipt data received from AI');
                 }
 
-                updateProgress(100);
-                document.querySelector('.loading-text').textContent = 'Complete! ✨';
-
+                stopFunMessages();
                 currentReceipt = receiptData;
                 displayResults(receiptData);
 
-                // Automatically save the receipt
-                await saveReceiptAuto();
+                // Show success message - user will review before saving
+                showToast('Receipt analyzed! Please review the details before saving.', 'info');
             } catch (error) {
+                stopFunMessages();
                 showToast(error.message, 'error', 'Analysis Failed');
                 console.error(error);
                 document.getElementById('loadingState').style.display = 'none';
                 document.getElementById('processingArea').style.display = 'none';
             }
+        }
+
+        // Cancel receipt without saving
+        function cancelReceipt() {
+            currentReceipt = null;
+            document.getElementById('processingArea').style.display = 'none';
+            document.getElementById('fileInput').value = '';
+            showToast('Receipt cancelled', 'info');
         }
 
         function displayResults(data) {
