@@ -4426,7 +4426,11 @@
             document.querySelectorAll('.nav-tab').forEach(t => t.classList.remove('active'));
             document.querySelectorAll('.tab-content').forEach(c => c.classList.remove('active'));
 
-            event.target.classList.add('active');
+            // Find and activate the correct nav-tab button
+            const navTab = document.querySelector(`.nav-tab[onclick*="'${tabName}'"]`);
+            if (navTab) {
+                navTab.classList.add('active');
+            }
             document.getElementById(tabName).classList.add('active');
 
             if (tabName === 'dashboard') updateDashboard();
@@ -9032,7 +9036,7 @@
                             price: amount,
                             total_price: amount,
                             quantity: 1,
-                            notes: notes || null
+                            notes: null
                         }
                     ],
                     is_manual_entry: true,
@@ -9062,7 +9066,7 @@
                 // Update displays
                 updateHistory();
                 updateDataTable();
-                showTab('history'); // Navigate to history tab to show the new entry
+                document.querySelector('.nav-tab[onclick*="history"]').click(); // Navigate to history tab to show the new entry
 
                 // Show celebration for first manual entry
                 const manualEntryCount = allReceipts.filter(r => r.is_manual_entry).length;
