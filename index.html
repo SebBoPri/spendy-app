@@ -5909,23 +5909,17 @@
                 return;
             }
 
-            // We use 'reverse' so newest is at top, but 'index' must match the original array for deletion
-            // Check if empty and show friendly empty state
-            if (allReceipts.length === 0) {
-                list.innerHTML = `
-                    <div style="text-align: center; padding: 60px 20px; color: var(--text-secondary);">
-                        <div style="font-size: 4em; margin-bottom: 16px; opacity: 0.3;">📸</div>
-                        <h3 style="font-size: 1.3em; color: var(--text-primary); margin-bottom: 8px; font-weight: 600;">No receipts yet</h3>
-                        <p style="font-size: 0.95em; margin-bottom: 24px;">Start by scanning your first receipt</p>
-                        <button onclick="switchTab('scan')" style="background: var(--primary); color: white; border: none; padding: 12px 24px; border-radius: 12px; font-weight: 600; cursor: pointer; box-shadow: 0 2px 8px rgba(91,168,159,0.3);">
-                            📷 Scan Receipt
-                        </button>
-                    </div>
-                `;
-                return;
-            }
+            // Sort receipts by date (newest first) while preserving original index for deletion
+            const sortedReceipts = allReceipts
+                .map((receipt, originalIndex) => ({ receipt, originalIndex }))
+                .sort((a, b) => {
+                    const dateA = new Date(a.receipt.date || 0);
+                    const dateB = new Date(b.receipt.date || 0);
+                    return dateB - dateA; // Newest first
+                });
 
-            const historyHTML = allReceipts.map((receipt, index) => {
+            const historyHTML = sortedReceipts.map(({ receipt, originalIndex }) => {
+                const index = originalIndex; // Use original index for deletion
                 const total = receipt.total || 0;
                 const storeInitial = (receipt.store || 'U')[0].toUpperCase();
                 // Coral red for expenses
